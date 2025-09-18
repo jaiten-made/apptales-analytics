@@ -1,10 +1,11 @@
-import { Button, ThemeProvider } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
 import theme from "../lib/mui/theme";
+import MainDrawer from "./components/MainDrawer";
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <Button variant="contained">Hello World</Button>
+      <MainDrawer />
     </ThemeProvider>
   );
 }
