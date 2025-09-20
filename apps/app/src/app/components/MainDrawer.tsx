@@ -1,4 +1,5 @@
 import {
+  AppBar,
   Box,
   Divider,
   Drawer,
@@ -10,20 +11,26 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import theme from "../../lib/mui/theme";
 
 const DRAWER_WIDTH = 300;
 
 const MainDrawer = () => {
   const drawerContent = (
     <Stack sx={{ height: "100%" }}>
-      <Toolbar>
-        <Box display="flex" alignItems="center" gap={1}>
-          <Typography variant="h6" color="inherit">
-            Apptales
-          </Typography>
-        </Box>
-      </Toolbar>
-      <Divider />
+      <AppBar
+        position="sticky"
+        elevation={0}
+        sx={{
+          borderLeft: 0,
+          bgcolor: theme.palette.background.default,
+          color: theme.palette.text.primary,
+        }}
+      >
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Typography variant="h6">Apptales</Typography>
+        </Toolbar>
+      </AppBar>
       <List>
         <ListItem>
           <ListItemButton>

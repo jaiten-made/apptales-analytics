@@ -1,6 +1,7 @@
 import { Box, Container, CssBaseline, ThemeProvider } from "@mui/material";
 import theme from "../lib/mui/theme";
 import MainDrawer from "./components/MainDrawer";
+import Journeys from "./features/journeys";
 
 function App() {
   return (
@@ -8,8 +9,9 @@ function App() {
       <CssBaseline />
       <Box className="flex justify-center">
         <Container id="container" className="absolute h-full" disableGutters>
+          <MainDrawer />
           <Box paddingLeft={`${theme.mixins.drawer.minWidth}px`}>
-            <MainDrawer />
+            <Journeys />
           </Box>
         </Container>
       </Box>
