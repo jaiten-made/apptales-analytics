@@ -1,7 +1,7 @@
 import { Box, Container, CssBaseline, ThemeProvider } from "@mui/material";
+import { Outlet } from "react-router";
 import theme from "../lib/mui/theme";
 import MainDrawer from "./components/MainDrawer";
-import Journeys from "./features/journeys";
 
 function App() {
   return (
@@ -11,7 +11,8 @@ function App() {
         <Container id="container" className="absolute h-full" disableGutters>
           <MainDrawer />
           <Box paddingLeft={`${theme.mixins.drawer.minWidth}px`}>
-            <Journeys />
+            {/* Render feature routes here */}
+            <Outlet />
           </Box>
         </Container>
       </Box>
