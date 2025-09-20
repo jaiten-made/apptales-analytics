@@ -11,13 +11,14 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import theme from "../../lib/mui/theme";
 
 const DRAWER_WIDTH = 300;
 
 const MainDrawer = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const drawerContent = (
     <Stack sx={{ height: "100%" }}>
       <AppBar
@@ -35,7 +36,10 @@ const MainDrawer = () => {
       </AppBar>
       <List>
         <ListItem>
-          <ListItemButton onClick={() => navigate("/journeys")}>
+          <ListItemButton
+            onClick={() => navigate("/journeys")}
+            selected={location.pathname === "/journeys"}
+          >
             <ListItemText primary="Journeys" />
           </ListItemButton>
         </ListItem>
