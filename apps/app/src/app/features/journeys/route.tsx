@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import type { RouteObject } from "react-router";
+import { getJourneyById } from "./service";
 
 const Journeys = lazy(() => import("./index"));
 const JourneyDetail = lazy(() => import("./components/Detail"));
@@ -18,6 +19,16 @@ const journeysRoute: RouteObject = {
     {
       path: ":id",
       element: <JourneyDetail />,
+      loader: async ({ params }) => {
+        const { id } = params;
+        if (!id) return null;
+        const journey = await getJourneyById(id);
+        if (!journey) {
+          // returning null — component can handle missing data
+          return null;
+        }
+        return journey;
+      },
     },
   ],
 };

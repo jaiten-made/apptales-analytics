@@ -1,14 +1,23 @@
 import { Box, Typography } from "@mui/material";
-import { useParams } from "react-router";
+import { useLoaderData } from "react-router";
+import type { Journey } from "../service";
 
 const Detail = () => {
-  const { id } = useParams();
+  const journey = useLoaderData() as Journey | null | undefined;
+
+  if (!journey) {
+    return (
+      <Box>
+        <Typography variant="h5">Journey not found</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box>
-      <Typography variant="h5">Journey {id}</Typography>
+      <Typography variant="h5">{journey.name}</Typography>
       <Typography variant="body1" sx={{ mt: 2 }}>
-        Detail view for journey <strong>{id}</strong>.
+        Detail view for journey <strong>{journey.id}</strong>.
       </Typography>
     </Box>
   );
