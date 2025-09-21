@@ -3,7 +3,7 @@ import type { RouteObject } from "react-router";
 import { getJourneyById } from "./service";
 
 const Journeys = lazy(() => import("./index"));
-const JourneyDetail = lazy(() => import("./components/Detail"));
+const JourneyDetail = lazy(() => import("./components/details/Detail"));
 const JourneysTable = lazy(() => import("./components/DataTable/DataTable"));
 
 const journeysRoute: RouteObject = {

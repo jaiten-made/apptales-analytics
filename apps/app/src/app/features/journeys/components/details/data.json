@@ -1,0 +1,10 @@
+{
+  "admin.recording": {
+    "name": "Recording"
+  },
+  "users.recordings": [
+    {
+      "name": "Recordings"
+    }
+  ]
+}
