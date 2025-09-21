@@ -16,7 +16,11 @@ const paginationModel = { page: 0, pageSize: 25 };
 
 export default function DataTable() {
   return (
-    <Paper className="size-full">
+    <Paper
+      sx={(theme) => ({
+        maxHeight: `calc(100vh - ${theme.mixins.toolbar.height}px)`,
+      })}
+    >
       <DataGrid
         rows={rows}
         columns={columns}
