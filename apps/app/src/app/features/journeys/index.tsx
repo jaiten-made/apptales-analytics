@@ -1,11 +1,11 @@
-import DataTable from "./components/DataTable/DataTable";
+import { Outlet } from "react-router";
 import Header from "./components/Header";
 
 const Journeys = () => {
   return (
     <>
       <Header />
-      <DataTable />
+      <Outlet />
     </>
   );
 };

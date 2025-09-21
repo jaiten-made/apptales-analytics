@@ -3,11 +3,12 @@ import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
+import { useNavigate } from "react-router";
 import rows from "./data.json";
 
 const paginationModel = { page: 0, pageSize: 25 };
 
-const columns: GridColDef[] = [
+const columns = (navigate: ReturnType<typeof useNavigate>): GridColDef[] => [
   {
     field: "name",
     headerName: "Name",
@@ -27,7 +28,10 @@ const columns: GridColDef[] = [
         size="small"
         onClick={(e) => {
           e.stopPropagation();
-          console.log("row action clicked", params.row);
+          const id = params.row.id;
+          if (id !== undefined && id !== null) {
+            navigate(`/journeys/${id}`);
+          }
         }}
       >
         <IconArrowRight />
@@ -38,6 +42,7 @@ const columns: GridColDef[] = [
 
 export default function DataTable() {
   const theme = useTheme();
+  const navigate = useNavigate();
   return (
     <Paper
       sx={{
@@ -46,7 +51,7 @@ export default function DataTable() {
     >
       <DataGrid
         rows={rows}
-        columns={columns}
+        columns={columns(navigate)}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10]}
         isRowSelectable={() => false}
