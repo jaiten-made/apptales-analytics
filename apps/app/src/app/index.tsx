@@ -7,13 +7,12 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className="flex justify-center">
-        <Container id="container" className="absolute h-full" disableGutters>
+      <Box className="flex justify-center w-full">
+        <Container className="flex m-w-full w-full relative">
           <MainDrawer />
-          <Box paddingLeft={`${theme.mixins.drawer.minWidth}px`}>
-            {/* Render feature routes here */}
+          <main className="flex flex-col grow">
             <Outlet />
-          </Box>
+          </main>
         </Container>
       </Box>
     </ThemeProvider>

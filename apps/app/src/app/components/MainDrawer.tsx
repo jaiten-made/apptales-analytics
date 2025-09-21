@@ -53,24 +53,16 @@ const MainDrawer = () => {
     <>
       <Drawer
         variant="permanent"
+        ModalProps={{ keepMounted: true }}
         sx={{
-          display: { xs: "none", md: "step" },
+          display: { xs: "none", md: "block" },
           "& .MuiDrawer-paper": {
             width: DRAWER_WIDTH,
             boxSizing: "border-box",
+            position: "sticky",
+            top: 0,
+            height: "100dvh",
           },
-        }}
-        open
-        slotProps={{
-          paper: {
-            style: {
-              position: "absolute",
-            },
-          },
-        }}
-        ModalProps={{
-          container: document.getElementById("container"),
-          style: { position: "absolute" },
         }}
       >
         {drawerContent}
