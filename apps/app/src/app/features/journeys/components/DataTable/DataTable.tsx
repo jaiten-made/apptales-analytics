@@ -16,7 +16,7 @@ const paginationModel = { page: 0, pageSize: 25 };
 
 export default function DataTable() {
   return (
-    <Paper className="h-full w-full">
+    <Paper className="size-full">
       <DataGrid
         rows={rows}
         columns={columns}
