@@ -14,8 +14,7 @@ const Detail = () => {
   }
 
   return (
-    <Box>
-      <Typography variant="h5">{journey.name}</Typography>
+    <Box className="p-2">
       <Typography variant="body1" sx={{ mt: 2 }}>
         Detail view for journey <strong>{journey.id}</strong>.
       </Typography>
