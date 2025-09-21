@@ -60,10 +60,9 @@ export default function DataTable() {
         pageSizeOptions={[5, 10]}
         isRowSelectable={() => false}
         onRowClick={(params) => console.log("row clicked", params.row)}
+        disableColumnResize
         sx={{
           border: 0,
-          "& .MuiDataGrid-row": { display: "flex", alignItems: "center" },
-          "& .MuiDataGrid-cell": { display: "flex", alignItems: "center" },
         }}
       />
     </Paper>
