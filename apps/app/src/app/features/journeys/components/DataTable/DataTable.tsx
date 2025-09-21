@@ -10,16 +10,18 @@ const columns: GridColDef[] = [
   },
 ];
 
+import { useTheme } from "@mui/material";
 import rows from "./data.json";
 
 const paginationModel = { page: 0, pageSize: 25 };
 
 export default function DataTable() {
+  const theme = useTheme();
   return (
     <Paper
-      sx={(theme) => ({
-        maxHeight: `calc(100vh - ${theme.mixins.toolbar.height}px)`,
-      })}
+      sx={{
+        maxHeight: `calc(100vh - ${theme.mixins.appbar?.height}px)`,
+      }}
     >
       <DataGrid
         rows={rows}

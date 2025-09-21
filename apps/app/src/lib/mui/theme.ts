@@ -6,6 +6,9 @@ const theme = createTheme({
       minWidth: 300,
       width: 300,
     },
+    appbar: {
+      height: 64,
+    },
   },
 });
 
