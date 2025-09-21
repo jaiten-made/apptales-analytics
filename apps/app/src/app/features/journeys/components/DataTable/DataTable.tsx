@@ -1,19 +1,49 @@
+import { useTheme } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
+import SvgIcon from "@mui/material/SvgIcon";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import rows from "./data.json";
+
+const paginationModel = { page: 0, pageSize: 25 };
 
 const columns: GridColDef[] = [
   {
     field: "name",
     headerName: "Name",
     sortable: true,
-    width: 220,
+    flex: 1,
+    minWidth: 220,
+  },
+  {
+    field: "actions",
+    headerName: "",
+    sortable: false,
+    width: 56,
+    align: "center",
+    headerAlign: "center",
+    renderCell: (params) => (
+      <IconButton
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          console.log("row action clicked", params.row);
+        }}
+      >
+        <SvgIcon fontSize="small" viewBox="0 0 24 24">
+          <path
+            d="M10 6l6 6-6 6"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </SvgIcon>
+      </IconButton>
+    ),
   },
 ];
-
-import { useTheme } from "@mui/material";
-import rows from "./data.json";
-
-const paginationModel = { page: 0, pageSize: 25 };
 
 export default function DataTable() {
   const theme = useTheme();
@@ -28,7 +58,13 @@ export default function DataTable() {
         columns={columns}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10]}
-        sx={{ border: 0 }}
+        isRowSelectable={() => false}
+        onRowClick={(params) => console.log("row clicked", params.row)}
+        sx={{
+          border: 0,
+          "& .MuiDataGrid-row": { display: "flex", alignItems: "center" },
+          "& .MuiDataGrid-cell": { display: "flex", alignItems: "center" },
+        }}
       />
     </Paper>
   );
