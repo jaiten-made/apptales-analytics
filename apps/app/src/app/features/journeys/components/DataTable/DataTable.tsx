@@ -2,7 +2,7 @@ import { useTheme } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Paper from "@mui/material/Paper";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { IconChevronRight } from "@tabler/icons-react";
+import { IconArrowRight } from "@tabler/icons-react";
 import rows from "./data.json";
 
 const paginationModel = { page: 0, pageSize: 25 };
@@ -30,7 +30,7 @@ const columns: GridColDef[] = [
           console.log("row action clicked", params.row);
         }}
       >
-        <IconChevronRight />
+        <IconArrowRight />
       </IconButton>
     ),
   },
