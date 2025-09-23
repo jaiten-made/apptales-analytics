@@ -1,38 +1,46 @@
-import { Box } from "@mui/material";
+import {
+  Divider,
+  IconButton,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  ListSubheader,
+  Paper,
+} from "@mui/material";
 import type { GridColDef } from "@mui/x-data-grid";
 import { DataGrid } from "@mui/x-data-grid";
-import { useMemo } from "react";
+import { IconArrowRight } from "@tabler/icons-react";
 import rawData from "./data.json";
 type Data = typeof rawData;
 
 const data = rawData as Data;
 
-function buildRows() {
-  const admin = data["admin.recording"];
-  const user = data["users.recordings"];
-  const all = [admin, ...user];
-  return all.map((_, i) => {
-    return {
-      id: i + 1,
-    };
-  });
-}
-
-const columns: GridColDef[] = [{ field: "id", headerName: "#", width: 60 }];
+const columns: GridColDef[] = [{ field: "id", headerName: "#" }];
 
 const Detail = () => {
-  const rows = useMemo(() => buildRows(), []);
   return (
-    <Box className="p-2">
+    <Paper className="flex flex-col gap-2">
+      <ListItem disableGutters>
+        <ListItemButton>
+          <ListItemText primary="Reference User Journey" />
+          <IconButton edge="end">
+            <IconArrowRight />
+          </IconButton>
+        </ListItemButton>
+      </ListItem>
+      <Divider />
+      <ListSubheader>Recorded User Journeys</ListSubheader>
       <DataGrid
-        rows={rows}
+        rows={data}
         columns={columns}
         hideFooter
-        density="compact"
         disableRowSelectionOnClick
         disableColumnResize
+        sx={{
+          border: 0,
+        }}
       />
-    </Box>
+    </Paper>
   );
 };
 

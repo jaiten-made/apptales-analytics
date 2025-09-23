@@ -8,7 +8,13 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box className="flex justify-center w-full">
-        <Container className="flex m-w-full w-full relative">
+        <Container
+          className="flex m-w-full w-full relative border-r-1"
+          sx={{
+            borderColor: theme.palette.divider,
+          }}
+          disableGutters
+        >
           <MainDrawer />
           <main className="flex flex-col grow">
             <Outlet />

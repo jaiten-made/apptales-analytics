@@ -1,4 +1,11 @@
-import { AppBar, Breadcrumbs, Link, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Breadcrumbs,
+  Divider,
+  Link,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import { useLocation, useNavigate, useParams } from "react-router";
 import theme from "../../../../../lib/mui/theme";
 import rows from "../DataTable/data.json";
@@ -42,6 +49,7 @@ const Header = () => {
           )}
         </Breadcrumbs>
       </Toolbar>
+      <Divider />
     </AppBar>
   );
 };
