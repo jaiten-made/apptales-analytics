@@ -10,6 +10,7 @@ import {
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
+import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import rawData from "./data.json";
 type Row = {
   id: number;
@@ -31,6 +32,17 @@ const columns: GridColDef<Row>[] = [
     field: "createdAt",
     headerName: "Created At",
     flex: 1,
+    renderCell: (params: GridRenderCellParams<Row>) => {
+      const val = params.value as string | undefined;
+      if (!val) return "";
+      try {
+        const date = parseISO(val);
+        const distance = formatDistanceToNowStrict(date, { addSuffix: false });
+        return `${distance} ago`;
+      } catch {
+        return val;
+      }
+    },
   },
   {
     field: "action",
