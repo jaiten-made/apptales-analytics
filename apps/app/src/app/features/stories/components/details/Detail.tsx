@@ -7,15 +7,51 @@ import {
   ListSubheader,
   Paper,
 } from "@mui/material";
-import type { GridColDef } from "@mui/x-data-grid";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
 import rawData from "./data.json";
-type Data = typeof rawData;
+type Row = {
+  id: number;
+  createdAt: string;
+  anonymousUserId: number;
+  action: string;
+};
 
-const data = rawData as Data;
+const data = rawData as Row[];
 
-const columns: GridColDef[] = [{ field: "id", headerName: "#" }];
+const columns: GridColDef<Row>[] = [
+  {
+    field: "anonymousUserId",
+    headerName: "User",
+    flex: 1,
+    valueFormatter: (value) => `User ${value as number}`,
+  },
+  {
+    field: "createdAt",
+    headerName: "Created At",
+    flex: 1,
+  },
+  {
+    field: "action",
+    headerName: "Action",
+    sortable: false,
+    filterable: false,
+    width: 120,
+    renderCell: (params: GridRenderCellParams<Row>) => {
+      const handlePlay = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        // Simple action for now; can be wired to real playback later
+        console.log("Play story", params.row.id);
+      };
+      return (
+        <IconButton size="small" onClick={handlePlay} aria-label="play">
+          <IconArrowRight />
+        </IconButton>
+      );
+    },
+  },
+];
 
 const Detail = () => {
   return (
@@ -30,7 +66,7 @@ const Detail = () => {
       </ListItem>
       <Divider />
       <ListSubheader>Recorded User Stories</ListSubheader>
-      <DataGrid
+      <DataGrid<Row>
         rows={data}
         columns={columns}
         hideFooter
