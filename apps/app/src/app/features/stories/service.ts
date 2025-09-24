@@ -1,18 +1,18 @@
 import rows from "./components/DataTable/data.json";
 
-export type Journey = {
+export type Story = {
   id: number | string;
   name: string;
 };
 
-export const getAllJourneys = async (): Promise<Journey[]> => {
+export const getAllStories = async (): Promise<Story[]> => {
   // keep async signature to allow future network calls
-  return rows as Journey[];
+  return rows as Story[];
 };
 
-export const getJourneyById = async (
+export const getStoryById = async (
   id: string | number
-): Promise<Journey | undefined> => {
-  const list = await getAllJourneys();
+): Promise<Story | undefined> => {
+  const list = await getAllStories();
   return list.find((r) => String(r.id) === String(id));
 };

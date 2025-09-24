@@ -15,7 +15,7 @@ const Header = () => {
   const { id } = useParams();
   const location = useLocation();
 
-  const isJourneysRoute = location.pathname === "/journeys";
+  const isStoriesRoute = location.pathname === "/stories";
 
   const selectedName = id
     ? rows.find((r) => String(r.id) === String(id))?.name
@@ -35,14 +35,14 @@ const Header = () => {
         <Breadcrumbs aria-label="breadcrumb">
           <Link
             underline="none"
-            color={isJourneysRoute ? "text.primary" : "text.secondary"}
-            href="/journeys"
+            color={isStoriesRoute ? "text.primary" : "text.secondary"}
+            href="/stories"
             onClick={(e) => {
               e.preventDefault();
-              navigate("/journeys");
+              navigate("/stories");
             }}
           >
-            Journeys
+            Stories
           </Link>
           {selectedName && (
             <Typography color="text.primary">{selectedName}</Typography>

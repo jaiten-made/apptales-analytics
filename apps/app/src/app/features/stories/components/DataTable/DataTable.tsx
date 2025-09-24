@@ -30,7 +30,7 @@ const columns = (navigate: ReturnType<typeof useNavigate>): GridColDef[] => [
           e.stopPropagation();
           const id = params.row.id;
           if (id !== undefined && id !== null) {
-            navigate(`/journeys/${id}`);
+            navigate(`/stories/${id}`);
           }
         }}
       >

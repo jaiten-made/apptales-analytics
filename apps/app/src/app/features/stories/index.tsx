@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import Header from "./components/details/Header";
 
-const Journeys = () => {
+const Stories = () => {
   return (
     <>
       <Header />
@@ -10,4 +10,4 @@ const Journeys = () => {
   );
 };
 
-export default Journeys;
+export default Stories;

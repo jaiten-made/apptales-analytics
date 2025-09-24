@@ -22,14 +22,14 @@ const Detail = () => {
     <Paper className="flex flex-col gap-2">
       <ListItem disableGutters>
         <ListItemButton>
-          <ListItemText primary="Reference User Journey" />
+          <ListItemText primary="Reference User Story" />
           <IconButton edge="end">
             <IconArrowRight />
           </IconButton>
         </ListItemButton>
       </ListItem>
       <Divider />
-      <ListSubheader>Recorded User Journeys</ListSubheader>
+      <ListSubheader>Recorded User Stories</ListSubheader>
       <DataGrid
         rows={data}
         columns={columns}
