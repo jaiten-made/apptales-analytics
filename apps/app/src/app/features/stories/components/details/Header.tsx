@@ -9,8 +9,9 @@ import {
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import theme from "../../../../../lib/mui/theme";
+import { actions } from "../../../../../lib/redux/features/stories/slice";
 import { selectSelectedStory } from "../../../../../lib/redux/features/stories/slice/selectors";
-import { useAppSelector } from "../../../../../lib/redux/hook";
+import { useAppDispatch, useAppSelector } from "../../../../../lib/redux/hook";
 import rows from "../DataTable/data.json";
 
 interface HeaderProps {
@@ -24,6 +25,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, hideDivider }) => {
   const { id, storyId, userStoryId } = useParams();
   const location = useLocation();
   const { name } = useAppSelector(selectSelectedStory) ?? {};
+  const dispatch = useAppDispatch();
 
   const navigateTo = React.useMemo(
     () => onNavigate ?? ((path: string) => navigate(path)),
@@ -58,18 +60,23 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, hideDivider }) => {
             underline="none"
             color={isStoriesRoute ? "text.primary" : "text.secondary"}
             href="/stories"
-            onClick={(e) => handleNavigate(e, "/stories")}
+            onClick={(e) => {
+              handleNavigate(e, "/stories");
+              dispatch(actions.setSelectedStory(undefined));
+            }}
           >
             Stories
           </Link>
-          <Link
-            underline="none"
-            color={isSelectedStoryRoute ? "text.primary" : "text.secondary"}
-            href={`/stories/${storyId}`}
-            onClick={(e) => handleNavigate(e, `/stories/${storyId}`)}
-          >
-            {name}
-          </Link>
+          {name && (
+            <Link
+              underline="none"
+              color={isSelectedStoryRoute ? "text.primary" : "text.secondary"}
+              href={`/stories/${storyId}`}
+              onClick={(e) => handleNavigate(e, `/stories/${storyId}`)}
+            >
+              {name}
+            </Link>
+          )}
           {userStoryId && (
             <Typography color="text.secondary">User Stories</Typography>
           )}

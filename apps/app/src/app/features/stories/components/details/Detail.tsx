@@ -12,6 +12,8 @@ import { DataGrid } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import { useNavigate, useParams } from "react-router";
+import { actions } from "../../../../../lib/redux/features/user-stories/slice";
+import { useAppDispatch } from "../../../../../lib/redux/hook";
 import rawData from "./data.json";
 type Row = {
   id: number;
@@ -25,6 +27,7 @@ const data = rawData as Row[];
 const Detail = () => {
   const navigate = useNavigate();
   const { id: storyId } = useParams();
+  const dispatch = useAppDispatch();
 
   const columns: GridColDef<Row>[] = [
     {
@@ -59,6 +62,11 @@ const Detail = () => {
       width: 120,
       renderCell: (params: GridRenderCellParams<Row>) => {
         const handlePlay = () => {
+          dispatch(
+            actions.setSelectedUserStory({
+              name: `User Story ${params.row.id}`,
+            })
+          );
           navigate(`/stories/${storyId}/user-stories/${params.row.id}`);
         };
         return (
