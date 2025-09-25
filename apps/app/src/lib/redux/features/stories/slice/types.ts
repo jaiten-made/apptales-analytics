@@ -1,1 +1,5 @@
-export interface State {}
+export interface State {
+  selectedStory?: {
+    name: string;
+  };
+}

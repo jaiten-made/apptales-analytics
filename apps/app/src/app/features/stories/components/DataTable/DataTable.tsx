@@ -4,45 +4,48 @@ import Paper from "@mui/material/Paper";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
+import { actions } from "../../../../../lib/redux/features/stories/slice";
+import { useAppDispatch } from "../../../../../lib/redux/hook";
 import rows from "./data.json";
 
 const paginationModel = { page: 0, pageSize: 25 };
 
-const columns = (navigate: ReturnType<typeof useNavigate>): GridColDef[] => [
-  {
-    field: "name",
-    headerName: "Name",
-    sortable: true,
-    flex: 1,
-    minWidth: 220,
-  },
-  {
-    field: "actions",
-    headerName: "",
-    sortable: false,
-    width: 56,
-    align: "center",
-    headerAlign: "center",
-    renderCell: (params) => (
-      <IconButton
-        size="small"
-        onClick={(e) => {
-          e.stopPropagation();
-          const id = params.row.id;
-          if (id !== undefined && id !== null) {
-            navigate(`/stories/${id}`);
-          }
-        }}
-      >
-        <IconArrowRight />
-      </IconButton>
-    ),
-  },
-];
-
 export default function DataTable() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const columns = (navigate: ReturnType<typeof useNavigate>): GridColDef[] => [
+    {
+      field: "name",
+      headerName: "Name",
+      sortable: true,
+      flex: 1,
+      minWidth: 220,
+    },
+    {
+      field: "actions",
+      headerName: "",
+      sortable: false,
+      width: 56,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params) => (
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            const id = params.row.id;
+            dispatch(actions.setSelectedStory({ name: params.row.name }));
+            navigate(`/stories/${id}`);
+          }}
+        >
+          <IconArrowRight />
+        </IconButton>
+      ),
+    },
+  ];
+
   return (
     <Paper
       sx={{

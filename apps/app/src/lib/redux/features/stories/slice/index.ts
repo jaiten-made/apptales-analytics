@@ -7,7 +7,11 @@ const initialState: State = {};
 const slice = createSlice({
   name: "stories",
   initialState,
-  reducers: {},
+  reducers: {
+    setSelectedStory(state, action) {
+      state.selectedStory = action.payload;
+    },
+  },
 });
 
 export default slice;

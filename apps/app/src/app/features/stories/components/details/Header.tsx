@@ -9,6 +9,8 @@ import {
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import theme from "../../../../../lib/mui/theme";
+import { selectSelectedStory } from "../../../../../lib/redux/features/stories/slice/selectors";
+import { useAppSelector } from "../../../../../lib/redux/hook";
 import rows from "../DataTable/data.json";
 
 interface HeaderProps {
@@ -17,28 +19,20 @@ interface HeaderProps {
   hideDivider?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({
-  rows: rowsProp,
-  onNavigate,
-  hideDivider,
-}) => {
+const Header: React.FC<HeaderProps> = ({ onNavigate, hideDivider }) => {
   const navigate = useNavigate();
   const { id, storyId, userStoryId } = useParams();
   const location = useLocation();
+  const { name } = useAppSelector(selectSelectedStory) ?? {};
 
-  const rowsData = React.useMemo(() => rowsProp ?? rows, [rowsProp]);
   const navigateTo = React.useMemo(
     () => onNavigate ?? ((path: string) => navigate(path)),
     [onNavigate, navigate]
   );
 
   const isStoriesRoute = location.pathname === "/stories";
-
-  const selectedName = React.useMemo(
-    () =>
-      id ? rowsData.find((r) => String(r.id) === String(id))?.name : undefined,
-    [id, rowsData]
-  );
+  const isSelectedStoryRoute =
+    Boolean(id) && location.pathname === `/stories/${id}`;
 
   const handleNavigate = React.useCallback(
     (e: React.SyntheticEvent, path: string) => {
@@ -68,21 +62,14 @@ const Header: React.FC<HeaderProps> = ({
           >
             Stories
           </Link>
-          {selectedName &&
-            // When on a nested user-story route we make the story name a link so
-            // the breadcrumb can navigate back to the story overview.
-            (storyId ? (
-              <Link
-                underline="none"
-                color="text.secondary"
-                href={`/stories/${storyId}`}
-                onClick={(e) => handleNavigate(e, `/stories/${storyId}`)}
-              >
-                {selectedName}
-              </Link>
-            ) : (
-              <Typography color="text.primary">{selectedName}</Typography>
-            ))}
+          <Link
+            underline="none"
+            color={isSelectedStoryRoute ? "text.primary" : "text.secondary"}
+            href={`/stories/${storyId}`}
+            onClick={(e) => handleNavigate(e, `/stories/${storyId}`)}
+          >
+            {name}
+          </Link>
           {userStoryId && (
             <Typography color="text.secondary">User Stories</Typography>
           )}
