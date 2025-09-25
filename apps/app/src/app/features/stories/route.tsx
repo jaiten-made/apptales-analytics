@@ -30,6 +30,10 @@ const storiesRoute: RouteObject = {
         return story;
       },
     },
+    {
+      path: ":id/user-stories/:userStoryId",
+      element: <p>User Story Detail</p>,
+    },
   ],
 };
 
