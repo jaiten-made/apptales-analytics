@@ -70,14 +70,14 @@ const Detail = () => {
     <Paper className="flex flex-col gap-2">
       <ListItem disableGutters>
         <ListItemButton>
-          <ListItemText primary="Reference User Story" />
+          <ListItemText primary="Original User Story" />
           <IconButton edge="end">
             <IconArrowRight />
           </IconButton>
         </ListItemButton>
       </ListItem>
       <Divider />
-      <ListSubheader>Recorded User Stories</ListSubheader>
+      <ListSubheader>User Stories</ListSubheader>
       <DataGrid<Row>
         rows={data}
         columns={columns}
