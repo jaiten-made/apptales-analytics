@@ -15,14 +15,27 @@ import { useNavigate, useParams } from "react-router";
 import { actions } from "../../../../../lib/redux/features/user-stories/slice";
 import { useAppDispatch } from "../../../../../lib/redux/hook";
 import rawData from "./data.json";
+
 type Row = {
   id: number;
   createdAt: string;
   anonymousUserId: number;
   action: string;
+  timeToComplete?: number; // milliseconds
 };
 
 const data = rawData as Row[];
+
+// helper to format milliseconds
+const formatMs = (ms?: number) => {
+  if (ms == null) return "—";
+  if (ms < 1000) return `${ms} ms`;
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+};
 
 const Detail = () => {
   const navigate = useNavigate();
@@ -52,6 +65,17 @@ const Detail = () => {
         } catch {
           return val;
         }
+      },
+    },
+    // new duration column (milliseconds)
+    {
+      field: "duration",
+      headerName: "Duration",
+      sortable: false,
+      filterable: false,
+      width: 160,
+      renderCell: (params: GridRenderCellParams<Row>) => {
+        return <span>{formatMs(params.value as number | undefined)}</span>;
       },
     },
     {
