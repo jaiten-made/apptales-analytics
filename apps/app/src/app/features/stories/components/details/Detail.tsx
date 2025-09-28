@@ -50,6 +50,16 @@ const Detail = () => {
       valueFormatter: (value) => `User ${value as number}`,
     },
     {
+      field: "duration",
+      headerName: "Duration",
+      sortable: false,
+      filterable: false,
+      width: 160,
+      renderCell: (params: GridRenderCellParams<Row>) => {
+        return <span>{formatMs(params.value as number | undefined)}</span>;
+      },
+    },
+    {
       field: "createdAt",
       headerName: "Created At",
       flex: 1,
@@ -65,17 +75,6 @@ const Detail = () => {
         } catch {
           return val;
         }
-      },
-    },
-    // new duration column (milliseconds)
-    {
-      field: "duration",
-      headerName: "Duration",
-      sortable: false,
-      filterable: false,
-      width: 160,
-      renderCell: (params: GridRenderCellParams<Row>) => {
-        return <span>{formatMs(params.value as number | undefined)}</span>;
       },
     },
     {
