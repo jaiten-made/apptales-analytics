@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    {
+      "id": "entrance",
+      "type": "default",
+      "data": {
+        "label": "Entrance\nTrigger: Inactive for 3 Days\nIncluded: Free Users\nExcluded: Paid Users"
+      },
+      "position": { "x": 450, "y": 40 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "push1",
+      "type": "default",
+      "data": { "label": "Push Notification\nWebinar - Reengage - 1" },
+      "position": { "x": 450, "y": 160 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "wait",
+      "type": "default",
+      "data": { "label": "Wait 2 Days" },
+      "position": { "x": 450, "y": 280 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "push2",
+      "type": "default",
+      "data": { "label": "Push Notification\nWebinar - Reengage - 2" },
+      "position": { "x": 450, "y": 400 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "exit",
+      "type": "default",
+      "data": {
+        "label": "Exit\nWhen user has received all messages or Paid Users or when user becomes active"
+      },
+      "position": { "x": 450, "y": 520 },
+      "style": { "width": 300 }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "entrance", "target": "push1", "animated": false },
+    { "id": "e2", "source": "push1", "target": "wait", "animated": false },
+    { "id": "e3", "source": "wait", "target": "push2", "animated": false },
+    { "id": "e4", "source": "push2", "target": "exit", "animated": false }
+  ]
+}
