@@ -44,27 +44,87 @@ const FlowGraph: React.FC = () => {
 
     const json = data as unknown as FlowJson;
 
-    const loadedNodes: Node[] = json.nodes.map((n) => ({
-      id: String(n.id),
-      position: n.position,
-      data: {
-        label: (
-          <div>
-            {String(n.data.label)
-              .split("\n")
-              .map((s, i) => (
+    // Helper to parse padding (number or "12px")
+    const parsePadding = (p?: unknown) => {
+      if (typeof p === "number") return p;
+      if (typeof p === "string") {
+        const m = p.match(/^(\d+)/);
+        return m ? Number(m[1]) : 0;
+      }
+      return 0;
+    };
+
+    // Measure text height in the DOM (runs in browser inside useEffect)
+    const measureTextHeight = (text: string, width: number) => {
+      try {
+        const el = document.createElement("div");
+        el.style.position = "absolute";
+        el.style.visibility = "hidden";
+        el.style.width = `${width}px`;
+        el.style.whiteSpace = "pre-wrap";
+        el.style.font = "inherit";
+        el.style.lineHeight = "normal";
+        el.innerText = text;
+        document.body.appendChild(el);
+        const h = el.offsetHeight;
+        document.body.removeChild(el);
+        return h;
+      } catch {
+        // SSR fallback
+        return 0;
+      }
+    };
+
+    const elementGap = 48; // desired gap between elements
+
+    // Build nodes with measured heights and compute new vertical positions so gaps are equal
+    // sort nodes by original y so layout remains stable
+    const nodesWithMeta = json.nodes
+      .map((n, idx) => ({ n, idx }))
+      .sort((a, b) => a.n.position.y - b.n.position.y);
+
+    let currentY = 0;
+    const loadedNodes: Node[] = nodesWithMeta.map(({ n }) => {
+      const width = ((n.style as any)?.width as number) || 300;
+      const padding = parsePadding((n.style as any)?.padding ?? 12);
+      // measure the label text height (exclude padding)
+      const labelText = String(n.data.label);
+      const measured = measureTextHeight(
+        labelText,
+        Math.max(20, width - padding * 2)
+      );
+      const totalHeight = measured + padding * 2;
+
+      const node: Node = {
+        id: String(n.id),
+        position: { x: n.position.x, y: currentY },
+        data: {
+          label: (
+            <div style={{ width: "100%", textAlign: "center" }}>
+              {labelText.split("\n").map((s, i) => (
                 <div key={i} style={{ whiteSpace: "pre-wrap" }}>
                   {s}
                 </div>
               ))}
-          </div>
-        ),
-      },
-      style: (n.style as Record<string, unknown>) || {
-        width: 300,
-        padding: 12,
-      },
-    }));
+            </div>
+          ),
+        },
+        style: {
+          ...((n.style as Record<string, unknown>) || {}),
+          width,
+          padding,
+          height: totalHeight, // dynamic height based on content
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+        },
+      };
+
+      // advance currentY by this node's height + desired gap
+      currentY += totalHeight + elementGap;
+      return node;
+    });
 
     const loadedEdges: Edge[] = json.edges.map((e) => ({
       id: String(e.id),
