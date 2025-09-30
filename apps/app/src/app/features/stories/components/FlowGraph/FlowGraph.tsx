@@ -85,8 +85,8 @@ const FlowGraph: React.FC = () => {
 
     let currentY = 0;
     const loadedNodes: Node[] = nodesWithMeta.map(({ n }) => {
-      const width = ((n.style as any)?.width as number) || 300;
-      const padding = parsePadding((n.style as any)?.padding ?? 12);
+      const width = (n.style?.width as number) || 300;
+      const padding = parsePadding(n.style?.padding ?? 12);
       // measure the label text height (exclude padding)
       const labelText = String(n.data.label);
       const measured = measureTextHeight(
