@@ -45,7 +45,8 @@
       "type": "default",
       "data": {
         "label": "Add Video Elements",
-        "eventType": "element_click"
+        "eventType": "element_click",
+        "hasCompleted": true
       },
       "position": { "x": 450, "y": 360 },
       "style": { "width": 300 }
@@ -65,7 +66,8 @@
       "type": "default",
       "data": {
         "label": "Set Visibility Settings",
-        "eventType": "element_click"
+        "eventType": "element_click",
+        "hasCompleted": false
       },
       "position": { "x": 450, "y": 520 },
       "style": { "width": 300 }

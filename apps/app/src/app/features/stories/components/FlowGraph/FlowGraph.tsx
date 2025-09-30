@@ -1,11 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import type {
-  Connection,
-  Edge,
-  Node,
-  OnEdgesChange,
-  OnNodesChange,
-} from "reactflow";
+import type { Connection, Edge, OnEdgesChange, OnNodesChange } from "reactflow";
 import ReactFlow, {
   Background,
   Controls,
@@ -14,9 +8,11 @@ import ReactFlow, {
   applyNodeChanges,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import CustomListNode from "./CustomListNode";
 import data from "./data.json";
 
 const FlowGraph: React.FC = () => {
+  const nodeTypes = { listNode: CustomListNode };
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
@@ -25,7 +21,7 @@ const FlowGraph: React.FC = () => {
     type JsonNode = {
       id: string | number;
       type?: string;
-      data: { label: string };
+      data: { label: string; hasCompleted?: boolean };
       position: { x: number; y: number };
       style?: Record<string, unknown>;
     };
@@ -75,7 +71,7 @@ const FlowGraph: React.FC = () => {
       }
     };
 
-    const elementGap = 48; // desired gap between elements
+    const elementGap = 128; // desired gap between elements
 
     // Build nodes with measured heights and compute new vertical positions so gaps are equal
     // sort nodes by original y so layout remains stable
@@ -95,19 +91,17 @@ const FlowGraph: React.FC = () => {
       );
       const totalHeight = measured + padding * 2;
 
+      const jsonNode = n as JsonNode;
+      const isCompleted = Boolean(jsonNode.data?.hasCompleted);
+
       const node: Node = {
         id: String(n.id),
         position: { x: n.position.x, y: currentY },
+        type: "listNode",
         data: {
-          label: (
-            <div style={{ width: "100%", textAlign: "center" }}>
-              {labelText.split("\n").map((s, i) => (
-                <div key={i} style={{ whiteSpace: "pre-wrap" }}>
-                  {s}
-                </div>
-              ))}
-            </div>
-          ),
+          title: labelText.split("\n")[0] ?? "",
+          lines: labelText.split("\n").slice(1),
+          hasCompleted: isCompleted,
         },
         style: {
           ...((n.style as Record<string, unknown>) || {}),
@@ -153,6 +147,7 @@ const FlowGraph: React.FC = () => {
   return (
     <div className="h-full w-full">
       <ReactFlow
+        nodeTypes={nodeTypes}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
