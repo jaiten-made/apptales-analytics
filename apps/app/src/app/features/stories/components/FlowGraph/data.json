@@ -1,49 +1,128 @@
 {
   "nodes": [
     {
-      "id": "entrance",
+      "id": "start_upload",
       "type": "default",
       "data": {
-        "label": "Entrance\nTrigger: Inactive for 3 Days\nIncluded: Free Users\nExcluded: Paid Users"
+        "label": "Click Start Upload",
+        "eventType": "element_click"
       },
       "position": { "x": 450, "y": 40 },
       "style": { "width": 300 }
     },
     {
-      "id": "push1",
+      "id": "select_file",
       "type": "default",
-      "data": { "label": "Push Notification\nWebinar - Reengage - 1" },
-      "position": { "x": 450, "y": 160 },
+      "data": {
+        "label": "Click Select File",
+        "eventType": "element_click"
+      },
+      "position": { "x": 450, "y": 120 },
       "style": { "width": 300 }
     },
     {
-      "id": "wait",
+      "id": "upload_processing",
       "type": "default",
-      "data": { "label": "Wait 2 Days" },
+      "data": {
+        "label": "Observe Upload Processing",
+        "eventType": "page_visit"
+      },
+      "position": { "x": 450, "y": 200 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "video_details",
+      "type": "default",
+      "data": {
+        "label": "Enter Video Details",
+        "eventType": "element_click"
+      },
       "position": { "x": 450, "y": 280 },
       "style": { "width": 300 }
     },
     {
-      "id": "push2",
+      "id": "video_elements",
       "type": "default",
-      "data": { "label": "Push Notification\nWebinar - Reengage - 2" },
-      "position": { "x": 450, "y": 400 },
+      "data": {
+        "label": "Add Video Elements",
+        "eventType": "element_click"
+      },
+      "position": { "x": 450, "y": 360 },
       "style": { "width": 300 }
     },
     {
-      "id": "exit",
+      "id": "checks",
       "type": "default",
       "data": {
-        "label": "Exit\nWhen user has received all messages or Paid Users or when user becomes active"
+        "label": "Run Checks",
+        "eventType": "page_visit"
+      },
+      "position": { "x": 450, "y": 440 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "visibility_settings",
+      "type": "default",
+      "data": {
+        "label": "Set Visibility Settings",
+        "eventType": "element_click"
       },
       "position": { "x": 450, "y": 520 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "publish",
+      "type": "default",
+      "data": {
+        "label": "Click Publish",
+        "eventType": "element_click"
+      },
+      "position": { "x": 450, "y": 600 },
       "style": { "width": 300 }
     }
   ],
   "edges": [
-    { "id": "e1", "source": "entrance", "target": "push1", "animated": false },
-    { "id": "e2", "source": "push1", "target": "wait", "animated": false },
-    { "id": "e3", "source": "wait", "target": "push2", "animated": false },
-    { "id": "e4", "source": "push2", "target": "exit", "animated": false }
+    {
+      "id": "e1",
+      "source": "start_upload",
+      "target": "select_file",
+      "animated": true
+    },
+    {
+      "id": "e2",
+      "source": "select_file",
+      "target": "upload_processing",
+      "animated": true
+    },
+    {
+      "id": "e3",
+      "source": "upload_processing",
+      "target": "video_details",
+      "animated": true
+    },
+    {
+      "id": "e4",
+      "source": "video_details",
+      "target": "video_elements",
+      "animated": true
+    },
+    {
+      "id": "e5",
+      "source": "video_elements",
+      "target": "checks",
+      "animated": true
+    },
+    {
+      "id": "e6",
+      "source": "checks",
+      "target": "visibility_settings",
+      "animated": true
+    },
+    {
+      "id": "e7",
+      "source": "visibility_settings",
+      "target": "publish",
+      "animated": true
+    }
   ]
 }
