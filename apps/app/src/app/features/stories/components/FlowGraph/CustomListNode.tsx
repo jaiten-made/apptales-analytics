@@ -1,11 +1,12 @@
 import {
   Avatar,
   Box,
+  colors,
   ListItem,
   ListItemAvatar,
   ListItemText,
 } from "@mui/material";
-import { IconCheck } from "@tabler/icons-react";
+import { IconCheck, IconX } from "@tabler/icons-react";
 import clsx from "clsx";
 import React from "react";
 import type { NodeProps } from "reactflow";
@@ -39,12 +40,12 @@ const CustomListNode: React.FC<NodeProps<Data>> = ({ data, id }) => {
       <ListItem disableGutters className="w-full">
         <ListItemAvatar>
           <Avatar
-            className={clsx(
-              "w-10 h-10 text-white",
-              hasCompleted ? "bg-green-500" : "bg-gray-400"
-            )}
+            className="size-10"
+            sx={{
+              bgcolor: hasCompleted ? colors.green[500] : colors.red[500],
+            }}
           >
-            <IconCheck size={18} />
+            {hasCompleted ? <IconCheck size={18} /> : <IconX size={18} />}
           </Avatar>
         </ListItemAvatar>
         <ListItemText
