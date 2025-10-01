@@ -17,6 +17,7 @@
     "@reduxjs/toolkit": "^2.9.0",
     "@tabler/icons-react": "^3.35.0",
     "@tailwindcss/vite": "^4.1.13",
+    "clsx": "^2.1.1",
     "date-fns": "^2.30.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

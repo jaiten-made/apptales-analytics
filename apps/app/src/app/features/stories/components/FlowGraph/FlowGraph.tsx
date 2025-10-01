@@ -155,6 +155,8 @@ const FlowGraph: React.FC = () => {
         onConnect={onConnect}
         fitView
         attributionPosition="bottom-left"
+        nodesDraggable={false}
+        proOptions={{ hideAttribution: true }}
       >
         <Controls />
         <Background gap={16} />

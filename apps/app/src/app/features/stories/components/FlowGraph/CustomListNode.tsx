@@ -6,6 +6,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import { IconCheck } from "@tabler/icons-react";
+import clsx from "clsx";
 import React from "react";
 import type { NodeProps } from "reactflow";
 import { Handle, Position } from "reactflow";
@@ -21,15 +22,10 @@ const CustomListNode: React.FC<NodeProps<Data>> = ({ data, id }) => {
 
   return (
     <Box
-      sx={{
-        width: "100%",
-        position: "relative", // important so Handles are positioned correctly
-        display: "flex",
-        alignItems: "center",
-        padding: 2,
-        pointerEvents: "auto",
-        outline: "red solid 1px",
-      }}
+      className={clsx(
+        "w-full relative flex items-center p-2 pointer-events-auto bg-white outline",
+        hasCompleted ? " outline-green-500" : "outline-red-500"
+      )}
       data-node-id={id}
     >
       {/* target (incoming) handle on left */}
@@ -40,14 +36,13 @@ const CustomListNode: React.FC<NodeProps<Data>> = ({ data, id }) => {
         id="a"
       />
 
-      <ListItem disableGutters sx={{ width: "100%" }}>
+      <ListItem disableGutters className="w-full">
         <ListItemAvatar>
           <Avatar
-            sx={{
-              bgcolor: hasCompleted ? "success.main" : "grey.400",
-              width: 40,
-              height: 40,
-            }}
+            className={clsx(
+              "w-10 h-10 text-white",
+              hasCompleted ? "bg-green-500" : "bg-gray-400"
+            )}
           >
             <IconCheck size={18} />
           </Avatar>
@@ -57,11 +52,11 @@ const CustomListNode: React.FC<NodeProps<Data>> = ({ data, id }) => {
           secondary={lines.length > 0 ? lines.join("\n") : undefined}
           primaryTypographyProps={{
             component: "div",
-            style: { whiteSpace: "pre-wrap" },
+            className: "whitespace-pre-wrap",
           }}
           secondaryTypographyProps={{
             component: "div",
-            style: { whiteSpace: "pre-wrap" },
+            className: "whitespace-pre-wrap",
           }}
         />
       </ListItem>

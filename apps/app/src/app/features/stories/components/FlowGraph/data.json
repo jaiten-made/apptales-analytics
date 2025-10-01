@@ -5,7 +5,8 @@
       "type": "default",
       "data": {
         "label": "Click Start Upload",
-        "eventType": "element_click"
+        "eventType": "element_click",
+        "hasCompleted": true
       },
       "position": { "x": 450, "y": 40 },
       "style": { "width": 300 }
@@ -15,7 +16,8 @@
       "type": "default",
       "data": {
         "label": "Click Select File",
-        "eventType": "element_click"
+        "eventType": "element_click",
+        "hasCompleted": true
       },
       "position": { "x": 450, "y": 120 },
       "style": { "width": 300 }
@@ -25,7 +27,8 @@
       "type": "default",
       "data": {
         "label": "Observe Upload Processing",
-        "eventType": "page_visit"
+        "eventType": "page_visit",
+        "hasCompleted": true
       },
       "position": { "x": 450, "y": 200 },
       "style": { "width": 300 }
@@ -35,7 +38,8 @@
       "type": "default",
       "data": {
         "label": "Enter Video Details",
-        "eventType": "element_click"
+        "eventType": "element_click",
+        "hasCompleted": true
       },
       "position": { "x": 450, "y": 280 },
       "style": { "width": 300 }
