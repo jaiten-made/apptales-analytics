@@ -1,5 +1,12 @@
+import { intervalToDuration } from "date-fns";
 import React, { useCallback, useEffect, useState } from "react";
-import type { Connection, Edge, OnEdgesChange, OnNodesChange } from "reactflow";
+import type {
+  Connection,
+  Edge,
+  Node,
+  OnEdgesChange,
+  OnNodesChange,
+} from "reactflow";
 import ReactFlow, {
   Background,
   Controls,
@@ -21,7 +28,11 @@ const FlowGraph: React.FC = () => {
     type JsonNode = {
       id: string | number;
       type?: string;
-      data: { label: string; hasCompleted?: boolean };
+      data: {
+        label: string;
+        hasCompleted?: boolean;
+        durationMs?: number | null;
+      };
       position: { x: number; y: number };
       style?: Record<string, unknown>;
     };
@@ -120,12 +131,63 @@ const FlowGraph: React.FC = () => {
       return node;
     });
 
-    const loadedEdges: Edge[] = json.edges.map((e) => ({
-      id: String(e.id),
-      source: String(e.source),
-      target: String(e.target),
-      animated: Boolean(e.animated),
-    }));
+    // Helper to format milliseconds to human-readable string using date-fns
+    const formatDuration = (ms: unknown) => {
+      if (ms == null) return "";
+      const n = Number(ms);
+      if (!isFinite(n) || n <= 0) return "";
+      // For values below 1000ms, keep ms precision
+      if (n < 1000) return `${n}ms`;
+
+      const secondsTotal = Math.floor(n / 1000);
+      const duration = intervalToDuration({
+        start: 0,
+        end: secondsTotal * 1000,
+      });
+
+      // Use only minutes and seconds if present, otherwise seconds
+      const parts: Record<string, number> = {
+        years: duration.years || 0,
+        months: duration.months || 0,
+        days: duration.days || 0,
+        hours: duration.hours || 0,
+        minutes: duration.minutes || 0,
+        seconds: duration.seconds || 0,
+      };
+
+      // Produce a short string like '1m 12s' or '2h 3m' depending on magnitude
+      const tokens: string[] = [];
+      if (parts.years) tokens.push(`${parts.years}y`);
+      if (parts.months) tokens.push(`${parts.months}mo`);
+      if (parts.days) tokens.push(`${parts.days}d`);
+      if (parts.hours) tokens.push(`${parts.hours}h`);
+      if (parts.minutes) tokens.push(`${parts.minutes}m`);
+      if (parts.seconds || tokens.length === 0)
+        tokens.push(`${parts.seconds}s`);
+
+      return tokens.join(" ");
+    };
+
+    // Build edges and attach a duration label (from target node's durationMs)
+    const loadedEdges: Edge[] = json.edges.map((e) => {
+      const targetNode = json.nodes.find(
+        (n) => String(n.id) === String(e.target)
+      );
+      const durationLabel = targetNode
+        ? formatDuration(targetNode.data?.durationMs)
+        : "";
+      const edge: Edge = {
+        id: String(e.id),
+        source: String(e.source),
+        target: String(e.target),
+        animated: Boolean(e.animated),
+        label: durationLabel || undefined,
+        labelStyle: durationLabel
+          ? { fontSize: 12, fill: "#222", background: "transparent" }
+          : undefined,
+      };
+      return edge;
+    });
 
     setNodes(loadedNodes);
     setEdges(loadedEdges);

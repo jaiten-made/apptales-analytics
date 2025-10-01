@@ -1,4 +1,5 @@
 {
+  "userId": "user_1",
   "nodes": [
     {
       "id": "start_upload",
@@ -6,7 +7,8 @@
       "data": {
         "label": "Click Start Upload",
         "eventType": "element_click",
-        "hasCompleted": true
+        "hasCompleted": true,
+        "durationMs": 2000
       },
       "position": { "x": 450, "y": 40 },
       "style": { "width": 300 }
@@ -17,7 +19,8 @@
       "data": {
         "label": "Click Select File",
         "eventType": "element_click",
-        "hasCompleted": true
+        "hasCompleted": true,
+        "durationMs": 4000
       },
       "position": { "x": 450, "y": 120 },
       "style": { "width": 300 }
@@ -28,7 +31,8 @@
       "data": {
         "label": "Observe Upload Processing",
         "eventType": "page_visit",
-        "hasCompleted": true
+        "hasCompleted": true,
+        "durationMs": 20000
       },
       "position": { "x": 450, "y": 200 },
       "style": { "width": 300 }
@@ -39,7 +43,8 @@
       "data": {
         "label": "Enter Video Details",
         "eventType": "element_click",
-        "hasCompleted": true
+        "hasCompleted": true,
+        "durationMs": 30000
       },
       "position": { "x": 450, "y": 280 },
       "style": { "width": 300 }
@@ -50,7 +55,8 @@
       "data": {
         "label": "Add Video Elements",
         "eventType": "element_click",
-        "hasCompleted": true
+        "hasCompleted": true,
+        "durationMs": 120000
       },
       "position": { "x": 450, "y": 360 },
       "style": { "width": 300 }
@@ -71,7 +77,8 @@
       "data": {
         "label": "Set Visibility Settings",
         "eventType": "element_click",
-        "hasCompleted": false
+        "hasCompleted": false,
+        "durationMs": null
       },
       "position": { "x": 450, "y": 520 },
       "style": { "width": 300 }
@@ -81,7 +88,8 @@
       "type": "default",
       "data": {
         "label": "Click Publish",
-        "eventType": "element_click"
+        "eventType": "element_click",
+        "durationMs": null
       },
       "position": { "x": 450, "y": 600 },
       "style": { "width": 300 }
