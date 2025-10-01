@@ -51,14 +51,6 @@ const CustomListNode: React.FC<NodeProps<Data>> = ({ data, id }) => {
         <ListItemText
           primary={title}
           secondary={lines.length > 0 ? lines.join("\n") : undefined}
-          primaryTypographyProps={{
-            component: "div",
-            className: "whitespace-pre-wrap",
-          }}
-          secondaryTypographyProps={{
-            component: "div",
-            className: "whitespace-pre-wrap",
-          }}
         />
       </ListItem>
 
