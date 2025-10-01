@@ -1,11 +1,4 @@
-import {
-  AppBar,
-  Breadcrumbs,
-  Divider,
-  Link,
-  Toolbar,
-  Typography,
-} from "@mui/material";
+import { AppBar, Breadcrumbs, Link, Toolbar, Typography } from "@mui/material";
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import theme from "../../../../../lib/mui/theme";
@@ -17,10 +10,9 @@ import rows from "../DataTable/data.json";
 interface HeaderProps {
   rows?: typeof rows;
   onNavigate?: (path: string) => void;
-  hideDivider?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNavigate, hideDivider }) => {
+const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   const navigate = useNavigate();
   const { id, storyId, userStoryId } = useParams();
   const location = useLocation();
@@ -54,7 +46,13 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, hideDivider }) => {
         color: theme.palette.text.primary,
       }}
     >
-      <Toolbar sx={{ justifyContent: "space-between" }}>
+      <Toolbar
+        sx={{
+          justifyContent: "space-between",
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
         <Breadcrumbs aria-label="breadcrumb">
           <Link
             underline="none"
@@ -85,7 +83,6 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, hideDivider }) => {
           )}
         </Breadcrumbs>
       </Toolbar>
-      {!hideDivider && <Divider />}
     </AppBar>
   );
 };
