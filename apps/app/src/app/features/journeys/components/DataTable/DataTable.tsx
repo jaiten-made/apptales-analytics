@@ -24,7 +24,7 @@ export default function DataTable() {
       minWidth: 220,
     },
     {
-      field: "completion",
+      field: "completeRatePercent",
       headerName: "Completion Rate",
       sortable: true,
       flex: 1,
