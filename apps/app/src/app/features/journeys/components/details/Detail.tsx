@@ -1,12 +1,4 @@
-import {
-  Divider,
-  IconButton,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  ListSubheader,
-  Paper,
-} from "@mui/material";
+import { IconButton, ListSubheader, Paper } from "@mui/material";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
@@ -103,19 +95,6 @@ const Detail = () => {
 
   return (
     <Paper className="flex flex-col gap-2">
-      <ListItem disableGutters>
-        <ListItemButton>
-          <ListItemText primary="Original User Journey" />
-          <IconButton
-            onClick={() => {
-              if (journeyId) navigate(`/journeys/${journeyId}/user-stories`);
-            }}
-          >
-            <IconArrowRight />
-          </IconButton>
-        </ListItemButton>
-      </ListItem>
-      <Divider />
       <ListSubheader>User Journeys</ListSubheader>
       <DataGrid<Row>
         rows={data}
