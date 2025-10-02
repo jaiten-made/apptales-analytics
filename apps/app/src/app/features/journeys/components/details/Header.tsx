@@ -76,7 +76,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
             </Link>
           )}
           {userStoryId && (
-            <Typography color="text.secondary">User Stories</Typography>
+            <Typography color="text.secondary">User Journeys</Typography>
           )}
           {userStoryId && (
             <Typography color="text.primary">User {userStoryId}</Typography>

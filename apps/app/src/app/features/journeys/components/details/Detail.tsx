@@ -87,7 +87,7 @@ const Detail = () => {
         const handlePlay = () => {
           dispatch(
             actions.setSelectedUserStory({
-              name: `User Story ${params.row.id}`,
+              name: `User Journey ${params.row.id}`,
             })
           );
           navigate(`/journeys/${journeyId}/user-stories/${params.row.id}`);
@@ -105,7 +105,7 @@ const Detail = () => {
     <Paper className="flex flex-col gap-2">
       <ListItem disableGutters>
         <ListItemButton>
-          <ListItemText primary="Original User Story" />
+          <ListItemText primary="Original User Journey" />
           <IconButton
             onClick={() => {
               if (journeyId) navigate(`/journeys/${journeyId}/user-stories`);
@@ -116,7 +116,7 @@ const Detail = () => {
         </ListItemButton>
       </ListItem>
       <Divider />
-      <ListSubheader>User Stories</ListSubheader>
+      <ListSubheader>User Journeys</ListSubheader>
       <DataGrid<Row>
         rows={data}
         columns={columns}

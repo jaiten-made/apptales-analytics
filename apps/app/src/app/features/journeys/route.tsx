@@ -5,7 +5,7 @@ import UserStoryDetail from "./user-stories/details/Detail";
 
 const Journeys = lazy(() => import("./index"));
 const StoryDetail = lazy(() => import("./components/details/Detail"));
-const StoriesTable = lazy(() => import("./components/DataTable/DataTable"));
+const JourneysTable = lazy(() => import("./components/DataTable/DataTable"));
 
 const storiesRoute: RouteObject = {
   path: "journeys",
@@ -15,7 +15,7 @@ const storiesRoute: RouteObject = {
     {
       index: true,
       // index route shows the DataTable inside the Stories layout
-      element: <StoriesTable />,
+      element: <JourneysTable />,
     },
     {
       path: ":id",
