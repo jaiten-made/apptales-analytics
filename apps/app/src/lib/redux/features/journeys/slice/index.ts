@@ -5,11 +5,11 @@ import type { State } from "./types";
 const initialState: State = {};
 
 const slice = createSlice({
-  name: "stories",
+  name: "journeys",
   initialState,
   reducers: {
-    setSelectedStory(state, action) {
-      state.selectedStory = action.payload;
+    setSelectedJourney(state, action) {
+      state.selectedJourney = action.payload;
     },
   },
 });

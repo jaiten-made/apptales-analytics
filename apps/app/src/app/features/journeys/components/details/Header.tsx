@@ -2,8 +2,8 @@ import { AppBar, Breadcrumbs, Link, Toolbar, Typography } from "@mui/material";
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import theme from "../../../../../lib/mui/theme";
-import { actions } from "../../../../../lib/redux/features/stories/slice";
-import { selectSelectedStory } from "../../../../../lib/redux/features/stories/slice/selectors";
+import { actions } from "../../../../../lib/redux/features/journeys/slice";
+import { selectSelectedJourney } from "../../../../../lib/redux/features/journeys/slice/selectors";
 import { useAppDispatch, useAppSelector } from "../../../../../lib/redux/hook";
 import rows from "../DataTable/data.json";
 
@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   const navigate = useNavigate();
   const { id, storyId, userStoryId } = useParams();
   const location = useLocation();
-  const { name } = useAppSelector(selectSelectedStory) ?? {};
+  const { name } = useAppSelector(selectSelectedJourney) ?? {};
   const dispatch = useAppDispatch();
 
   const navigateTo = React.useMemo(
@@ -24,9 +24,9 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
     [onNavigate, navigate]
   );
 
-  const isStoriesRoute = location.pathname === "/stories";
+  const isStoriesRoute = location.pathname === "/journeys";
   const isSelectedStoryRoute =
-    Boolean(id) && location.pathname === `/stories/${id}`;
+    Boolean(id) && location.pathname === `/journeys/${id}`;
 
   const handleNavigate = React.useCallback(
     (e: React.SyntheticEvent, path: string) => {
@@ -57,20 +57,20 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
           <Link
             underline="none"
             color={isStoriesRoute ? "text.primary" : "text.secondary"}
-            href="/stories"
+            href="/journeys"
             onClick={(e) => {
-              handleNavigate(e, "/stories");
-              dispatch(actions.setSelectedStory(undefined));
+              handleNavigate(e, "/journeys");
+              dispatch(actions.setSelectedJourney(undefined));
             }}
           >
-            Stories
+            Journeys
           </Link>
           {name && (
             <Link
               underline="none"
               color={isSelectedStoryRoute ? "text.primary" : "text.secondary"}
-              href={`/stories/${storyId}`}
-              onClick={(e) => handleNavigate(e, `/stories/${storyId}`)}
+              href={`/journeys/${storyId}`}
+              onClick={(e) => handleNavigate(e, `/journeys/${storyId}`)}
             >
               {name}
             </Link>

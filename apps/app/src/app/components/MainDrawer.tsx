@@ -37,10 +37,10 @@ const MainDrawer = () => {
       <List>
         <ListItem>
           <ListItemButton
-            onClick={() => navigate("/stories")}
-            selected={location.pathname.includes("/stories")}
+            onClick={() => navigate("/journeys")}
+            selected={location.pathname.includes("/journeys")}
           >
-            <ListItemText primary="Stories" />
+            <ListItemText primary="Journeys" />
           </ListItemButton>
         </ListItem>
       </List>

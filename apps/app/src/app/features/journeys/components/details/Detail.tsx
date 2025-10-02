@@ -39,7 +39,7 @@ const formatMs = (ms?: number) => {
 
 const Detail = () => {
   const navigate = useNavigate();
-  const { id: storyId } = useParams();
+  const { id: journeyId } = useParams();
   const dispatch = useAppDispatch();
 
   const columns: GridColDef<Row>[] = [
@@ -90,7 +90,7 @@ const Detail = () => {
               name: `User Story ${params.row.id}`,
             })
           );
-          navigate(`/stories/${storyId}/user-stories/${params.row.id}`);
+          navigate(`/journeys/${journeyId}/user-stories/${params.row.id}`);
         };
         return (
           <IconButton size="small" onClick={handlePlay} aria-label="play">
@@ -108,7 +108,7 @@ const Detail = () => {
           <ListItemText primary="Original User Story" />
           <IconButton
             onClick={() => {
-              if (storyId) navigate(`/stories/${storyId}/user-stories`);
+              if (journeyId) navigate(`/journeys/${journeyId}/user-stories`);
             }}
           >
             <IconArrowRight />

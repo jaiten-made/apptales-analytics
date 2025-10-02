@@ -4,7 +4,7 @@ import Paper from "@mui/material/Paper";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
-import { actions } from "../../../../../lib/redux/features/stories/slice";
+import { actions } from "../../../../../lib/redux/features/journeys/slice";
 import { useAppDispatch } from "../../../../../lib/redux/hook";
 import rows from "./data.json";
 
@@ -36,8 +36,8 @@ export default function DataTable() {
           onClick={(e) => {
             e.stopPropagation();
             const id = params.row.id;
-            dispatch(actions.setSelectedStory({ name: params.row.name }));
-            navigate(`/stories/${id}`);
+            dispatch(actions.setSelectedJourney({ name: params.row.name }));
+            navigate(`/journeys/${id}`);
           }}
         >
           <IconArrowRight />

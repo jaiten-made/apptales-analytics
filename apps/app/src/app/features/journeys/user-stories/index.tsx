@@ -20,7 +20,7 @@ const columns = (navigate: ReturnType<typeof useNavigate>): GridColDef[] => [
           const userStoryId = params.row.id;
           const storyId = params.row.storyId ?? params.row.storyId;
           if (storyId) {
-            navigate(`/stories/${storyId}/user-stories/${userStoryId}`);
+            navigate(`/journeys/${storyId}/user-stories/${userStoryId}`);
           }
         }}
       >
@@ -37,7 +37,7 @@ export default function UserStoriesList() {
 
   const handleRowClick = (row: { id: number | string }) => {
     if (!storyId) return;
-    navigate(`/stories/${storyId}/user-stories/${row.id}`);
+    navigate(`/journeys/${storyId}/user-stories/${row.id}`);
   };
 
   return (

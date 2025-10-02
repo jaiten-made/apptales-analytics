@@ -1,5 +1,5 @@
 export interface State {
-  selectedStory?: {
+  selectedJourney?: {
     name: string;
   };
 }

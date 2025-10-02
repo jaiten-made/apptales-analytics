@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router-dom";
 import App from "./app";
-import storiesRoute from "./app/features/stories/route";
+import journeysRoute from "./app/features/journeys/route";
 import "./global.css";
 import StoreProvider from "./lib/redux/StoreProvider";
 
@@ -11,7 +11,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    children: [storiesRoute],
+    children: [journeysRoute],
   },
 ]);
 

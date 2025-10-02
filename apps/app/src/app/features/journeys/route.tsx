@@ -3,14 +3,14 @@ import type { RouteObject } from "react-router";
 import { getStoryById } from "./service";
 import UserStoryDetail from "./user-stories/details/Detail";
 
-const Stories = lazy(() => import("./index"));
+const Journeys = lazy(() => import("./index"));
 const StoryDetail = lazy(() => import("./components/details/Detail"));
 const StoriesTable = lazy(() => import("./components/DataTable/DataTable"));
 
 const storiesRoute: RouteObject = {
-  path: "stories",
+  path: "journeys",
   // element lazy-loads the feature's default export which includes the header and an Outlet
-  element: <Stories />,
+  element: <Journeys />,
   children: [
     {
       index: true,
