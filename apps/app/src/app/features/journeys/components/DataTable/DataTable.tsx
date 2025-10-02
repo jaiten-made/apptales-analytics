@@ -25,7 +25,7 @@ export default function DataTable() {
     },
     {
       field: "completeRatePercent",
-      headerName: "Completion Rate",
+      headerName: "Completion Rate %",
       sortable: true,
       flex: 1,
       renderCell: (params) => {
