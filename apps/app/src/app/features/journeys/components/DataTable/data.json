@@ -1,38 +1,38 @@
 [
-  { "id": 1, "name": "First Project Setup", "completeRatePercent": 5 },
-  { "id": 2, "name": "Upload Your First File", "completeRatePercent": 12 },
-  { "id": 3, "name": "Complete Profile Setup", "completeRatePercent": 28 },
-  { "id": 4, "name": "Connect Your Account", "completeRatePercent": 42 },
-  { "id": 5, "name": "Enable Notifications", "completeRatePercent": 18 },
+  { "id": 1, "name": "First Project Setup", "completeRatePercent": 80 },
+  { "id": 2, "name": "Upload Your First File", "completeRatePercent": 70 },
+  { "id": 3, "name": "Complete Profile Setup", "completeRatePercent": 55 },
+  { "id": 4, "name": "Connect Your Account", "completeRatePercent": 45 },
+  { "id": 5, "name": "Enable Notifications", "completeRatePercent": 40 },
   {
     "id": 6,
     "name": "Invite Your First Team Member",
-    "completeRatePercent": 60
+    "completeRatePercent": 18
   },
-  { "id": 7, "name": "Create Your First Dashboard", "completeRatePercent": 33 },
-  { "id": 8, "name": "Integrate Your First App", "completeRatePercent": 78 },
-  { "id": 9, "name": "Set Up Billing Info", "completeRatePercent": 24 },
+  { "id": 7, "name": "Create Your First Dashboard", "completeRatePercent": 25 },
+  { "id": 8, "name": "Integrate Your First App", "completeRatePercent": 12 },
+  { "id": 9, "name": "Set Up Billing Info", "completeRatePercent": 8 },
   {
     "id": 10,
     "name": "Start First Task / Workflow",
-    "completeRatePercent": 50
+    "completeRatePercent": 60
   },
-  { "id": 11, "name": "Complete First Tutorial", "completeRatePercent": 91 },
-  { "id": 12, "name": "Connect a Calendar", "completeRatePercent": 37 },
-  { "id": 13, "name": "Add First Contact / Client", "completeRatePercent": 46 },
-  { "id": 14, "name": "Create First Report", "completeRatePercent": 56 },
+  { "id": 11, "name": "Complete First Tutorial", "completeRatePercent": 50 },
+  { "id": 12, "name": "Connect a Calendar", "completeRatePercent": 30 },
+  { "id": 13, "name": "Add First Contact / Client", "completeRatePercent": 35 },
+  { "id": 14, "name": "Create First Report", "completeRatePercent": 20 },
   {
     "id": 15,
     "name": "Set Up Two-Factor Authentication",
-    "completeRatePercent": 72
+    "completeRatePercent": 22
   },
-  { "id": 16, "name": "Customize Dashboard Layout", "completeRatePercent": 85 },
-  { "id": 17, "name": "Schedule First Automation", "completeRatePercent": 96 },
-  { "id": 18, "name": "Create First Template", "completeRatePercent": 100 },
-  { "id": 19, "name": "Enable Dark / Light Mode", "completeRatePercent": 63 },
+  { "id": 16, "name": "Customize Dashboard Layout", "completeRatePercent": 18 },
+  { "id": 17, "name": "Schedule First Automation", "completeRatePercent": 10 },
+  { "id": 18, "name": "Create First Template", "completeRatePercent": 15 },
+  { "id": 19, "name": "Enable Dark / Light Mode", "completeRatePercent": 65 },
   {
     "id": 20,
     "name": "Send First Notification / Email",
-    "completeRatePercent": 74
+    "completeRatePercent": 28
   }
 ]
