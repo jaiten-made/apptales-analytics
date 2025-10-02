@@ -25,26 +25,11 @@ export default function DataTable() {
     },
     {
       field: "completion",
-      headerName: "Completion",
+      headerName: "Completion Rate",
       sortable: true,
       flex: 1,
-      minWidth: 200,
       renderCell: (params) => {
-        const raw = params.row.completion;
-        let percent = 0;
-        if (raw == null) {
-          percent = 0;
-        } else if (typeof raw === "number") {
-          percent = raw <= 1 ? Math.round(raw * 100) : Math.round(raw);
-        } else {
-          const parsed = Number(raw);
-          percent = isNaN(parsed)
-            ? 0
-            : parsed <= 1
-              ? Math.round(parsed * 100)
-              : Math.round(parsed);
-        }
-
+        const percent = params.row.completeRatePercent;
         return (
           <Box
             sx={{
@@ -59,7 +44,7 @@ export default function DataTable() {
                 display: "flex",
                 alignItems: "center",
                 flex: 1,
-                mr: 1,
+                mr: 2,
               }}
             >
               <LinearProgress
@@ -69,10 +54,7 @@ export default function DataTable() {
                 sx={{ width: "100%", height: 8, borderRadius: 4 }}
               />
             </Box>
-            <Typography
-              variant="body2"
-              sx={{ minWidth: 40, textAlign: "right" }}
-            >
+            <Typography variant="body2" sx={{ textAlign: "right" }}>
               {percent}%
             </Typography>
           </Box>

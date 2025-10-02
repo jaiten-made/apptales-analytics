@@ -1,22 +1,34 @@
 [
-  { "id": 1, "name": "First Project Setup" },
-  { "id": 2, "name": "Upload Your First File" },
-  { "id": 3, "name": "Complete Profile Setup" },
-  { "id": 4, "name": "Connect Your Account" },
-  { "id": 5, "name": "Enable Notifications" },
-  { "id": 6, "name": "Invite Your First Team Member" },
-  { "id": 7, "name": "Create Your First Dashboard" },
-  { "id": 8, "name": "Integrate Your First App" },
-  { "id": 9, "name": "Set Up Billing Info" },
-  { "id": 10, "name": "Start First Task / Workflow" },
-  { "id": 11, "name": "Complete First Tutorial" },
-  { "id": 12, "name": "Connect a Calendar" },
-  { "id": 13, "name": "Add First Contact / Client" },
-  { "id": 14, "name": "Create First Report" },
-  { "id": 15, "name": "Set Up Two-Factor Authentication" },
-  { "id": 16, "name": "Customize Dashboard Layout" },
-  { "id": 17, "name": "Schedule First Automation" },
-  { "id": 18, "name": "Create First Template" },
-  { "id": 19, "name": "Enable Dark / Light Mode" },
-  { "id": 20, "name": "Send First Notification / Email" }
+  { "id": 1, "name": "First Project Setup", "completeRatePercent": 0 },
+  { "id": 2, "name": "Upload Your First File", "completeRatePercent": 0 },
+  { "id": 3, "name": "Complete Profile Setup", "completeRatePercent": 0 },
+  { "id": 4, "name": "Connect Your Account", "completeRatePercent": 0 },
+  { "id": 5, "name": "Enable Notifications", "completeRatePercent": 0 },
+  {
+    "id": 6,
+    "name": "Invite Your First Team Member",
+    "completeRatePercent": 0
+  },
+  { "id": 7, "name": "Create Your First Dashboard", "completeRatePercent": 0 },
+  { "id": 8, "name": "Integrate Your First App", "completeRatePercent": 0 },
+  { "id": 9, "name": "Set Up Billing Info", "completeRatePercent": 0 },
+  { "id": 10, "name": "Start First Task / Workflow", "completeRatePercent": 0 },
+  { "id": 11, "name": "Complete First Tutorial", "completeRatePercent": 0 },
+  { "id": 12, "name": "Connect a Calendar", "completeRatePercent": 0 },
+  { "id": 13, "name": "Add First Contact / Client", "completeRatePercent": 0 },
+  { "id": 14, "name": "Create First Report", "completeRatePercent": 0 },
+  {
+    "id": 15,
+    "name": "Set Up Two-Factor Authentication",
+    "completeRatePercent": 0
+  },
+  { "id": 16, "name": "Customize Dashboard Layout", "completeRatePercent": 0 },
+  { "id": 17, "name": "Schedule First Automation", "completeRatePercent": 0 },
+  { "id": 18, "name": "Create First Template", "completeRatePercent": 0 },
+  { "id": 19, "name": "Enable Dark / Light Mode", "completeRatePercent": 0 },
+  {
+    "id": 20,
+    "name": "Send First Notification / Email",
+    "completeRatePercent": 0
+  }
 ]
