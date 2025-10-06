@@ -1,11 +1,11 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { reducer as journeysReducer } from "./features/journeys/slice";
-import { reducer as userStoriesReducer } from "./features/user-journeys/slice";
+import { reducer as userJourneySlice } from "./features/user-journey/slice";
 
 const rootReducer = combineReducers({
   journeys: journeysReducer,
-  ["user-journeys"]: userStoriesReducer,
+  ["user-journey"]: userJourneySlice,
 });
 
 export const store = configureStore({

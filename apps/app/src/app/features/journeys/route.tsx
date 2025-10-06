@@ -27,7 +27,7 @@ const storiesRoute: RouteObject = {
       },
     },
     {
-      path: ":id/user-journeys/:userStoryId",
+      path: ":id/user-journey/:userId",
       element: <UserStoryDetail />,
     },
   ],

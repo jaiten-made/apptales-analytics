@@ -14,7 +14,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   const navigate = useNavigate();
-  const { id, storyId, userStoryId } = useParams();
+  const { id, storyId, userId } = useParams();
   const location = useLocation();
   const { name } = useAppSelector(selectSelectedJourney) ?? {};
   const dispatch = useAppDispatch();
@@ -75,11 +75,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
               {name}
             </Link>
           )}
-          {userStoryId && (
-            <Typography color="text.secondary">User Journeys</Typography>
+          {userId && (
+            <Typography color="text.secondary">User Journey</Typography>
           )}
-          {userStoryId && (
-            <Typography color="text.primary">User {userStoryId}</Typography>
+          {userId && (
+            <Typography color="text.primary">User {userId}</Typography>
           )}
         </Breadcrumbs>
       </Toolbar>
