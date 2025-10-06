@@ -3,6 +3,7 @@ import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
+import { useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 import { actions } from "../../../../../lib/redux/features/user-journey/slice";
 import { useAppDispatch } from "../../../../../lib/redux/hook";
@@ -129,6 +130,32 @@ const Detail = () => {
     (a) => a.journeyId == null || Number(a.journeyId) === Number(journeyId)
   );
 
+  // For journey 5: show anonymized, non-sequential pseudo-random user numbers.
+  // We keep rows stable by deriving numbers deterministically from attempt id.
+  const displayedAttempts = useMemo(() => {
+    if (Number(journeyId) !== 5) return journeyAttempts;
+    const used = new Set<number>();
+    const min = 101;
+    const max = 989;
+    const range = max - min + 1;
+    const hashToRange = (seed: string) => {
+      let h = 0;
+      for (let i = 0; i < seed.length; i++) {
+        h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+      }
+      return min + (h % range);
+    };
+    return journeyAttempts.map((r) => {
+      let candidate = hashToRange(`${r.id}-${r.anonymousUserId}`);
+      // ensure uniqueness by linear probing if collision
+      while (used.has(candidate)) {
+        candidate = ((candidate - min + 1) % range) + min;
+      }
+      used.add(candidate);
+      return { ...r, anonymousUserId: candidate };
+    });
+  }, [journeyAttempts, journeyId]);
+
   return (
     <Paper className="flex flex-col gap-2">
       <ListItem>
@@ -137,13 +164,13 @@ const Detail = () => {
           secondary="Users who attempted or completed this journey"
         />
       </ListItem>
-      {journeyAttempts.length === 0 ? (
+      {displayedAttempts.length === 0 ? (
         <div className="p-6 text-sm opacity-70">
           No user journeys for this journey yet.
         </div>
       ) : (
         <DataGrid<Row>
-          rows={journeyAttempts}
+          rows={displayedAttempts}
           columns={columns}
           hideFooter
           disableRowSelectionOnClick
