@@ -1,4 +1,4 @@
-import { IconButton, ListItem, ListItemText, Paper } from "@mui/material";
+import { Chip, IconButton, ListItem, ListItemText, Paper } from "@mui/material";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
@@ -14,6 +14,7 @@ type Row = {
   anonymousUserId: number;
   action: string;
   timeToComplete?: number; // milliseconds
+  status?: string; // added status
 };
 
 const data = rawData as Row[];
@@ -41,6 +42,38 @@ const Detail = () => {
       headerName: "User",
       flex: 1,
       valueFormatter: (value) => `User ${value as number}`,
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 0.6,
+      sortable: false,
+      filterable: false,
+      renderCell: (params: GridRenderCellParams<Row>) => {
+        const val = (params.value ?? params.row.status) as string | undefined;
+        if (!val) return <Chip label="—" size="small" />;
+        const normalized = val.toLowerCase();
+        if (normalized === "success") {
+          // lighter green using theme palette
+          return (
+            <Chip
+              label="Success"
+              size="small"
+              sx={{ bgcolor: "success.light", color: "success.contrastText" }}
+            />
+          );
+        } else if (normalized === "failed") {
+          // lighter red using theme palette
+          return (
+            <Chip
+              label="Failed"
+              size="small"
+              sx={{ bgcolor: "error.light", color: "error.contrastText" }}
+            />
+          );
+        }
+        return <Chip label={val} size="small" />;
+      },
     },
     {
       field: "duration",
