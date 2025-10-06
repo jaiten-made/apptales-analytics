@@ -63,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
               dispatch(actions.setSelectedJourney(undefined));
             }}
           >
-            Journeys
+            User Journeys
           </Link>
           {name && (
             <Link
