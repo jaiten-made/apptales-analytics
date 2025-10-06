@@ -4,7 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
 import { useNavigate, useParams } from "react-router";
-import { actions } from "../../../../../lib/redux/features/user-stories/slice";
+import { actions } from "../../../../../lib/redux/features/user-journeys/slice";
 import { useAppDispatch } from "../../../../../lib/redux/hook";
 import rawData from "./data.json";
 
@@ -82,7 +82,7 @@ const Detail = () => {
               name: `User Journey ${params.row.id}`,
             })
           );
-          navigate(`/journeys/${journeyId}/user-stories/${params.row.id}`);
+          navigate(`/journeys/${journeyId}/user-journeys/${params.row.id}`);
         };
         return (
           <IconButton size="small" onClick={handlePlay} aria-label="play">

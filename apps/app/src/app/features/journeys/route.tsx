@@ -1,7 +1,7 @@
 import { lazy } from "react";
 import type { RouteObject } from "react-router";
 import { getStoryById } from "./service";
-import UserStoryDetail from "./user-story/details/Details";
+import UserStoryDetail from "./user-journey/details/Details";
 
 const Journeys = lazy(() => import("./index"));
 const StoryDetail = lazy(() => import("./components/details/Detail"));
@@ -32,7 +32,7 @@ const storiesRoute: RouteObject = {
       },
     },
     {
-      path: ":id/user-stories/:userStoryId",
+      path: ":id/user-journeys/:userStoryId",
       element: <UserStoryDetail />,
     },
   ],

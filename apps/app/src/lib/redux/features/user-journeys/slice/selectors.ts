@@ -1,7 +1,7 @@
 import { createSelector } from "@reduxjs/toolkit";
 import type { RootState } from "../../../store";
 
-const selectSelf = (state: RootState) => state["user-stories"];
+const selectSelf = (state: RootState) => state["user-journeys"];
 
 export const selectSelectedUserStory = createSelector(
   selectSelf,

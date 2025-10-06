@@ -5,7 +5,7 @@ import type { State } from "./types";
 const initialState: State = {};
 
 const slice = createSlice({
-  name: "user-stories",
+  name: "user-journeys",
   initialState,
   reducers: {
     setSelectedUserStory(state, action) {
