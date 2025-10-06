@@ -4,7 +4,7 @@ import { getStoryById } from "./service";
 import UserStoryDetail from "./user-journey/details/Details";
 
 const Journeys = lazy(() => import("./index"));
-const StoryDetail = lazy(() => import("./components/details/Detail"));
+const UserJourneyDetails = lazy(() => import("./components/details/Detail"));
 const JourneysTable = lazy(() => import("./components/DataTable/DataTable"));
 
 const storiesRoute: RouteObject = {
@@ -19,16 +19,11 @@ const storiesRoute: RouteObject = {
     },
     {
       path: ":id",
-      element: <StoryDetail />,
+      element: <UserJourneyDetails />,
       loader: async ({ params }) => {
         const { id } = params;
-        if (!id) return null;
-        const story = await getStoryById(id);
-        if (!story) {
-          // returning null — component can handle missing data
-          return null;
-        }
-        return story;
+        if (!id) return;
+        return await getStoryById(id);
       },
     },
     {

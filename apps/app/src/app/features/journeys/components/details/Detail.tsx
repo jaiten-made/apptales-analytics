@@ -1,9 +1,9 @@
-import { IconButton, ListSubheader, Paper } from "@mui/material";
+import { IconButton, ListItem, ListItemText, Paper } from "@mui/material";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { DataGrid } from "@mui/x-data-grid";
 import { IconArrowRight } from "@tabler/icons-react";
 import { formatDistanceToNowStrict, parseISO } from "date-fns";
-import { useNavigate, useParams } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import { actions } from "../../../../../lib/redux/features/user-journeys/slice";
 import { useAppDispatch } from "../../../../../lib/redux/hook";
 import rawData from "./data.json";
@@ -31,7 +31,8 @@ const formatMs = (ms?: number) => {
 
 const Detail = () => {
   const navigate = useNavigate();
-  const { id: journeyId } = useParams();
+  const { id: journeyId, name } = useLoaderData();
+
   const dispatch = useAppDispatch();
 
   const columns: GridColDef<Row>[] = [
@@ -95,7 +96,12 @@ const Detail = () => {
 
   return (
     <Paper className="flex flex-col gap-2">
-      <ListSubheader>User Journeys</ListSubheader>
+      <ListItem>
+        <ListItemText
+          primary={name}
+          secondary="Users who attempted or completed this journey"
+        />
+      </ListItem>
       <DataGrid<Row>
         rows={data}
         columns={columns}
