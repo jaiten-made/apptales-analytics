@@ -10,12 +10,11 @@ import rows from "../DataTable/data.json";
 
 interface HeaderProps {
   rows?: typeof rows;
-  onNavigate?: (path: string) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
+const Header: React.FC<HeaderProps> = () => {
   const navigate = useNavigate();
-  const { id, storyId, userId } = useParams();
+  const { id, userId } = useParams();
   const location = useLocation();
   const { name } = useAppSelector(selectSelectedJourney) ?? {};
 
@@ -25,22 +24,9 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   }, [id]);
   const dispatch = useAppDispatch();
 
-  const navigateTo = React.useMemo(
-    () => onNavigate ?? ((path: string) => navigate(path)),
-    [onNavigate, navigate]
-  );
-
   const isStoriesRoute = location.pathname === "/journeys";
   const isSelectedStoryRoute =
     Boolean(id) && location.pathname === `/journeys/${id}`;
-
-  const handleNavigate = React.useCallback(
-    (e: React.SyntheticEvent, path: string) => {
-      e.preventDefault();
-      navigateTo(path);
-    },
-    [navigateTo]
-  );
 
   return (
     <AppBar
@@ -65,7 +51,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
             color={isStoriesRoute ? "text.primary" : "text.secondary"}
             href="/journeys"
             onClick={(e) => {
-              handleNavigate(e, "/journeys");
+              e.preventDefault(); // disable page refresh
+              navigate("/journeys");
               dispatch(actions.setSelectedJourney(undefined));
             }}
           >
@@ -75,8 +62,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
             <Link
               underline="none"
               color={isSelectedStoryRoute ? "text.primary" : "text.secondary"}
-              href={`/journeys/${storyId}`}
-              onClick={(e) => handleNavigate(e, `/journeys/${storyId}`)}
+              href={`/journeys/${id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(`/journeys/${id}`);
+              }}
             >
               {name}
               {typeof journeyCompletion === "number" && (
