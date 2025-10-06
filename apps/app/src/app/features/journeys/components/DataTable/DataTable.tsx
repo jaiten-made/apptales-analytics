@@ -6,7 +6,15 @@ import { IconArrowRight } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { actions } from "../../../../../lib/redux/features/journeys/slice";
 import { useAppDispatch } from "../../../../../lib/redux/hook";
+import { computeJourneyCompletionPercent } from "../../lib/computeCompletion";
 import rows from "./data.json";
+
+interface JourneyRow {
+  id: number | string;
+  name: string;
+  completeRatePercent?: number;
+  status?: string;
+}
 
 const paginationModel = { page: 0, pageSize: 25 };
 
@@ -14,6 +22,12 @@ export default function DataTable() {
   const theme = useTheme();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
+  // derive dynamic completion percentages based on attempts data
+  const derivedRows: JourneyRow[] = (rows as JourneyRow[]).map((r) => ({
+    ...r,
+    completeRatePercent: computeJourneyCompletionPercent(r.id),
+  }));
 
   const columns = (navigate: ReturnType<typeof useNavigate>): GridColDef[] => [
     {
@@ -91,7 +105,7 @@ export default function DataTable() {
       }}
     >
       <DataGrid
-        rows={rows}
+        rows={derivedRows}
         columns={columns(navigate)}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10]}

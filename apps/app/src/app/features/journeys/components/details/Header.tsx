@@ -5,6 +5,7 @@ import theme from "../../../../../lib/mui/theme";
 import { actions } from "../../../../../lib/redux/features/journeys/slice";
 import { selectSelectedJourney } from "../../../../../lib/redux/features/journeys/slice/selectors";
 import { useAppDispatch, useAppSelector } from "../../../../../lib/redux/hook";
+import { computeJourneyCompletionPercent } from "../../lib/computeCompletion";
 import rows from "../DataTable/data.json";
 
 interface HeaderProps {
@@ -17,6 +18,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
   const { id, storyId, userId } = useParams();
   const location = useLocation();
   const { name } = useAppSelector(selectSelectedJourney) ?? {};
+
+  const journeyCompletion = React.useMemo(() => {
+    if (!id) return undefined;
+    return computeJourneyCompletionPercent(id);
+  }, [id]);
   const dispatch = useAppDispatch();
 
   const navigateTo = React.useMemo(
@@ -73,6 +79,16 @@ const Header: React.FC<HeaderProps> = ({ onNavigate }) => {
               onClick={(e) => handleNavigate(e, `/journeys/${storyId}`)}
             >
               {name}
+              {typeof journeyCompletion === "number" && (
+                <Typography
+                  component="span"
+                  ml={1}
+                  color="text.secondary"
+                  fontSize={13}
+                >
+                  {journeyCompletion}%
+                </Typography>
+              )}
             </Link>
           )}
           {userId && (

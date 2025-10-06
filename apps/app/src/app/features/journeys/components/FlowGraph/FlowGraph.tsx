@@ -1,5 +1,6 @@
 import { intervalToDuration } from "date-fns";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router";
 import type {
   Connection,
   Edge,
@@ -17,12 +18,53 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import CustomListNode from "./CustomListNode";
 import data from "./data.json";
+// Journey list (table) data includes status for each journey id
+import journeys from "../DataTable/data.json";
+// User journey attempts data (per journey) includes status per attempt
+import userJourneyAttempts from "../details/data.json";
+
+// Types for imported static JSON (mock data)
+interface JourneyRow {
+  id: string | number;
+  status?: string;
+}
+
+interface UserJourneyAttemptRow {
+  id: string | number;
+  journeyId?: string | number;
+  status?: string;
+}
 
 const FlowGraph: React.FC = () => {
   const nodeTypes = { listNode: CustomListNode };
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
+  // read route params: /journeys/:id/user-journey/:userId?
+  const { id: journeyId, userId } = useParams();
+
+  // Determine overall status priority order (user journey attempt first, then journey)
+  const overallStatus = useMemo(() => {
+    // try to find user attempt status if userId present
+    if (userId) {
+      const attempt = (userJourneyAttempts as UserJourneyAttemptRow[]).find(
+        (a) =>
+          String(a.id) === String(userId) &&
+          (journeyId ? String(a.journeyId) === String(journeyId) : true)
+      );
+      if (attempt?.status) return String(attempt.status).toLowerCase();
+    }
+    // otherwise fall back to journey level status
+    if (journeyId) {
+      const journey = (journeys as JourneyRow[]).find(
+        (j) => String(j.id) === String(journeyId)
+      );
+      if (journey?.status) return String(journey.status).toLowerCase();
+    }
+    return undefined;
+  }, [journeyId, userId]);
+
+  // Build nodes/edges whenever overallStatus changes so we can override node completion state.
   useEffect(() => {
     // Load nodes/edges from data.json with explicit types
     type JsonNode = {
@@ -103,7 +145,11 @@ const FlowGraph: React.FC = () => {
       const totalHeight = measured + padding * 2;
 
       const jsonNode = n as JsonNode;
-      const isCompleted = Boolean(jsonNode.data?.hasCompleted);
+      // If overall status is success, force all nodes completed (green)
+      const isCompleted =
+        overallStatus === "success"
+          ? true
+          : Boolean(jsonNode.data?.hasCompleted);
 
       const node: Node = {
         id: String(n.id),
@@ -191,7 +237,7 @@ const FlowGraph: React.FC = () => {
 
     setNodes(loadedNodes);
     setEdges(loadedEdges);
-  }, []);
+  }, [overallStatus]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),

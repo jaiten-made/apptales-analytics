@@ -10,6 +10,7 @@ import rawData from "./data.json";
 
 type Row = {
   id: number;
+  journeyId?: number; // newly added to filter per journey
   createdAt: string;
   anonymousUserId: number;
   action: string;
@@ -17,7 +18,7 @@ type Row = {
   status?: string; // added status
 };
 
-const data = rawData as Row[];
+const allAttempts = rawData as Row[];
 
 // helper to format milliseconds
 const formatMs = (ms?: number) => {
@@ -32,7 +33,10 @@ const formatMs = (ms?: number) => {
 
 const Detail = () => {
   const navigate = useNavigate();
-  const { id: journeyId, name } = useLoaderData();
+  const { id: journeyId, name } = useLoaderData() as {
+    id: number;
+    name: string;
+  };
 
   const dispatch = useAppDispatch();
 
@@ -127,6 +131,11 @@ const Detail = () => {
     },
   ];
 
+  // Filter attempts for this journey (if journeyId numeric). If no matches, show empty state.
+  const journeyAttempts = allAttempts.filter(
+    (a) => a.journeyId == null || Number(a.journeyId) === Number(journeyId)
+  );
+
   return (
     <Paper className="flex flex-col gap-2">
       <ListItem>
@@ -135,16 +144,22 @@ const Detail = () => {
           secondary="Users who attempted or completed this journey"
         />
       </ListItem>
-      <DataGrid<Row>
-        rows={data}
-        columns={columns}
-        hideFooter
-        disableRowSelectionOnClick
-        disableColumnResize
-        sx={{
-          border: 0,
-        }}
-      />
+      {journeyAttempts.length === 0 ? (
+        <div className="p-6 text-sm opacity-70">
+          No user journeys for this journey yet.
+        </div>
+      ) : (
+        <DataGrid<Row>
+          rows={journeyAttempts}
+          columns={columns}
+          hideFooter
+          disableRowSelectionOnClick
+          disableColumnResize
+          sx={{
+            border: 0,
+          }}
+        />
+      )}
     </Paper>
   );
 };
