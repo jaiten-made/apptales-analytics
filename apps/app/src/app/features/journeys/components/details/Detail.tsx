@@ -50,9 +50,7 @@ const Detail = () => {
     {
       field: "status",
       headerName: "Status",
-      flex: 0.6,
-      sortable: false,
-      filterable: false,
+      flex: 1,
       renderCell: (params: GridRenderCellParams<Row>) => {
         const val = (params.value ?? params.row.status) as string | undefined;
         if (!val) return <Chip label="—" size="small" />;
@@ -82,9 +80,7 @@ const Detail = () => {
     {
       field: "duration",
       headerName: "Duration",
-      sortable: false,
-      filterable: false,
-      width: 160,
+      flex: 1,
       renderCell: (params: GridRenderCellParams<Row>) => {
         return <span>{formatMs(params.value as number | undefined)}</span>;
       },
@@ -110,9 +106,6 @@ const Detail = () => {
     {
       field: "action",
       headerName: "Action",
-      sortable: false,
-      filterable: false,
-      width: 120,
       renderCell: (params: GridRenderCellParams<Row>) => {
         const handlePlay = () => {
           dispatch(
