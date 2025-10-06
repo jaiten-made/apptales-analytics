@@ -1,7 +1,7 @@
 import { lazy } from "react";
 import type { RouteObject } from "react-router";
 import { getStoryById } from "./service";
-import UserStoryDetail from "./user-stories/details/Detail";
+import UserStoryDetail from "./user-story/details/Details";
 
 const Journeys = lazy(() => import("./index"));
 const StoryDetail = lazy(() => import("./components/details/Detail"));

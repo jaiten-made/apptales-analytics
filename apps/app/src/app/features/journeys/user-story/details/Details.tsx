@@ -1,10 +1,7 @@
 import Paper from "@mui/material/Paper";
-import { useParams } from "react-router";
 import FlowGraph from "../../components/FlowGraph/FlowGraph";
 
-const UserStoryDetail = () => {
-  const { id: storyId, userStoryId } = useParams();
-
+const UserStoryDetails = () => {
   return (
     <Paper className="h-full">
       <FlowGraph />
@@ -12,4 +9,4 @@ const UserStoryDetail = () => {
   );
 };
 
-export default UserStoryDetail;
+export default UserStoryDetails;
