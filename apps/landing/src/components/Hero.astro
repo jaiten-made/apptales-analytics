@@ -1,0 +1,61 @@
+---
+/** Basic reusable Hero component */
+interface Props {
+  title?: string;
+  subtitle?: string;
+  primaryHref?: string;
+  primaryLabel?: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
+}
+
+const {
+  title = "Build better app journeys",
+  subtitle = "Craft, measure, and optimize user journeys with clarity and speed.",
+  primaryHref = "#get-started",
+  primaryLabel = "Get Started",
+  secondaryHref = "#learn-more",
+  secondaryLabel = "Learn More",
+} = Astro.props as Props;
+---
+
+<section
+  class="relative flex min-h-[calc(100vh-4rem)] items-center justify-center px-6 py-16 sm:py-20 bg-[radial-gradient(circle_at_40%_30%,#ffffff_0%,#f3f4f6_55%,#e5e7eb_100%)]"
+>
+  <div class="w-full max-w-3xl text-center">
+    <h1
+      class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight -translate-y-px [letter-spacing:-0.02em] leading-tight mb-4"
+    >
+      {title}
+    </h1>
+    {
+      subtitle && (
+        <p class="mx-auto mb-8 max-w-2xl text-base sm:text-lg text-slate-600 leading-relaxed">
+          {subtitle}
+        </p>
+      )
+    }
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      {
+        primaryHref && primaryLabel && (
+          <a
+            href={primaryHref}
+            class="inline-flex items-center justify-center rounded-xl border border-transparent bg-gradient-to-r from-indigo-500 to-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_4px_18px_-4px_rgba(99,102,241,0.4)] transition-shadow hover:shadow-[0_6px_26px_-6px_rgba(99,102,241,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          >
+            {primaryLabel}
+          </a>
+        )
+      }
+      {
+        secondaryHref && secondaryLabel && (
+          <a
+            href={secondaryHref}
+            class="inline-flex items-center justify-center rounded-xl border border-slate-300/60 bg-white/60 backdrop-blur-md px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
+          >
+            {secondaryLabel}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</section>
