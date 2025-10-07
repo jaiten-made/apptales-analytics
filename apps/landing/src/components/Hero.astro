@@ -12,11 +12,8 @@ interface Props {
 const {
   title = "Build better app journeys",
   subtitle = "Craft, measure, and optimize user journeys with clarity and speed.",
-  primaryHref = "#get-started",
-  primaryLabel = "Get Started",
-  secondaryHref = "#learn-more",
-  secondaryLabel = "Learn More",
 } = Astro.props as Props;
+import SubscribeForm from "../components/SubscribeForm.tsx";
 ---
 
 <section
@@ -35,27 +32,6 @@ const {
         </p>
       )
     }
-    <div class="flex flex-wrap items-center justify-center gap-4">
-      {
-        primaryHref && primaryLabel && (
-          <a
-            href={primaryHref}
-            class="inline-flex items-center justify-center rounded-xl border border-transparent bg-gradient-to-r from-indigo-500 to-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_4px_18px_-4px_rgba(99,102,241,0.4)] transition-shadow hover:shadow-[0_6px_26px_-6px_rgba(99,102,241,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-          >
-            {primaryLabel}
-          </a>
-        )
-      }
-      {
-        secondaryHref && secondaryLabel && (
-          <a
-            href={secondaryHref}
-            class="inline-flex items-center justify-center rounded-xl border border-slate-300/60 bg-white/60 backdrop-blur-md px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2"
-          >
-            {secondaryLabel}
-          </a>
-        )
-      }
-    </div>
+    <SubscribeForm client:load />
   </div>
 </section>
