@@ -45,7 +45,10 @@ export default function SubscribeForm() {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_4px_18px_-4px_rgba(99,102,241,0.4)] transition hover:shadow-[0_6px_26px_-6px_rgba(99,102,241,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold text-white disabled:grayscale disabled:cursor-not-allowed"
+          style={{
+            backgroundImage: "linear-gradient(45deg, #FFBF00 0%, #FFD85C 100%)",
+          }}
         >
           {pending ? "Joining..." : "Join Waitlist"}
         </button>
