@@ -17,21 +17,47 @@ import SubscribeForm from "../components/SubscribeForm.tsx";
 ---
 
 <section
-  class="relative flex min-h-[calc(100vh-4rem)] items-center justify-center px-6 py-16 sm:py-20 bg-[radial-gradient(circle_at_40%_30%,#ffffff_0%,#f3f4f6_55%,#e5e7eb_100%)]"
+  class="relative min-h-[calc(100vh-4rem)] bg-[radial-gradient(circle_at_40%_30%,#ffffff_0%,#f3f4f6_55%,#e5e7eb_100%)]"
 >
-  <div class="w-full max-w-3xl text-center">
-    <h1
-      class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight -translate-y-px [letter-spacing:-0.02em] leading-tight mb-4"
-    >
-      {title}
-    </h1>
-    {
-      subtitle && (
-        <p class="mx-auto mb-8 max-w-2xl text-base sm:text-lg text-slate-600 leading-relaxed">
-          {subtitle}
-        </p>
-      )
-    }
-    <SubscribeForm client:load />
+  <div
+    class="w-full gap-8 max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center min-h-[calc(100vh-4rem)]"
+  >
+    <!-- Left content -->
+    <div class="flex-1 flex flex-col justify-center">
+      <h1
+        class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight -translate-y-px [letter-spacing:-0.02em] leading-tight mb-4"
+      >
+        {title}
+      </h1>
+      {
+        subtitle && (
+          <p class="mx-auto mb-8 max-w-2xl text-base text-slate-600 leading-relaxed">
+            {subtitle}
+          </p>
+        )
+      }
+      <SubscribeForm client:load />
+    </div>
+    <!-- Right content -->
+    <div class="flex-1 flex items-center justify-center">
+      <picture>
+        <source
+          srcset="/images/hero-graphic.webp"
+          type="image/webp"
+          width="600"
+          height="498.4"
+        />
+        <img
+          src="/images/hero-graphic.png"
+          alt="Hero graphic illustrating product workflow"
+          width="600"
+          height="498.4"
+          class="block w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </picture>
+    </div>
   </div>
 </section>

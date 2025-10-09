@@ -28,7 +28,7 @@ export default function SubscribeForm() {
     <div>
       <form
         onSubmit={handleSubmit}
-        className="mx-auto flex w-full max-w-xl flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4"
+        className="w-full flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:gap-4"
       >
         <label htmlFor="email" className="sr-only">
           Email address
@@ -45,7 +45,7 @@ export default function SubscribeForm() {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold text-white disabled:grayscale disabled:cursor-not-allowed"
+          className="flex-none rounded-xl px-6 py-3 text-sm font-semibold text-white disabled:grayscale disabled:cursor-not-allowed"
           style={{
             backgroundImage: "linear-gradient(45deg, #FFBF00 0%, #FFD85C 100%)",
           }}
