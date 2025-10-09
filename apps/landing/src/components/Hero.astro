@@ -14,6 +14,16 @@ const {
   subtitle = "Understand how users experience your product, uncover obstacles, and guide them to reach their goals without complex analytics.",
 } = Astro.props as Props;
 import SubscribeForm from "../components/SubscribeForm.tsx";
+
+// split title around the first occurrence of "repeatable"
+const highlightWord = "repeatable";
+let titleBefore = title;
+let titleAfter = "";
+if (title.includes(highlightWord)) {
+  const idx = title.indexOf(highlightWord);
+  titleBefore = title.slice(0, idx);
+  titleAfter = title.slice(idx + highlightWord.length);
+}
 ---
 
 <section
@@ -27,7 +37,17 @@ import SubscribeForm from "../components/SubscribeForm.tsx";
       <h1
         class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight -translate-y-px [letter-spacing:-0.02em] leading-tight mb-4"
       >
-        {title}
+        {titleBefore}
+        {
+          title.includes(highlightWord) && (
+            <span class="inline-block align-middle">
+              <span class="-skew-x-4 bg-primary text-white rounded px-2 py-0.5 inline-block">
+                <span class="skew-x-4 inline-block">{highlightWord}</span>
+              </span>
+            </span>
+          )
+        }
+        {titleAfter}
       </h1>
       {
         subtitle && (
