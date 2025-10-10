@@ -27,10 +27,10 @@ if (title.includes(highlightWord)) {
 ---
 
 <section
-  class="relative min-h-[calc(100vh-4rem)] bg-[radial-gradient(circle_at_40%_30%,#ffffff_0%,#f3f4f6_55%,#e5e7eb_100%)]"
+  class="relative py-8 px-8 min-h-[calc(100vh-4rem)] bg-[radial-gradient(circle_at_40%_30%,#ffffff_0%,#f3f4f6_55%,#e5e7eb_100%)]"
 >
   <div
-    class="w-full gap-8 max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-center min-h-[calc(100vh-4rem)]"
+    class="w-full gap-8 container mx-auto flex flex-col lg:flex-row items-center justify-center min-h-[calc(100vh-4rem)]"
   >
     <!-- Left content -->
     <div class="flex-1 flex flex-col justify-center">
@@ -51,7 +51,7 @@ if (title.includes(highlightWord)) {
       </h1>
       {
         subtitle && (
-          <p class="mx-auto mb-8 max-w-2xl text-base text-slate-600 leading-relaxed">
+          <p class="mx-auto mb-8 text-base text-slate-600 leading-relaxed">
             {subtitle}
           </p>
         )
@@ -60,19 +60,12 @@ if (title.includes(highlightWord)) {
     </div>
     <!-- Right content -->
     <div class="flex-1 flex items-center justify-center">
-      <picture>
-        <source
-          srcset="/images/hero-graphic.webp"
-          type="image/webp"
-          width="600"
-          height="498.4"
-        />
+      <picture class="border-primary border-1 rounded-lg overflow-hidden">
+        <source src="/images/hero-image.webp" type="image/webp" />
         <img
-          src="/images/hero-graphic.png"
+          class="border-primary border-1 rounded-lg"
+          src="/images/hero-image.png"
           alt="Hero graphic illustrating product workflow"
-          width="600"
-          height="498.4"
-          class="block w-full h-full object-cover"
           loading="eager"
           decoding="async"
           fetchpriority="high"
