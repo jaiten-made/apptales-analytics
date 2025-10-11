@@ -30,7 +30,7 @@ async function appendToSheet(sheetName: string, email: string) {
 
   const sheets = google.sheets({ version: "v4", auth });
   await sheets.spreadsheets.values.append({
-    spreadsheetId: import.meta.env.SHEET_ID,
+    spreadsheetId: import.meta.env.SHEET_ID ?? process.env.SHEET_ID,
     range: `${sheetName}!A:A`,
     valueInputOption: "RAW",
     requestBody: {
