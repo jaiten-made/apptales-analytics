@@ -11,7 +11,7 @@ WORKDIR /app
 FROM base AS build
 COPY . .
 # Use BuildKit cache for pnpm store when available. Try frozen install first, fall back if lockfile isn't present
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store sh -lc "pnpm install --frozen-lockfile || pnpm install"
+RUN sh -lc "pnpm install --frozen-lockfile || pnpm install"
 RUN pnpm run build
 
 FROM node:20-slim AS runtime
