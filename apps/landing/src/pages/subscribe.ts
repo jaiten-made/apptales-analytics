@@ -1,6 +1,5 @@
 export const prerender = false;
 import type { APIRoute } from "astro";
-import { getSecret } from "astro:env/server";
 import { google } from "googleapis";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
@@ -31,7 +30,7 @@ async function appendToSheet(sheetName: string, email: string) {
 
   const sheets = google.sheets({ version: "v4", auth });
   await sheets.spreadsheets.values.append({
-    spreadsheetId: getSecret("SHEET_ID"),
+    spreadsheetId: import.meta.env.SHEET_ID,
     range: `${sheetName}!A:A`,
     valueInputOption: "RAW",
     requestBody: {
