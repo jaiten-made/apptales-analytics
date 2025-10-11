@@ -26,15 +26,6 @@ async function isRateLimited(ip: string) {
 
 async function appendToSheet(sheetName: string, email: string) {
   const auth = await google.auth.getClient({
-    credentials: {
-      type: getSecret("SHEETS_TYPE"),
-      project_id: getSecret("SHEETS_PROJECT_ID"),
-      private_key_id: getSecret("SHEETS_PRIVATE_KEY_ID"),
-      private_key: getSecret("SHEETS_PRIVATE_KEY"),
-      client_id: getSecret("SHEETS_CLIENT_ID"),
-      client_email: getSecret("SHEETS_CLIENT_EMAIL"),
-      universe_domain: getSecret("SHEETS_UNIVERSE_DOMAIN"),
-    },
     scopes: ["https://www.googleapis.com/auth/spreadsheets"],
   });
 
