@@ -1,0 +1,282 @@
+---
+/** Problem and Solution section component */
+interface Props {
+  className?: string;
+}
+
+const { className = "" } = Astro.props as Props;
+
+// Accordion data
+const accordionItems = [
+  {
+    id: "analytics",
+    title: "Complex Analytics Don't Tell the Full Story",
+    description:
+      "Traditional analytics give you numbers and charts, but they don't reveal the 'why' behind user behavior. You see drops in conversion but not the emotional journey that led users to abandon their goals.",
+    image: "https://placehold.co/800x480?text=Analytics",
+    icon: "📊",
+  },
+  {
+    id: "friction",
+    title: "Hidden Friction Points Block Success",
+    description:
+      "Users encounter obstacles that aren't obvious from metrics alone. A confusing form, unclear navigation, or missing context can derail even the most motivated users.",
+    image: "https://placehold.co/800x480?text=Friction",
+    icon: "🚧",
+  },
+  {
+    id: "guessing",
+    title: "Teams Resort to Guesswork",
+    description:
+      "Without clear insights into user struggles, product teams make decisions based on assumptions. This leads to features that don't address real problems and solutions that miss the mark.",
+    image: "https://placehold.co/800x480?text=Guessing",
+    icon: "❓",
+  },
+  {
+    id: "solution",
+    title: "Real-time Journey Intelligence",
+    description:
+      "Apptales transforms complex user interactions into clear, actionable insights. Track user journeys in real-time, identify friction points, and create guided experiences that turn confused first-time users into confident, successful ones.",
+    image: "https://placehold.co/800x480?text=Solution",
+    icon: "🎯",
+  },
+];
+---
+
+<section class="py-16 px-8 bg-white">
+  <div class="container mx-auto max-w-6xl">
+    <!-- Main Section Title -->
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">
+        Understanding the Challenge & Our Solution
+      </h2>
+      <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+        Discover why traditional approaches fall short and how Apptales
+        transforms user experience optimization.
+      </p>
+    </div>
+
+    <!-- Accordion and Image Section -->
+    <div class="grid lg:grid-cols-2 gap-12 items-start">
+      <!-- Accordion Section -->
+      <div class="space-y-4">
+        {
+          accordionItems.map((item, index) => (
+            <div class="accordion-item border border-gray-200 rounded-lg overflow-hidden">
+              <button
+                class="accordion-trigger w-full text-left p-6 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between"
+                data-accordion-target={item.id}
+                data-image={item.image}
+                aria-expanded={index === 0 ? "true" : "false"}
+              >
+                <div class="flex items-center space-x-3">
+                  <span class="text-2xl">{item.icon}</span>
+                  <h3 class="text-lg font-semibold text-gray-900">
+                    {item.title}
+                  </h3>
+                </div>
+                <svg
+                  class="accordion-chevron w-5 h-5 text-gray-500 transform transition-transform duration-200"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              <div
+                class={`accordion-content overflow-hidden transition-all duration-300 ${index === 0 ? "max-h-96" : "max-h-0"}`}
+                id={item.id}
+              >
+                <div class="p-6 bg-white border-t border-gray-200">
+                  <p class="text-gray-700 leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <!-- Image Section -->
+      <div class="lg:sticky lg:top-8">
+        <div
+          class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden shadow-lg"
+        >
+          <img
+            id="accordion-image"
+            src="https://placehold.co/800x480?text=Analytics"
+            alt="Illustration showing user experience concept"
+            class="w-full h-80 object-cover transition-opacity duration-300"
+            loading="lazy"
+          />
+          <div class="p-6 bg-white">
+            <div class="flex items-center space-x-2 text-sm text-gray-600">
+              <div class="w-2 h-2 bg-primary rounded-full"></div>
+              <span id="image-caption"
+                >Analytics visualization showing data complexity</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Benefits Grid -->
+    <div class="mt-20 text-center">
+      <h3 class="text-2xl font-bold text-gray-900 mb-8">
+        Transform Your User Experience
+      </h3>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-gray-50 rounded-lg p-6">
+          <div
+            class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <span class="text-2xl">⚡</span>
+          </div>
+          <h4 class="font-semibold text-gray-900 mb-2">Real-time Tracking</h4>
+          <p class="text-gray-600 text-sm">
+            Monitor user journeys as they happen, not after the fact.
+          </p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-6">
+          <div
+            class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <span class="text-2xl">🎯</span>
+          </div>
+          <h4 class="font-semibold text-gray-900 mb-2">Identify Friction</h4>
+          <p class="text-gray-600 text-sm">
+            Pinpoint exactly where users struggle and why.
+          </p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-6">
+          <div
+            class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <span class="text-2xl">🏆</span>
+          </div>
+          <h4 class="font-semibold text-gray-900 mb-2">Guide Success</h4>
+          <p class="text-gray-600 text-sm">
+            Create smooth paths that lead users to their goals.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Accordion functionality
+  const accordionTriggers = document.querySelectorAll(
+    ".accordion-trigger"
+  ) as NodeListOf<HTMLButtonElement>;
+  const accordionImage = document.getElementById(
+    "accordion-image"
+  ) as HTMLImageElement;
+  const imageCaption = document.getElementById(
+    "image-caption"
+  ) as HTMLSpanElement;
+
+  // Image captions mapping
+  const imageCaptions: Record<string, string> = {
+    "https://placehold.co/800x480?text=Analytics":
+      "Analytics visualization showing data complexity",
+    "https://placehold.co/800x480?text=Friction":
+      "User journey with friction points highlighted",
+    "https://placehold.co/800x480?text=Guessing":
+      "Teams making decisions without clear data",
+    "https://placehold.co/800x480?text=Solution":
+      "Clear user journey insights and guided experiences",
+  };
+
+  accordionTriggers.forEach((trigger, index) => {
+    trigger.addEventListener("click", () => {
+      const targetId = trigger.dataset.accordionTarget;
+      const imageUrl = trigger.dataset.image;
+      const targetContent = document.getElementById(
+        targetId!
+      ) as HTMLDivElement;
+      const chevron = trigger.querySelector(
+        ".accordion-chevron"
+      ) as HTMLElement;
+      const isExpanded = trigger.getAttribute("aria-expanded") === "true";
+
+      // Close all other accordions
+      accordionTriggers.forEach((otherTrigger, otherIndex) => {
+        if (otherIndex !== index) {
+          const otherId = otherTrigger.dataset.accordionTarget;
+          const otherContent = document.getElementById(
+            otherId!
+          ) as HTMLDivElement;
+          const otherChevron = otherTrigger.querySelector(
+            ".accordion-chevron"
+          ) as HTMLElement;
+
+          otherTrigger.setAttribute("aria-expanded", "false");
+          if (otherContent) {
+            otherContent.style.maxHeight = "0";
+          }
+          if (otherChevron) {
+            otherChevron.style.transform = "rotate(0deg)";
+          }
+        }
+      });
+
+      // Toggle current accordion
+      if (!isExpanded) {
+        trigger.setAttribute("aria-expanded", "true");
+        if (targetContent) {
+          targetContent.style.maxHeight = targetContent.scrollHeight + "px";
+        }
+        if (chevron) {
+          chevron.style.transform = "rotate(180deg)";
+        }
+
+        // Update image with fade effect
+        if (accordionImage && imageUrl) {
+          accordionImage.style.opacity = "0.5";
+          setTimeout(() => {
+            accordionImage.src = imageUrl;
+            accordionImage.style.opacity = "1";
+            if (imageCaption && imageUrl in imageCaptions) {
+              imageCaption.textContent = imageCaptions[imageUrl];
+            }
+          }, 150);
+        }
+      } else {
+        trigger.setAttribute("aria-expanded", "false");
+        if (targetContent) {
+          targetContent.style.maxHeight = "0";
+        }
+        if (chevron) {
+          chevron.style.transform = "rotate(0deg)";
+        }
+      }
+    });
+  });
+</script>
+
+<style>
+  .accordion-content {
+    transition: max-height 0.3s ease-out;
+  }
+
+  .accordion-chevron {
+    transition: transform 0.2s ease-out;
+  }
+
+  .accordion-trigger:hover .accordion-chevron {
+    color: #374151;
+  }
+
+  #accordion-image {
+    transition: opacity 0.3s ease-in-out;
+  }
+</style>
