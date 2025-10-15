@@ -76,21 +76,29 @@ const FlowChart: React.FC = () => {
     <div className="w-full flex items-center justify-center">
       <div className="relative py-6">
         <div className="flex flex-col items-center">
-          {steps.map((s, idx) => (
-            <div key={s.id} className="flex items-center flex-col">
-              <Card step={s} />
-              {idx < steps.length - 1 && (
-                <div className="flex flex-col items-center">
-                  <div className="relative flex items-center h-32">
-                    <div className="w-px h-full bg-dashed-line mx-auto" />
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-50 text-sm text-gray-500 px-2 rounded-md">
-                      {steps[idx + 1].time}
+          {steps.map((s, idx) => {
+            const isBlocked =
+              s.status === "success" && steps[idx + 1]?.status === "fail";
+            return (
+              <div key={s.id} className="flex items-center flex-col">
+                <Card step={s} />
+                {idx < steps.length - 1 && (
+                  <div className="flex flex-col items-center">
+                    <div className="relative flex items-center h-32">
+                      <div
+                        className={`w-px h-full bg-dashed-line mx-auto ${
+                          isBlocked ? "no-anim" : ""
+                        }`}
+                      />
+                      <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-50 text-sm text-gray-500 px-2 rounded-md">
+                        {steps[idx + 1].time}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
       <style>{`
@@ -99,8 +107,20 @@ const FlowChart: React.FC = () => {
           background-image: linear-gradient(#d1d5db 33%, rgba(255,255,255,0) 0%);
           background-size: 2px 12px;
           background-repeat: repeat-y;
+          /* animate the background-position to create a flowing dashed effect */
+          animation: dash-scroll 1s linear infinite;
         }
-      `}</style>
+ 
+         @keyframes dash-scroll {
+           from { background-position: 0 0; }
+           to   { background-position: 0 12px; }
+         }
+        /* disable animation and slightly dim when blocked between success -> fail */
+        .bg-dashed-line.no-anim {
+          animation: none;
+         
+        }
+       `}</style>
     </div>
   );
 };
