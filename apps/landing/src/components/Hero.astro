@@ -16,6 +16,8 @@ const {
 import SubscribeForm from "../components/SubscribeForm.tsx";
 // React background component
 import StyledBackground from "../components/StyledBackground.tsx";
+// Flow chart component
+import FlowChart from "../components/FlowChart";
 
 // split title around the first occurrence of "repeatable"
 const highlightWord = "repeatable";
@@ -28,11 +30,9 @@ if (title.includes(highlightWord)) {
 }
 ---
 
-<section
-  class="relative py-8 px-8 min-h-[calc(100vh-4rem)] bg-[radial-gradient(circle_at_40%_30%,#ffffff_0%,#f3f4f6_55%,#e5e7eb_100%)]"
->
+<section class="relative py-8 px-8 min-h-[calc(100vh-4rem)] bg-gray-50">
   <!-- Background rendered as a client React component -->
-  <StyledBackground client:load />
+  <StyledBackground client:idle />
 
   <div
     class="w-full gap-8 container mx-auto flex flex-col lg:flex-row items-center justify-center min-h-[calc(100vh-4rem)] relative z-10"
@@ -66,17 +66,7 @@ if (title.includes(highlightWord)) {
     </div>
     <!-- Right content -->
     <div class="flex-1 flex items-center justify-center">
-      <picture class="border-primary border-1 rounded-lg overflow-hidden">
-        <source src="/images/hero-image.webp" type="image/webp" />
-        <img
-          class="border-primary border-1 rounded-lg"
-          src="/images/hero-image.png"
-          alt="Hero graphic illustrating product workflow"
-          loading="eager"
-          decoding="async"
-          fetchpriority="high"
-        />
-      </picture>
+      <FlowChart client:idle />
     </div>
   </div>
 </section>
