@@ -1,5 +1,6 @@
 ---
 import GoogleAnalytics from "../components/GoogleAnalytics.astro";
+import MicrosoftClarity from "../components/MicrosoftClarity.astro";
 import "../styles/global.css";
 const isProd = import.meta.env.PROD;
 ---
@@ -12,7 +13,14 @@ const isProd = import.meta.env.PROD;
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <meta name="generator" content={Astro.generator} />
     <title>Apptales</title>
-    {isProd && <GoogleAnalytics />}
+    {
+      isProd && (
+        <>
+          <GoogleAnalytics />
+          <MicrosoftClarity />
+        </>
+      )
+    }
   </head>
   <body>
     <slot />
