@@ -116,32 +116,16 @@ const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
         >
           <!-- media wrapper must be flex-1 so absolutely positioned media can fill it -->
           <div class="w-full flex-1 relative overflow-hidden bg-gray-50">
-            {
-              accordionItems.map((item, index) => (
-                <>
-                  {isVideo(item.video) ? (
-                    <video
-                      class={`accordion-media p-4 w-full h-full object-contain transition-opacity duration-300 absolute inset-0 ${index === 0 ? "opacity-100 z-10" : "opacity-0 z-0"}`}
-                      data-media-index={index}
-                      muted
-                      playsinline
-                      loop
-                      autoplay={index === 0}
-                      aria-hidden="true"
-                    >
-                      <source src={item.video} type="video/mp4" />
-                    </video>
-                  ) : (
-                    <img
-                      class={`accordion-media w-full h-full object-contain transition-opacity duration-300 absolute inset-0 ${index === 0 ? "opacity-100 z-10" : "opacity-0 z-0"}`}
-                      data-media-index={index}
-                      src={item.video}
-                      loading="lazy"
-                    />
-                  )}
-                </>
-              ))
-            }
+            <video
+              class="accordion-media p-4 w-full h-full object-contain transition-opacity duration-300 absolute inset-0 opacity-100 z-10"
+              muted
+              playsinline
+              loop
+              autoplay
+              aria-hidden="true"
+            >
+              <source src={accordionItems[0].video} type="video/mp4" />
+            </video>
           </div>
         </div>
       </div>
@@ -203,26 +187,6 @@ const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
         if (chevron) {
           chevron.style.transform = "rotate(180deg)";
         }
-
-        // Show corresponding media and caption
-        allMedia.forEach((media) => {
-          const isActive = media.dataset.mediaIndex === mediaIndex;
-          media.style.opacity = isActive ? "1" : "0";
-          media.style.zIndex = isActive ? "10" : "0";
-
-          // Handle video playback
-          if (media.tagName === "VIDEO") {
-            const video = media as HTMLVideoElement;
-            if (isActive) {
-              video.play().catch(() => {});
-            } else {
-              video.pause();
-              try {
-                video.currentTime = 0;
-              } catch (e) {}
-            }
-          }
-        });
 
         allCaptions.forEach((caption) => {
           const isActive = caption.dataset.captionIndex === mediaIndex;
