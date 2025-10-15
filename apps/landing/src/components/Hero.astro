@@ -65,8 +65,34 @@ if (title.includes(highlightWord)) {
       <SubscribeForm client:load />
     </div>
     <!-- Right content -->
-    <div class="flex-1 flex items-center justify-center">
-      <FlowChart client:idle />
+    <div class="flex-1 flex items-center justify-center relative py-32">
+      <!-- FlowChart wrapper: confined gradient lives inside this box only -->
+      <div class="relative w-full max-w-[28rem] p-4 overflow-visible">
+        <!-- Confined-but-not-cut gradient: use negative inset so circles extend outside box -->
+        <div
+          class="absolute -inset-12 pointer-events-none z-0"
+          aria-hidden="true"
+        >
+          <!-- Red-300 blurry circle (moved to bottom-right) -->
+          <div
+            class="absolute -right-[6rem] -bottom-[4rem] w-[40rem] h-[40rem] rounded-full"
+            style="background: radial-gradient(circle at 70% 70%, rgba(252,165,165,0.98) 0%, rgba(252,165,165,0.75) 10%, rgba(252,165,165,0) 48%); filter: blur(80px); opacity:0.95;"
+          >
+          </div>
+
+          <!-- Green-300 blurry circle (moved to top-left) -->
+          <div
+            class="absolute -left-[6rem] -top-[4rem] w-[36rem] h-[36rem] rounded-full"
+            style="background: radial-gradient(circle at 30% 30%, rgba(134,239,172,0.95) 0%, rgba(134,239,172,0.7) 9%, rgba(134,239,172,0) 46%); filter: blur(80px); opacity:0.9;"
+          >
+          </div>
+        </div>
+
+        <!-- FlowChart above the confined gradient -->
+        <div class="relative z-10">
+          <FlowChart client:idle />
+        </div>
+      </div>
     </div>
   </div>
 </section>
