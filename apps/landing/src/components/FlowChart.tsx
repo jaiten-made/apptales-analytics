@@ -1,3 +1,4 @@
+import { IconCheck, IconX } from "@tabler/icons-react";
 import React from "react";
 
 type Step = {
@@ -35,33 +36,7 @@ const Card: React.FC<{ step: Step }> = ({ step }) => {
         <div
           className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${dotBg}`}
         >
-          {step.status === "success" ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 00-1.414-1.414L7 12.172 4.707 9.879a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l9-9z"
-                clipRule="evenodd"
-              />
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm-2.293-9.707a1 1 0 011.414 0L10 8.586l.879-.879a1 1 0 111.414 1.414L11.414 10l.879.879a1 1 0 11-1.414 1.414L10 11.414l-.879.879a1 1 0 11-1.414-1.414L8.586 10l-.879-.879a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          )}
+          {step.status === "success" ? <IconCheck /> : <IconX />}
         </div>
         <div className="flex-1">
           <div className="font-medium text-gray-900">{step.title}</div>
