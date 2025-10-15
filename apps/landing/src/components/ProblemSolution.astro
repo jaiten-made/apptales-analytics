@@ -15,7 +15,6 @@ const accordionItems = [
       "See where your users struggle in their journeys with Apptales visual flow charts for clear actionable insights.",
     video: "/videos/understand-experiences.mp4",
     icon: "💡",
-    caption: "Analytics visualization showing data complexity",
   },
 ];
 
@@ -113,25 +112,10 @@ const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
                       class={`accordion-media w-full h-full object-contain transition-opacity duration-300 absolute inset-0 ${index === 0 ? "opacity-100 z-10" : "opacity-0 z-0"}`}
                       data-media-index={index}
                       src={item.video}
-                      alt={item.caption}
                       loading="lazy"
                     />
                   )}
                 </>
-              ))
-            }
-          </div>
-
-          <div class="p-6 bg-white">
-            {
-              accordionItems.map((item, index) => (
-                <div
-                  class={`accordion-caption flex items-center space-x-2 text-sm text-gray-600 transition-opacity duration-300 ${index === 0 ? "opacity-100" : "opacity-0 absolute"}`}
-                  data-caption-index={index}
-                >
-                  <div class="w-2 h-2 bg-primary rounded-full" />
-                  <span>{item.caption}</span>
-                </div>
               ))
             }
           </div>
