@@ -12,36 +12,43 @@ const accordionItems = [
     id: "understand-experiences",
     title: "Transform Experiences into Insights",
     description:
-      "See where your users struggle in their journeys with Apptales visual flow charts for clear actionable insights.”",
-    image: "https://placehold.co/800x480?text=Friction",
+      "See where your users struggle in their journeys with Apptales visual flow charts for clear actionable insights.",
+    video: "/videos/understand-experiences.mp4",
     icon: "💡",
+    caption: "Analytics visualization showing data complexity",
   },
 ];
+
+// Helper to check if URL is a video
+const isVideo = (url: string) => url.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
 ---
 
-<section class="py-16 px-8 bg-white">
-  <div class="container mx-auto max-w-6xl">
+<!-- make section a flex column and fill viewport -->
+<section class="py-16 px-8 bg-white min-h-screen flex flex-col">
+  <!-- make container stretch to fill available space -->
+  <div class="container mx-auto max-w-8xl flex-1 flex flex-col">
     <!-- Main Section Title -->
     <div class="text-center mb-12">
       <h2 class="text-4xl font-bold text-gray-900 mb-4">
         Stop Guessing How Users Experience Your Product
       </h2>
       <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-        Reveal the hidden obstacles in your user journeys.
+        Identify success and failure points in your user journeys.
       </p>
     </div>
 
     <!-- Accordion and Image Section -->
-    <div class="grid lg:grid-cols-2 gap-12 items-start">
+    <!-- main content should take remaining space under the header -->
+    <div class="flex gap-12 items-stretch flex-1">
       <!-- Accordion Section -->
-      <div class="space-y-4">
+      <div class="flex-1 space-y-4">
         {
           accordionItems.map((item, index) => (
-            <div class="accordion-item border border-gray-200 rounded-lg overflow-hidden">
+            <div class="accordion-item border border-gray-200 rounded-lg overflow-hidden ">
               <button
                 class="accordion-trigger w-full text-left p-6 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 flex items-center justify-between"
                 data-accordion-target={item.id}
-                data-image={item.image}
+                data-media-index={index}
                 aria-expanded={index === 0 ? "true" : "false"}
               >
                 <div class="flex items-center space-x-3">
@@ -80,24 +87,53 @@ const accordionItems = [
       </div>
 
       <!-- Image Section -->
-      <div class="lg:sticky lg:top-8">
+      <div class="flex-[1.5] flex">
         <div
-          class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden shadow-lg"
+          class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden shadow-lg flex flex-col flex-1"
         >
-          <img
-            id="accordion-image"
-            src="https://placehold.co/800x480?text=Analytics"
-            alt="Illustration showing user experience concept"
-            class="w-full h-80 object-cover transition-opacity duration-300"
-            loading="lazy"
-          />
+          <!-- media wrapper must be flex-1 so absolutely positioned media can fill it -->
+          <div class="w-full flex-1 relative overflow-hidden bg-gray-50">
+            {
+              accordionItems.map((item, index) => (
+                <>
+                  {isVideo(item.video) ? (
+                    <video
+                      class={`accordion-media p-4 w-full h-full object-contain transition-opacity duration-300 absolute inset-0 ${index === 0 ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+                      data-media-index={index}
+                      muted
+                      playsinline
+                      loop
+                      autoplay={index === 0}
+                      aria-hidden="true"
+                    >
+                      <source src={item.video} type="video/mp4" />
+                    </video>
+                  ) : (
+                    <img
+                      class={`accordion-media w-full h-full object-contain transition-opacity duration-300 absolute inset-0 ${index === 0 ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+                      data-media-index={index}
+                      src={item.video}
+                      alt={item.caption}
+                      loading="lazy"
+                    />
+                  )}
+                </>
+              ))
+            }
+          </div>
+
           <div class="p-6 bg-white">
-            <div class="flex items-center space-x-2 text-sm text-gray-600">
-              <div class="w-2 h-2 bg-primary rounded-full"></div>
-              <span id="image-caption"
-                >Analytics visualization showing data complexity</span
-              >
-            </div>
+            {
+              accordionItems.map((item, index) => (
+                <div
+                  class={`accordion-caption flex items-center space-x-2 text-sm text-gray-600 transition-opacity duration-300 ${index === 0 ? "opacity-100" : "opacity-0 absolute"}`}
+                  data-caption-index={index}
+                >
+                  <div class="w-2 h-2 bg-primary rounded-full" />
+                  <span>{item.caption}</span>
+                </div>
+              ))
+            }
           </div>
         </div>
       </div>
@@ -110,29 +146,17 @@ const accordionItems = [
   const accordionTriggers = document.querySelectorAll(
     ".accordion-trigger"
   ) as NodeListOf<HTMLButtonElement>;
-  const accordionImage = document.getElementById(
-    "accordion-image"
-  ) as HTMLImageElement;
-  const imageCaption = document.getElementById(
-    "image-caption"
-  ) as HTMLSpanElement;
-
-  // Image captions mapping
-  const imageCaptions: Record<string, string> = {
-    "https://placehold.co/800x480?text=Analytics":
-      "Analytics visualization showing data complexity",
-    "https://placehold.co/800x480?text=Friction":
-      "User journey with friction points highlighted",
-    "https://placehold.co/800x480?text=Guessing":
-      "Teams making decisions without clear data",
-    "https://placehold.co/800x480?text=Solution":
-      "Clear user journey insights and guided experiences",
-  };
+  const allMedia = document.querySelectorAll(
+    ".accordion-media"
+  ) as NodeListOf<HTMLElement>;
+  const allCaptions = document.querySelectorAll(
+    ".accordion-caption"
+  ) as NodeListOf<HTMLElement>;
 
   accordionTriggers.forEach((trigger, index) => {
     trigger.addEventListener("click", () => {
       const targetId = trigger.dataset.accordionTarget;
-      const imageUrl = trigger.dataset.image;
+      const mediaIndex = trigger.dataset.mediaIndex;
       const targetContent = document.getElementById(
         targetId!
       ) as HTMLDivElement;
@@ -172,17 +196,30 @@ const accordionItems = [
           chevron.style.transform = "rotate(180deg)";
         }
 
-        // Update image with fade effect
-        if (accordionImage && imageUrl) {
-          accordionImage.style.opacity = "0.5";
-          setTimeout(() => {
-            accordionImage.src = imageUrl;
-            accordionImage.style.opacity = "1";
-            if (imageCaption && imageUrl in imageCaptions) {
-              imageCaption.textContent = imageCaptions[imageUrl];
+        // Show corresponding media and caption
+        allMedia.forEach((media) => {
+          const isActive = media.dataset.mediaIndex === mediaIndex;
+          media.style.opacity = isActive ? "1" : "0";
+          media.style.zIndex = isActive ? "10" : "0";
+
+          // Handle video playback
+          if (media.tagName === "VIDEO") {
+            const video = media as HTMLVideoElement;
+            if (isActive) {
+              video.play().catch(() => {});
+            } else {
+              video.pause();
+              try {
+                video.currentTime = 0;
+              } catch (e) {}
             }
-          }, 150);
-        }
+          }
+        });
+
+        allCaptions.forEach((caption) => {
+          const isActive = caption.dataset.captionIndex === mediaIndex;
+          caption.style.opacity = isActive ? "1" : "0";
+        });
       } else {
         trigger.setAttribute("aria-expanded", "false");
         if (targetContent) {
@@ -209,7 +246,18 @@ const accordionItems = [
     color: #374151;
   }
 
-  #accordion-image {
+  /* ensure media truly fills its parent */
+  .accordion-media {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.3s ease-in-out;
+    object-fit: contain; /* change to 'cover' if you prefer cropping to fill */
+  }
+
+  .accordion-caption {
     transition: opacity 0.3s ease-in-out;
   }
 </style>

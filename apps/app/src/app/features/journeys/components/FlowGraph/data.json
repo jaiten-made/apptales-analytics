@@ -26,12 +26,70 @@
       "style": { "width": 300 }
     },
     {
+      "id": "upload_processing",
+      "type": "default",
+      "data": {
+        "label": "Observe Upload Processing",
+        "eventType": "page_visit",
+        "hasCompleted": true,
+        "durationMs": 20000
+      },
+      "position": { "x": 450, "y": 200 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "video_details",
+      "type": "default",
+      "data": {
+        "label": "Enter Video Details",
+        "eventType": "element_click",
+        "hasCompleted": true,
+        "durationMs": 30000
+      },
+      "position": { "x": 450, "y": 280 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "video_elements",
+      "type": "default",
+      "data": {
+        "label": "Add Video Elements",
+        "eventType": "element_click",
+        "hasCompleted": true,
+        "durationMs": 120000
+      },
+      "position": { "x": 450, "y": 360 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "checks",
+      "type": "default",
+      "data": {
+        "label": "Run Checks",
+        "eventType": "page_visit"
+      },
+      "position": { "x": 450, "y": 440 },
+      "style": { "width": 300 }
+    },
+    {
+      "id": "visibility_settings",
+      "type": "default",
+      "data": {
+        "label": "Set Visibility Settings",
+        "eventType": "element_click",
+        "hasCompleted": false,
+        "durationMs": null
+      },
+      "position": { "x": 450, "y": 520 },
+      "style": { "width": 300 }
+    },
+    {
       "id": "publish",
       "type": "default",
       "data": {
         "label": "Click Publish",
         "eventType": "element_click",
-        "durationMs": 10000
+        "durationMs": null
       },
       "position": { "x": 450, "y": 600 },
       "style": { "width": 300 }
@@ -47,13 +105,37 @@
     {
       "id": "e2",
       "source": "select_file",
-      "target": "publish",
+      "target": "upload_processing",
       "animated": true
     },
     {
       "id": "e3",
-      "source": "publish",
+      "source": "upload_processing",
       "target": "video_details",
+      "animated": true
+    },
+    {
+      "id": "e4",
+      "source": "video_details",
+      "target": "video_elements",
+      "animated": true
+    },
+    {
+      "id": "e5",
+      "source": "video_elements",
+      "target": "checks",
+      "animated": true
+    },
+    {
+      "id": "e6",
+      "source": "checks",
+      "target": "visibility_settings",
+      "animated": true
+    },
+    {
+      "id": "e7",
+      "source": "visibility_settings",
+      "target": "publish",
       "animated": true
     }
   ]

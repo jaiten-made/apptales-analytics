@@ -24,8 +24,72 @@
     "anonymousUserId": 3,
     "action": "play",
     "duration": 80000,
+    "status": "success"
+  },
+  {
+    "id": 4,
+    "journeyId": 1,
+    "createdAt": "2025-10-09T11:00:00.000Z",
+    "anonymousUserId": 4,
+    "action": "play",
+    "duration": 60000,
+    "status": "success"
+  },
+  {
+    "id": 5,
+    "journeyId": 1,
+    "createdAt": "2025-10-09T11:56:00.000Z",
+    "anonymousUserId": 5,
+    "action": "play",
+    "duration": 70000,
+    "status": "success"
+  },
+  {
+    "id": 6,
+    "journeyId": 1,
+    "createdAt": "2025-10-09T11:55:00.000Z",
+    "anonymousUserId": 6,
+    "action": "play",
+    "duration": 95000,
     "status": "failed"
   },
+  {
+    "id": 7,
+    "journeyId": 1,
+    "createdAt": "2025-10-09T11:54:00.000Z",
+    "anonymousUserId": 7,
+    "action": "play",
+    "duration": 65000,
+    "status": "success"
+  },
+  {
+    "id": 8,
+    "journeyId": 1,
+    "createdAt": "2025-10-09T11:53:00.000Z",
+    "anonymousUserId": 8,
+    "action": "play",
+    "duration": 50000,
+    "status": "success"
+  },
+  {
+    "id": 9,
+    "journeyId": 1,
+    "createdAt": "2025-10-09T11:52:00.000Z",
+    "anonymousUserId": 9,
+    "action": "play",
+    "duration": 40000,
+    "status": "success"
+  },
+  {
+    "id": 10,
+    "journeyId": 1,
+    "createdAt": "2025-10-09T11:51:00.000Z",
+    "anonymousUserId": 10,
+    "action": "play",
+    "duration": 60000,
+    "status": "failed"
+  },
+
   {
     "id": 11,
     "journeyId": 2,
