@@ -30,7 +30,9 @@ if (title.includes(highlightWord)) {
 }
 ---
 
-<section class="relative py-8 px-8 min-h-[calc(100vh-4rem)] bg-gray-50">
+<section
+  class="relative py-8 px-8 min-h-[calc(100vh-4rem)] bg-gray-50 max-width-full"
+>
   <!-- Background rendered as a client React component -->
   <StyledBackground client:idle />
 
@@ -65,25 +67,25 @@ if (title.includes(highlightWord)) {
       <SubscribeForm client:load />
     </div>
     <!-- Right content -->
-    <div class="flex-1 flex items-center justify-center relative py-32">
+    <div class="flex-1 flex items-center justify-center relative py-32 w-full">
       <!-- FlowChart wrapper: confined gradient lives inside this box only -->
-      <div class="relative w-full max-w-[28rem] p-4 overflow-visible">
+      <div class="relative w-full p-4">
         <!-- Confined-but-not-cut gradient: use negative inset so circles extend outside box -->
         <div
-          class="absolute -inset-12 pointer-events-none z-0"
+          class="absolute -inset-8 pointer-events-none z-0"
           aria-hidden="true"
         >
           <!-- Red-300 blurry circle (moved to bottom-right) -->
           <div
-            class="absolute -right-[6rem] -bottom-[4rem] w-[40rem] h-[40rem] rounded-full"
-            style="background: radial-gradient(circle at 70% 70%, rgba(252,165,165,0.98) 0%, rgba(252,165,165,0.75) 10%, rgba(252,165,165,0) 48%); filter: blur(80px); opacity:0.95;"
+            class="absolute -right-8 -bottom-8 sm:right-8 sm:bottom-0 size-[24rem] sm:size-[32rem] rounded-full"
+            style="background: radial-gradient(circle at 70% 70%, rgba(252,165,165,0.98) 0%, rgba(252,165,165,0.75) 10%, rgba(252,165,165,0) 48%); filter: blur(60px); opacity:0.95;"
           >
           </div>
 
           <!-- Green-300 blurry circle (moved to top-left) -->
           <div
-            class="absolute -left-[6rem] -top-[4rem] w-[36rem] h-[36rem] rounded-full"
-            style="background: radial-gradient(circle at 30% 30%, rgba(134,239,172,0.95) 0%, rgba(134,239,172,0.7) 9%, rgba(134,239,172,0) 46%); filter: blur(80px); opacity:0.9;"
+            class="absolute -left-8 -top-8 sm:left-8 sm:top-0 size-[24rem] sm:size-[32rem] rounded-full"
+            style="background: radial-gradient(circle at 30% 30%, rgba(134,239,172,0.95) 0%, rgba(134,239,172,0.7) 9%, rgba(134,239,172,0) 46%); filter: blur(60px); opacity:0.9;"
           >
           </div>
         </div>
