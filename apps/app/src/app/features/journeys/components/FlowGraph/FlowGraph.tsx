@@ -1,3 +1,4 @@
+import dagre from "dagre";
 import { intervalToDuration } from "date-fns";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
@@ -18,6 +19,7 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import CustomListNode from "./CustomListNode";
 import data from "./data.json";
+const nodeTypes = { listNode: CustomListNode };
 // Journey list (table) data includes status for each journey id
 import journeys from "../DataTable/data.json";
 // User journey attempts data (per journey) includes status per attempt
@@ -35,10 +37,24 @@ interface UserJourneyAttemptRow {
   status?: string;
 }
 
+interface CustomListNodeData {
+  title: string;
+  lines?: string[];
+  hasCompleted?: boolean;
+  isStartNode?: boolean;
+  allNodeIds?: string[];
+  allNodeLabels?: Record<string, string>;
+  onChangeStartNode?: (id: string) => void;
+  userCount?: number;
+  percentage?: number;
+  dropOffRate?: number;
+  totalUsers?: number;
+}
+
 const FlowGraph: React.FC = () => {
-  const nodeTypes = { listNode: CustomListNode };
-  const [nodes, setNodes] = useState<Node[]>([]);
+  const [nodes, setNodes] = useState<Node<CustomListNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [startNodeId, setStartNodeId] = useState<string | undefined>(undefined);
 
   // read route params: /journeys/:id/user-journey/:userId?
   const { id: journeyId, userId } = useParams();
@@ -89,93 +105,197 @@ const FlowGraph: React.FC = () => {
     type FlowJson = {
       nodes: JsonNode[];
       edges: JsonEdge[];
+      startNodeId?: string | number;
     };
 
     const json = data as unknown as FlowJson;
+    // If startNodeId state is not set, initialize from data
+    if (!startNodeId && json.startNodeId) {
+      setStartNodeId(String(json.startNodeId));
+    }
 
-    // Helper to parse padding (number or "12px")
-    const parsePadding = (p?: unknown) => {
-      if (typeof p === "number") return p;
-      if (typeof p === "string") {
-        const m = p.match(/^(\d+)/);
-        return m ? Number(m[1]) : 0;
+    // Build a graph structure to traverse from start node
+    const edgeMap = new Map<string, string[]>();
+    json.edges.forEach((e) => {
+      const sourceId = String(e.source);
+      const targetId = String(e.target);
+      if (!edgeMap.has(sourceId)) {
+        edgeMap.set(sourceId, []);
       }
-      return 0;
-    };
-
-    // Measure text height in the DOM (runs in browser inside useEffect)
-    const measureTextHeight = (text: string, width: number) => {
-      try {
-        const el = document.createElement("div");
-        el.style.position = "absolute";
-        el.style.visibility = "hidden";
-        el.style.width = `${width}px`;
-        el.style.whiteSpace = "pre-wrap";
-        el.style.font = "inherit";
-        el.style.lineHeight = "normal";
-        el.innerText = text;
-        document.body.appendChild(el);
-        const h = el.offsetHeight;
-        document.body.removeChild(el);
-        return h;
-      } catch {
-        // SSR fallback
-        return 0;
-      }
-    };
-
-    const elementGap = 128; // desired gap between elements
-
-    // Build nodes with measured heights and compute new vertical positions so gaps are equal
-    // sort nodes by original y so layout remains stable
-    const nodesWithMeta = json.nodes
-      .map((n, idx) => ({ n, idx }))
-      .sort((a, b) => a.n.position.y - b.n.position.y);
-
-    let currentY = 0;
-    const loadedNodes: Node[] = nodesWithMeta.map(({ n }) => {
-      const width = (n.style?.width as number) || 300;
-      const padding = parsePadding(n.style?.padding ?? 12);
-      // measure the label text height (exclude padding)
-      const labelText = String(n.data.label);
-      const measured = measureTextHeight(
-        labelText,
-        Math.max(20, width - padding * 2)
-      );
-      const totalHeight = measured + padding * 2;
-
-      const jsonNode = n as JsonNode;
-      // If overall status is success, force all nodes completed (green)
-      const isCompleted =
-        overallStatus === "success"
-          ? true
-          : Boolean(jsonNode.data?.hasCompleted);
-
-      const node: Node = {
-        id: String(n.id),
-        position: { x: n.position.x, y: currentY },
-        type: "listNode",
-        data: {
-          title: labelText.split("\n")[0] ?? "",
-          lines: labelText.split("\n").slice(1),
-          hasCompleted: isCompleted,
-        },
-        style: {
-          ...((n.style as Record<string, unknown>) || {}),
-          width,
-          padding,
-          height: totalHeight, // dynamic height based on content
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-        },
-      };
-
-      // advance currentY by this node's height + desired gap
-      currentY += totalHeight + elementGap;
-      return node;
+      edgeMap.get(sourceId)!.push(targetId);
     });
+
+    // Determine the starting node
+    const effectiveStartNodeId = startNodeId
+      ? String(startNodeId)
+      : json.startNodeId
+        ? String(json.startNodeId)
+        : json.nodes.length > 0
+          ? String(json.nodes[0].id)
+          : undefined;
+
+    // Traverse from start node to collect reachable nodes/edges
+    const reachableNodeIds = new Set<string>();
+    const reachableEdgeIds = new Set<string>();
+    function traverse(nodeId: string) {
+      if (reachableNodeIds.has(nodeId)) return;
+      reachableNodeIds.add(nodeId);
+      const children = edgeMap.get(nodeId) || [];
+      children.forEach((childId) => {
+        // Find edge connecting nodeId -> childId
+        const edge = json.edges.find(
+          (e) => String(e.source) === nodeId && String(e.target) === childId
+        );
+        if (edge) reachableEdgeIds.add(String(edge.id));
+        traverse(childId);
+      });
+    }
+    if (effectiveStartNodeId) {
+      traverse(effectiveStartNodeId);
+    }
+
+    // Calculate mock traffic metrics (GA4 style)
+    const totalUsers = 10000; // Starting traffic
+    const nodeMetrics = new Map<
+      string,
+      { userCount: number; percentage: number; dropOffRate: number }
+    >();
+    // Calculate user counts with flow-through logic
+    const calculateMetrics = (
+      nodeId: string,
+      incomingUsers: number
+    ): number => {
+      if (nodeMetrics.has(nodeId)) {
+        return nodeMetrics.get(nodeId)!.userCount;
+      }
+      const randomDropOff = Math.random() * 0.3; // 0-30% drop-off
+      const userCount = Math.floor(incomingUsers * (1 - randomDropOff));
+      const percentage = (userCount / totalUsers) * 100;
+      const dropOffRate = ((incomingUsers - userCount) / incomingUsers) * 100;
+      nodeMetrics.set(nodeId, { userCount, percentage, dropOffRate });
+      // Distribute users to children
+      const children = edgeMap.get(nodeId) || [];
+      if (children.length > 0) {
+        children.forEach((childId) => {
+          calculateMetrics(childId, userCount);
+        });
+      }
+      return userCount;
+    };
+    // Start from the start node
+    if (effectiveStartNodeId) {
+      nodeMetrics.set(effectiveStartNodeId, {
+        userCount: totalUsers,
+        percentage: 100,
+        dropOffRate: 0,
+      });
+      const children = edgeMap.get(effectiveStartNodeId) || [];
+      children.forEach((childId) => {
+        calculateMetrics(childId, totalUsers);
+      });
+    }
+
+    // Only show reachable nodes/edges
+    const allNodeIds = json.nodes.map((n) => String(n.id));
+    const allNodeLabels: Record<string, string> = {};
+    json.nodes.forEach((n) => {
+      allNodeLabels[String(n.id)] = String(n.data.label);
+    });
+    const initialNodes: Node<CustomListNodeData>[] = json.nodes
+      .filter((n) => reachableNodeIds.has(String(n.id)))
+      .map((n) => {
+        const nodeId = String(n.id);
+        const labelText = String(n.data.label);
+        const jsonNode = n as JsonNode;
+        const isCompleted =
+          overallStatus === "success"
+            ? true
+            : Boolean(jsonNode.data?.hasCompleted);
+        const isStartNode = nodeId === effectiveStartNodeId;
+        const metrics = nodeMetrics.get(nodeId) || {
+          userCount: 0,
+          percentage: 0,
+          dropOffRate: 0,
+        };
+        return {
+          id: nodeId,
+          position: { x: 0, y: 0 }, // Temporary position
+          type: "listNode",
+          data: {
+            title: labelText.split("\n")[0] ?? "",
+            lines: labelText.split("\n").slice(1),
+            hasCompleted: isCompleted,
+            isStartNode,
+            allNodeIds: isStartNode ? allNodeIds : undefined,
+            allNodeLabels: isStartNode ? allNodeLabels : undefined,
+            onChangeStartNode: isStartNode
+              ? (id: string) => {
+                  setStartNodeId(id);
+                }
+              : undefined,
+            userCount: metrics.userCount,
+            percentage: metrics.percentage,
+            dropOffRate: metrics.dropOffRate,
+            totalUsers,
+          },
+        };
+      });
+
+    // Use Dagre to calculate optimal layout
+    const getLayoutedElements = (
+      nodes: Node<CustomListNodeData>[],
+      edges: { id: string; source: string; target: string }[],
+      direction: "TB" | "LR" = "TB"
+    ) => {
+      const dagreGraph = new dagre.graphlib.Graph();
+      dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+      // Configure graph layout
+      dagreGraph.setGraph({
+        rankdir: direction, // TB = top to bottom, LR = left to right
+        nodesep: 120, // Horizontal spacing between nodes
+        ranksep: 180, // Vertical spacing between ranks
+        marginx: 50,
+        marginy: 50,
+      });
+
+      // Add nodes to dagre
+      nodes.forEach((node) => {
+        dagreGraph.setNode(node.id, { width: 280, height: 180 });
+      });
+
+      // Add edges to dagre
+      edges.forEach((edge) => {
+        dagreGraph.setEdge(edge.source, edge.target);
+      });
+
+      // Calculate layout
+      dagre.layout(dagreGraph);
+
+      // Apply calculated positions to nodes
+      const layoutedNodes = nodes.map((node) => {
+        const nodeWithPosition = dagreGraph.node(node.id);
+        return {
+          ...node,
+          position: {
+            x: nodeWithPosition.x - 140, // Center node (half of width)
+            y: nodeWithPosition.y - 90, // Center node (half of height)
+          },
+        };
+      });
+
+      return layoutedNodes;
+    };
+
+    const loadedNodes = getLayoutedElements(
+      initialNodes,
+      json.edges.map((e) => ({
+        id: String(e.id),
+        source: String(e.source),
+        target: String(e.target),
+      })),
+      "TB" // Top to Bottom layout
+    );
 
     // Helper to format milliseconds to human-readable string using date-fns
     const formatDuration = (ms: unknown) => {
@@ -214,30 +334,68 @@ const FlowGraph: React.FC = () => {
       return tokens.join(" ");
     };
 
-    // Build edges and attach a duration label (from target node's durationMs)
+    // Build edges and attach metrics (GA4 style with traffic volume)
     const loadedEdges: Edge[] = json.edges.map((e) => {
-      const targetNode = json.nodes.find(
-        (n) => String(n.id) === String(e.target)
-      );
+      const sourceId = String(e.source);
+      const targetId = String(e.target);
+
+      const targetNode = json.nodes.find((n) => String(n.id) === targetId);
+
+      const targetMetrics = nodeMetrics.get(targetId);
+
+      // Calculate edge thickness based on user count (1-10 range)
+      const userCount = targetMetrics?.userCount || 0;
+      const maxUsers = totalUsers;
+      const thickness = Math.max(1, Math.min(10, (userCount / maxUsers) * 10));
+
+      // Format label with user count and duration
       const durationLabel = targetNode
         ? formatDuration(targetNode.data?.durationMs)
         : "";
+
+      const userLabel = targetMetrics
+        ? `${targetMetrics.userCount.toLocaleString()} users`
+        : "";
+
+      const label = [userLabel, durationLabel].filter(Boolean).join(" • ");
+
+      // Color based on traffic volume
+      const getEdgeColor = () => {
+        if (!targetMetrics) return "#b0b0b0";
+        const ratio = targetMetrics.userCount / totalUsers;
+        if (ratio > 0.5) return "#388e3c"; // Green - high traffic
+        if (ratio > 0.25) return "#f57c00"; // Orange - medium traffic
+        return "#d32f2f"; // Red - low traffic
+      };
+
       const edge: Edge = {
         id: String(e.id),
-        source: String(e.source),
-        target: String(e.target),
+        source: sourceId,
+        target: targetId,
         animated: Boolean(e.animated),
-        label: durationLabel || undefined,
-        labelStyle: durationLabel
-          ? { fontSize: 12, fill: "#222", background: "transparent" }
+        label: label || undefined,
+        labelStyle: label
+          ? {
+              fontSize: 11,
+              fill: "#555",
+              fontWeight: 600,
+              background: "white",
+              padding: "4px 8px",
+              borderRadius: "4px",
+            }
           : undefined,
+        style: {
+          strokeWidth: thickness,
+          stroke: getEdgeColor(),
+        },
+        type: "bezier",
       };
       return edge;
     });
 
     setNodes(loadedNodes);
     setEdges(loadedEdges);
-  }, [overallStatus]);
+  }, [overallStatus, startNodeId]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -253,23 +411,33 @@ const FlowGraph: React.FC = () => {
   );
 
   return (
-    <div className="h-full w-full">
-      <ReactFlow
-        nodeTypes={nodeTypes}
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-        attributionPosition="bottom-left"
-        nodesDraggable={false}
-        proOptions={{ hideAttribution: true }}
-      >
-        <Controls />
-        <Background gap={16} />
-      </ReactFlow>
-    </div>
+    <ReactFlow
+      nodeTypes={nodeTypes}
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      fitView
+      fitViewOptions={{
+        padding: 0.2,
+        minZoom: 0.5,
+        maxZoom: 1.5,
+      }}
+      attributionPosition="bottom-left"
+      nodesDraggable={false}
+      elementsSelectable={true}
+      proOptions={{ hideAttribution: true }}
+      defaultEdgeOptions={{
+        type: "bezier",
+        animated: false,
+      }}
+      minZoom={0.1}
+      maxZoom={2}
+    >
+      <Controls showInteractive={false} position="top-left" />
+      <Background gap={16} />
+    </ReactFlow>
   );
 };
 

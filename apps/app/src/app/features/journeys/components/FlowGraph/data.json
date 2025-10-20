@@ -1,56 +1,57 @@
 {
   "userId": "user_1",
+  "startNodeId": "start_upload",
   "nodes": [
     {
       "id": "start_upload",
       "type": "default",
       "data": {
-        "label": "Click Start Upload",
+        "label": "Start Upload",
         "eventType": "element_click",
         "hasCompleted": true,
         "durationMs": 2000
       },
-      "position": { "x": 450, "y": 40 },
-      "style": { "width": 300 }
+      "position": { "x": 0, "y": 0 },
+      "style": { "width": 280 }
     },
     {
       "id": "select_file",
       "type": "default",
       "data": {
-        "label": "Click Select File",
+        "label": "Select File",
         "eventType": "element_click",
         "hasCompleted": true,
         "durationMs": 4000
       },
-      "position": { "x": 450, "y": 120 },
-      "style": { "width": 300 }
+      "position": { "x": 0, "y": 0 },
+      "style": { "width": 280 }
     },
     {
       "id": "upload_processing",
       "type": "default",
       "data": {
-        "label": "Observe Upload Processing",
+        "label": "Upload Processing",
         "eventType": "page_visit",
         "hasCompleted": true,
         "durationMs": 20000
       },
-      "position": { "x": 450, "y": 200 },
-      "style": { "width": 300 }
+      "position": { "x": 0, "y": 0 },
+      "style": { "width": 280 }
     },
     {
       "id": "video_details",
       "type": "default",
       "data": {
         "label": "Enter Video Details",
-        "eventType": "element_click",
+        "eventType": "form_fill",
         "hasCompleted": true,
         "durationMs": 30000
       },
-      "position": { "x": 450, "y": 280 },
-      "style": { "width": 300 }
+      "position": { "x": 0, "y": 0 },
+      "style": { "width": 280 }
     },
     {
-      "id": "video_elements",
+      "id": "add_elements",
       "type": "default",
       "data": {
         "label": "Add Video Elements",
@@ -58,41 +59,92 @@
         "hasCompleted": true,
         "durationMs": 120000
       },
-      "position": { "x": 450, "y": 360 },
-      "style": { "width": 300 }
+      "position": { "x": 0, "y": 0 },
+      "style": { "width": 280 }
     },
     {
-      "id": "checks",
+      "id": "skip_elements",
+      "type": "default",
+      "data": {
+        "label": "Skip Elements",
+        "eventType": "element_click",
+        "hasCompleted": true,
+        "durationMs": 5000
+      },
+      "position": { "x": 0, "y": 100 },
+      "style": { "width": 280 }
+    },
+    {
+      "id": "run_checks",
       "type": "default",
       "data": {
         "label": "Run Checks",
-        "eventType": "page_visit"
+        "eventType": "page_visit",
+        "hasCompleted": true,
+        "durationMs": 15000
       },
-      "position": { "x": 450, "y": 440 },
-      "style": { "width": 300 }
+      "position": { "x": 0, "y": 0 },
+      "style": { "width": 280 }
     },
     {
-      "id": "visibility_settings",
+      "id": "visibility_public",
       "type": "default",
       "data": {
-        "label": "Set Visibility Settings",
+        "label": "Set to Public",
+        "eventType": "element_click",
+        "hasCompleted": true,
+        "durationMs": 3000
+      },
+      "position": { "x": 0, "y": 0 },
+      "style": { "width": 280 }
+    },
+    {
+      "id": "visibility_private",
+      "type": "default",
+      "data": {
+        "label": "Set to Private",
+        "eventType": "element_click",
+        "hasCompleted": true,
+        "durationMs": 3000
+      },
+      "position": { "x": 0, "y": 100 },
+      "style": { "width": 280 }
+    },
+    {
+      "id": "visibility_unlisted",
+      "type": "default",
+      "data": {
+        "label": "Set to Unlisted",
         "eventType": "element_click",
         "hasCompleted": false,
-        "durationMs": null
+        "durationMs": 3000
       },
-      "position": { "x": 450, "y": 520 },
-      "style": { "width": 300 }
+      "position": { "x": 0, "y": 200 },
+      "style": { "width": 280 }
     },
     {
       "id": "publish",
       "type": "default",
       "data": {
-        "label": "Click Publish",
+        "label": "Publish Video",
         "eventType": "element_click",
-        "durationMs": null
+        "hasCompleted": true,
+        "durationMs": 2000
       },
-      "position": { "x": 450, "y": 600 },
-      "style": { "width": 300 }
+      "position": { "x": 0, "y": 0 },
+      "style": { "width": 280 }
+    },
+    {
+      "id": "save_draft",
+      "type": "default",
+      "data": {
+        "label": "Save as Draft",
+        "eventType": "element_click",
+        "hasCompleted": false,
+        "durationMs": 2000
+      },
+      "position": { "x": 0, "y": 100 },
+      "style": { "width": 280 }
     }
   ],
   "edges": [
@@ -117,26 +169,74 @@
     {
       "id": "e4",
       "source": "video_details",
-      "target": "video_elements",
+      "target": "add_elements",
       "animated": true
     },
     {
       "id": "e5",
-      "source": "video_elements",
-      "target": "checks",
-      "animated": true
+      "source": "video_details",
+      "target": "skip_elements",
+      "animated": false
     },
     {
       "id": "e6",
-      "source": "checks",
-      "target": "visibility_settings",
+      "source": "add_elements",
+      "target": "run_checks",
       "animated": true
     },
     {
       "id": "e7",
-      "source": "visibility_settings",
+      "source": "skip_elements",
+      "target": "run_checks",
+      "animated": false
+    },
+    {
+      "id": "e8",
+      "source": "run_checks",
+      "target": "visibility_public",
+      "animated": true
+    },
+    {
+      "id": "e9",
+      "source": "run_checks",
+      "target": "visibility_private",
+      "animated": true
+    },
+    {
+      "id": "e10",
+      "source": "run_checks",
+      "target": "visibility_unlisted",
+      "animated": false
+    },
+    {
+      "id": "e11",
+      "source": "visibility_public",
       "target": "publish",
       "animated": true
+    },
+    {
+      "id": "e12",
+      "source": "visibility_private",
+      "target": "publish",
+      "animated": true
+    },
+    {
+      "id": "e13",
+      "source": "visibility_unlisted",
+      "target": "publish",
+      "animated": false
+    },
+    {
+      "id": "e14",
+      "source": "visibility_public",
+      "target": "save_draft",
+      "animated": false
+    },
+    {
+      "id": "e15",
+      "source": "visibility_private",
+      "target": "save_draft",
+      "animated": false
     }
   ]
 }
