@@ -109,10 +109,6 @@ const FlowGraph: React.FC = () => {
     };
 
     const json = data as unknown as FlowJson;
-    // If startNodeId state is not set, initialize from data
-    if (!startNodeId && json.startNodeId) {
-      setStartNodeId(String(json.startNodeId));
-    }
 
     // Build a graph structure to traverse from start node
     const edgeMap = new Map<string, string[]>();
@@ -195,14 +191,27 @@ const FlowGraph: React.FC = () => {
       });
     }
 
-    // Only show reachable nodes/edges
+    // Only show reachable nodes/edges (or just the start node if nothing selected yet)
     const allNodeIds = json.nodes.map((n) => String(n.id));
     const allNodeLabels: Record<string, string> = {};
     json.nodes.forEach((n) => {
       allNodeLabels[String(n.id)] = String(n.data.label);
     });
     const initialNodes: Node<CustomListNodeData>[] = json.nodes
-      .filter((n) => reachableNodeIds.has(String(n.id)))
+      .filter((n) => {
+        const nodeId = String(n.id);
+        // If no start node selected, show the first node (or default from data.json)
+        if (!startNodeId) {
+          const defaultStartId = json.startNodeId
+            ? String(json.startNodeId)
+            : json.nodes.length > 0
+              ? String(json.nodes[0].id)
+              : undefined;
+          return nodeId === defaultStartId;
+        }
+        // Otherwise, show only reachable nodes from selected start
+        return reachableNodeIds.has(nodeId);
+      })
       .map((n) => {
         const nodeId = String(n.id);
         const labelText = String(n.data.label);
@@ -272,14 +281,28 @@ const FlowGraph: React.FC = () => {
       // Calculate layout
       dagre.layout(dagreGraph);
 
-      // Apply calculated positions to nodes
+      // Find the start node's calculated position
+      const startNode = nodes.find((n) => n.data.isStartNode);
+      let offsetX = 0;
+      let offsetY = 0;
+
+      if (startNode) {
+        const startNodePosition = dagreGraph.node(startNode.id);
+        // Calculate offset to position start node at fixed location
+        const fixedStartX = 300; // Fixed X position (centered)
+        const fixedStartY = 50; // Fixed Y position (top)
+        offsetX = fixedStartX - (startNodePosition.x - 140);
+        offsetY = fixedStartY - (startNodePosition.y - 90);
+      }
+
+      // Apply calculated positions to all nodes with offset
       const layoutedNodes = nodes.map((node) => {
         const nodeWithPosition = dagreGraph.node(node.id);
         return {
           ...node,
           position: {
-            x: nodeWithPosition.x - 140, // Center node (half of width)
-            y: nodeWithPosition.y - 90, // Center node (half of height)
+            x: nodeWithPosition.x - 140 + offsetX, // Center node + offset
+            y: nodeWithPosition.y - 90 + offsetY, // Center node + offset
           },
         };
       });
@@ -411,33 +434,35 @@ const FlowGraph: React.FC = () => {
   );
 
   return (
-    <ReactFlow
-      nodeTypes={nodeTypes}
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      fitView
-      fitViewOptions={{
-        padding: 0.2,
-        minZoom: 0.5,
-        maxZoom: 1.5,
-      }}
-      attributionPosition="bottom-left"
-      nodesDraggable={false}
-      elementsSelectable={true}
-      proOptions={{ hideAttribution: true }}
-      defaultEdgeOptions={{
-        type: "bezier",
-        animated: false,
-      }}
-      minZoom={0.1}
-      maxZoom={2}
-    >
-      <Controls showInteractive={false} position="top-left" />
-      <Background gap={16} />
-    </ReactFlow>
+    <div className="h-full w-full bg-gray-50">
+      <ReactFlow
+        nodeTypes={nodeTypes}
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        fitView
+        fitViewOptions={{
+          padding: 0.2,
+          minZoom: 0.5,
+          maxZoom: 1.5,
+        }}
+        attributionPosition="bottom-left"
+        nodesDraggable={false}
+        elementsSelectable={true}
+        proOptions={{ hideAttribution: true }}
+        defaultEdgeOptions={{
+          type: "bezier",
+          animated: false,
+        }}
+        minZoom={0.1}
+        maxZoom={2}
+      >
+        <Controls showInteractive={false} position="top-left" />
+        <Background gap={16} />
+      </ReactFlow>
+    </div>
   );
 };
 
