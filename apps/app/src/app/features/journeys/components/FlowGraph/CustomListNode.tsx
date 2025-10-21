@@ -1,12 +1,5 @@
-import {
-  Box,
-  IconButton,
-  Menu,
-  MenuItem,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import { IconArrowsShuffle, IconTrendingDown } from "@tabler/icons-react";
+import { Box, Menu, MenuItem, Typography } from "@mui/material";
+import { IconTrendingDown } from "@tabler/icons-react";
 import React from "react";
 import type { NodeProps } from "reactflow";
 import { Handle, Position } from "reactflow";
@@ -99,23 +92,6 @@ const CustomListNode: React.FC<NodeProps<Data>> = ({ data, id }) => {
                   >
                     START
                   </Box>
-                  {onChangeStartNode && allNodeIds && allNodeIds.length > 1 && (
-                    <Tooltip title="Change starting event">
-                      <IconButton
-                        size="small"
-                        sx={{
-                          width: 28,
-                          height: 28,
-                          bgcolor: "#e0e0e0",
-                          border: "2px solid #1976d2",
-                          "&:hover": { bgcolor: "#bdbdbd" },
-                        }}
-                        onClick={(e) => setAnchorEl(e.currentTarget)}
-                      >
-                        <IconArrowsShuffle size={18} />
-                      </IconButton>
-                    </Tooltip>
-                  )}
                 </Box>
                 {onChangeStartNode && allNodeIds && allNodeIds.length > 1 && (
                   <Typography
