@@ -14,7 +14,7 @@ const NavBar = () => {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
           <Box
             component="img"
-            src="/vite.svg"
+            src="/logo.svg"
             alt="AppTales Logo"
             sx={{ height: 32, width: 32 }}
           />
@@ -26,7 +26,7 @@ const NavBar = () => {
               letterSpacing: 0.5,
             }}
           >
-            AppTales
+            Appales
           </Typography>
         </Box>
       </Toolbar>
