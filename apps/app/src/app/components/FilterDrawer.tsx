@@ -1,5 +1,6 @@
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
@@ -204,6 +205,21 @@ const FilterDrawer = ({
                       selectOnFocus
                       clearOnBlur={false}
                     />
+                    <Box sx={{ mt: 2 }}>
+                      <Stack direction="row" spacing={1}>
+                        <Button size="small" disabled>
+                          Back
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={() => setActiveTab(1)}
+                          disabled={!selectedStartNodeId}
+                        >
+                          Next
+                        </Button>
+                      </Stack>
+                    </Box>
                   </Box>
                 </StepContent>
               </Step>
@@ -298,6 +314,20 @@ const FilterDrawer = ({
                         </Stack>
                       </Box>
                     )}
+                    <Box sx={{ mt: 2 }}>
+                      <Stack direction="row" spacing={1}>
+                        <Button size="small" onClick={() => setActiveTab(0)}>
+                          Back
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          disabled={!selectedStartNodeId}
+                        >
+                          Complete
+                        </Button>
+                      </Stack>
+                    </Box>
                   </Box>
                 </StepContent>
               </Step>
