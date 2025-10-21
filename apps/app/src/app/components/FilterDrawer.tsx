@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Avatar,
   Box,
   Divider,
@@ -10,8 +11,12 @@ import {
   ListItemButton,
   ListItemText,
   Stack,
-  Tab,
-  Tabs,
+  Step,
+  StepButton,
+  StepContent,
+  StepLabel,
+  Stepper,
+  TextField,
   Toolbar,
   Tooltip,
   Typography,
@@ -67,24 +72,23 @@ const FilterDrawer = ({
     }));
   }, [allUserIds]);
 
-  // Tab state
+  // Stepper state (0: Event, 1: User)
   const [activeTab, setActiveTab] = useState(0);
   const [userSearchQuery, setUserSearchQuery] = useState("");
-  const [eventSearchQuery, setEventSearchQuery] = useState("");
+  // removed: eventSearchQuery (replaced by Autocomplete inputValue)
+  const [eventInputValue, setEventInputValue] = useState("");
 
   // Determine which tabs are completed
   const isEventTabComplete = Boolean(selectedStartNodeId);
   const isUserTabComplete = Boolean(selectedUserId);
 
-  // Filter events based on search query
-  const filteredEventOptions = useMemo(() => {
-    if (!eventSearchQuery) return nodeOptions;
-    return nodeOptions.filter((node) =>
-      node.label.toLowerCase().includes(eventSearchQuery.toLowerCase())
-    );
-  }, [nodeOptions, eventSearchQuery]);
+  // Simple filter function used for Enter-to-select
+  const matchFirst = useMemo(() => {
+    const q = eventInputValue.trim().toLowerCase();
+    if (!q) return nodeOptions[0] ?? null;
+    return nodeOptions.find((o) => o.label.toLowerCase().includes(q)) || null;
+  }, [eventInputValue, nodeOptions]);
 
-  // Filter users based on search query
   const filteredUserOptions = useMemo(() => {
     if (!userSearchQuery) return userOptions;
     return userOptions.filter((user) =>
@@ -92,10 +96,7 @@ const FilterDrawer = ({
     );
   }, [userOptions, userSearchQuery]);
 
-  // Auto-advance to next tab when current is completed
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
+  // (Tabs removed) Step changes handled via StepButton onClick
 
   // Auto-advance logic
   const handleEventSelect = (nodeId: string) => {
@@ -109,14 +110,16 @@ const FilterDrawer = ({
     onStartNodeChange?.("");
     onUserChange?.(null);
     setUserSearchQuery("");
-    setEventSearchQuery("");
+    // Autocomplete manages its own input; we only control inputValue
+    setEventInputValue("");
     setActiveTab(0);
   };
 
   // Reset to initial state
   const handleReset = () => {
     setUserSearchQuery("");
-    setEventSearchQuery("");
+    // Autocomplete manages its own input; we only control inputValue
+    setEventInputValue("");
     if (!selectedStartNodeId) {
       setActiveTab(0);
     }
@@ -168,380 +171,296 @@ const FilterDrawer = ({
         </Toolbar>
 
         <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
-          {/* Tabs Header with Stepper-like indicators */}
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            variant="fullWidth"
-            sx={{
-              borderBottom: 1,
-              borderColor: "divider",
-              bgcolor: "background.paper",
-            }}
-          >
-            <Tab
-              icon={
-                <Box
-                  sx={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    bgcolor: isEventTabComplete
-                      ? "success.main"
-                      : activeTab === 0
-                        ? "primary.main"
-                        : "action.disabled",
-                    color: "white",
-                    transition: "all 0.3s",
-                    mb: 0.5,
-                  }}
-                >
-                  {isEventTabComplete ? (
-                    <IconCheck size={16} />
-                  ) : (
-                    <IconCalendarEvent size={16} />
-                  )}
-                </Box>
-              }
-              label={
-                <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                    Event
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    display="block"
-                    sx={{ fontSize: "0.65rem", opacity: 0.7 }}
+          {/* Vertical Stepper */}
+          <Box sx={{ px: 1, py: 1 }}>
+            <Stepper activeStep={activeTab} orientation="vertical" nonLinear>
+              {/* Step 1: Event */}
+              <Step completed={isEventTabComplete}>
+                <StepButton color="inherit" onClick={() => setActiveTab(0)}>
+                  <StepLabel
+                    optional={
+                      <Typography variant="caption" sx={{ opacity: 0.7 }}>
+                        Required
+                      </Typography>
+                    }
                   >
-                    Required
-                  </Typography>
-                </Box>
-              }
-              iconPosition="top"
-              sx={{
-                minHeight: 72,
-                py: 1,
-              }}
-            />
-            <Tab
-              icon={
-                <Box
-                  sx={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    bgcolor: isUserTabComplete
-                      ? "success.main"
-                      : activeTab === 1
-                        ? "primary.main"
-                        : "action.disabled",
-                    color: "white",
-                    transition: "all 0.3s",
-                    mb: 0.5,
-                  }}
-                >
-                  {isUserTabComplete ? (
-                    <IconCheck size={16} />
-                  ) : (
-                    <IconUser size={16} />
-                  )}
-                </Box>
-              }
-              label={
-                <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                    User
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    display="block"
-                    sx={{ fontSize: "0.65rem", opacity: 0.7 }}
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <IconCalendarEvent size={16} />
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                        Event
+                      </Typography>
+                    </Stack>
+                  </StepLabel>
+                </StepButton>
+                <StepContent>
+                  <Box
+                    sx={{
+                      animation: "fadeIn 0.3s",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
                   >
-                    Optional
-                  </Typography>
-                </Box>
-              }
-              iconPosition="top"
-              sx={{
-                minHeight: 72,
-                py: 1,
-              }}
-            />
-          </Tabs>
+                    {allNodeIds.length > 0 && onStartNodeChange ? (
+                      <>
+                        <Divider sx={{ mb: 1 }} />
+                        <Autocomplete
+                          fullWidth
+                          size="small"
+                          options={nodeOptions}
+                          getOptionLabel={(option) => option.label}
+                          value={
+                            nodeOptions.find(
+                              (n) => n.id === selectedStartNodeId
+                            ) || null
+                          }
+                          inputValue={eventInputValue}
+                          onInputChange={(_e, newInput) =>
+                            setEventInputValue(newInput)
+                          }
+                          onChange={(_event, newValue) => {
+                            if (newValue) {
+                              handleEventSelect(newValue.id);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              const first = matchFirst;
+                              if (first) {
+                                handleEventSelect(first.id);
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }
+                            }
+                          }}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Select Event"
+                              variant="outlined"
+                            />
+                          )}
+                          isOptionEqualToValue={(option, value) =>
+                            option.id === value.id
+                          }
+                          sx={{ mt: 1 }}
+                          noOptionsText="No events found"
+                          autoHighlight
+                          openOnFocus
+                          selectOnFocus
+                          clearOnBlur={false}
+                        />
+                      </>
+                    ) : (
+                      <Typography variant="caption" color="text.disabled">
+                        No events available
+                      </Typography>
+                    )}
+                  </Box>
+                </StepContent>
+              </Step>
 
-          {/* Tab Panels */}
-          <Box>
-            {/* Tab 1: Starting Event */}
-            {activeTab === 0 && (
-              <Box
-                sx={{
-                  animation: "fadeIn 0.3s",
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
-                }}
-              >
-                {allNodeIds.length > 0 && onStartNodeChange ? (
-                  <>
-                    <Divider sx={{ mb: 1 }} />
-
-                    <List>
-                      {filteredEventOptions.length === 0 ? (
-                        <ListItem>
-                          <ListItemText
-                            primary="No events found"
-                            secondary="Try a different search term"
-                            primaryTypographyProps={{
-                              variant: "body2",
-                              color: "text.secondary",
-                            }}
-                            secondaryTypographyProps={{
-                              variant: "caption",
-                            }}
-                          />
-                        </ListItem>
-                      ) : (
-                        filteredEventOptions.map((node) => (
-                          <ListItemButton
-                            key={node.id}
-                            selected={selectedStartNodeId === node.id}
-                            onClick={() => {
-                              handleEventSelect(node.id);
-                              setEventSearchQuery("");
+              {/* Step 2: User */}
+              <Step completed={isUserTabComplete}>
+                <StepButton color="inherit" onClick={() => setActiveTab(1)}>
+                  <StepLabel
+                    optional={
+                      <Typography variant="caption" sx={{ opacity: 0.7 }}>
+                        Optional
+                      </Typography>
+                    }
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <IconUser size={16} />
+                      <Typography variant="caption" sx={{ fontWeight: 600 }}>
+                        User
+                      </Typography>
+                    </Stack>
+                  </StepLabel>
+                </StepButton>
+                <StepContent>
+                  <Box
+                    sx={{
+                      animation: "fadeIn 0.3s",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    {allUserIds.length > 0 && onUserChange ? (
+                      <>
+                        <Divider sx={{ mb: 1 }} />
+                        {/* User List Container */}
+                        <Box
+                          sx={{
+                            flex: 1,
+                            minHeight: 0,
+                            display: "flex",
+                            flexDirection: "column",
+                          }}
+                        >
+                          <List
+                            sx={{
+                              width: "100%",
+                              bgcolor: "background.paper",
+                              borderRadius: 1,
+                              border: "1px solid",
+                              borderColor: "divider",
+                              flex: 1,
+                              minHeight: 0,
+                              overflow: "auto",
+                              p: 0,
                             }}
                           >
-                            <ListItemAvatar>
-                              <Avatar
-                                sx={{
-                                  bgcolor:
-                                    selectedStartNodeId === node.id
-                                      ? "success.main"
-                                      : "action.hover",
-                                  color:
-                                    selectedStartNodeId === node.id
-                                      ? "white"
-                                      : "text.primary",
-                                  width: 32,
-                                  height: 32,
-                                }}
-                              >
-                                {selectedStartNodeId === node.id ? (
-                                  <IconCheck size={18} />
-                                ) : (
-                                  <IconCalendarEvent size={18} />
-                                )}
-                              </Avatar>
-                            </ListItemAvatar>
-                            <ListItemText
-                              primary={node.label}
-                              secondary={`Event ID: ${node.id}`}
-                              primaryTypographyProps={{
-                                fontWeight:
-                                  selectedStartNodeId === node.id ? 600 : 400,
-                                variant: "body2",
-                              }}
-                              secondaryTypographyProps={{
-                                variant: "caption",
-                              }}
-                            />
-                            {selectedStartNodeId === node.id && (
-                              <IconCheck
-                                size={18}
-                                color={theme.palette.success.main}
-                              />
-                            )}
-                          </ListItemButton>
-                        ))
-                      )}
-                    </List>
-                  </>
-                ) : (
-                  <Typography variant="caption" color="text.disabled">
-                    No events available
-                  </Typography>
-                )}
-              </Box>
-            )}
-
-            {/* Tab 2: User Filter */}
-            {activeTab === 1 && (
-              <Box
-                sx={{
-                  animation: "fadeIn 0.3s",
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
-                }}
-              >
-                {allUserIds.length > 0 && onUserChange ? (
-                  <>
-                    <Divider sx={{ mb: 1 }} />
-                    {/* User List Container */}
-                    <Box
-                      sx={{
-                        flex: 1,
-                        minHeight: 0,
-                        display: "flex",
-                        flexDirection: "column",
-                      }}
-                    >
-                      <List
-                        sx={{
-                          width: "100%",
-                          bgcolor: "background.paper",
-                          borderRadius: 1,
-                          border: "1px solid",
-                          borderColor: "divider",
-                          flex: 1,
-                          minHeight: 0,
-                          overflow: "auto",
-                          p: 0,
-                        }}
-                      >
-                        {filteredUserOptions.length === 0 ? (
-                          <ListItem>
-                            <ListItemText
-                              primary="No users found"
-                              secondary="Try a different search term"
-                              primaryTypographyProps={{
-                                variant: "body2",
-                                color: "text.secondary",
-                              }}
-                              secondaryTypographyProps={{
-                                variant: "caption",
-                              }}
-                            />
-                          </ListItem>
-                        ) : (
-                          <>
-                            {/* Clear Selection Item */}
-                            <ListItemButton
-                              selected={!selectedUserId}
-                              onClick={() => {
-                                onUserChange(null);
-                                setUserSearchQuery("");
-                              }}
-                              sx={{
-                                borderBottom: "1px solid",
-                                borderColor: "divider",
-                              }}
-                            >
-                              <ListItemAvatar>
-                                <Avatar
-                                  sx={{
-                                    bgcolor: "action.selected",
-                                    color: "text.secondary",
-                                    width: 32,
-                                    height: 32,
-                                  }}
-                                >
-                                  <IconClearAll size={18} />
-                                </Avatar>
-                              </ListItemAvatar>
-                              <ListItemText
-                                primary="All Users"
-                                secondary="View all user journeys"
-                                primaryTypographyProps={{
-                                  fontWeight: !selectedUserId ? 600 : 400,
-                                  variant: "body2",
-                                }}
-                                secondaryTypographyProps={{
-                                  variant: "caption",
-                                }}
-                              />
-                            </ListItemButton>
-
-                            {/* User Items */}
-                            {filteredUserOptions.map((user) => (
-                              <ListItemButton
-                                key={user.id}
-                                selected={String(selectedUserId) === user.id}
-                                onClick={() => {
-                                  onUserChange(Number(user.id));
-                                  setUserSearchQuery("");
-                                }}
-                              >
-                                <ListItemAvatar>
-                                  <Avatar
-                                    sx={{
-                                      bgcolor:
-                                        String(selectedUserId) === user.id
-                                          ? "primary.main"
-                                          : "action.hover",
-                                      color:
-                                        String(selectedUserId) === user.id
-                                          ? "white"
-                                          : "text.primary",
-                                      width: 32,
-                                      height: 32,
-                                    }}
-                                  >
-                                    <IconUser size={18} />
-                                  </Avatar>
-                                </ListItemAvatar>
+                            {filteredUserOptions.length === 0 ? (
+                              <ListItem>
                                 <ListItemText
-                                  primary={user.label}
-                                  secondary={`User ID: ${user.id}`}
+                                  primary="No users found"
+                                  secondary="Try a different search term"
                                   primaryTypographyProps={{
-                                    fontWeight:
-                                      String(selectedUserId) === user.id
-                                        ? 600
-                                        : 400,
                                     variant: "body2",
+                                    color: "text.secondary",
                                   }}
                                   secondaryTypographyProps={{
                                     variant: "caption",
                                   }}
                                 />
-                                {String(selectedUserId) === user.id && (
-                                  <IconCheck
-                                    size={18}
-                                    color={theme.palette.primary.main}
+                              </ListItem>
+                            ) : (
+                              <>
+                                {/* Clear Selection Item */}
+                                <ListItemButton
+                                  selected={!selectedUserId}
+                                  onClick={() => {
+                                    onUserChange?.(null);
+                                    setUserSearchQuery("");
+                                  }}
+                                  sx={{
+                                    borderBottom: "1px solid",
+                                    borderColor: "divider",
+                                  }}
+                                >
+                                  <ListItemAvatar>
+                                    <Avatar
+                                      sx={{
+                                        bgcolor: "action.selected",
+                                        color: "text.secondary",
+                                        width: 32,
+                                        height: 32,
+                                      }}
+                                    >
+                                      <IconClearAll size={18} />
+                                    </Avatar>
+                                  </ListItemAvatar>
+                                  <ListItemText
+                                    primary="All Users"
+                                    secondary="View all user journeys"
+                                    primaryTypographyProps={{
+                                      fontWeight: !selectedUserId ? 600 : 400,
+                                      variant: "body2",
+                                    }}
+                                    secondaryTypographyProps={{
+                                      variant: "caption",
+                                    }}
                                   />
-                                )}
-                              </ListItemButton>
-                            ))}
-                          </>
-                        )}
-                      </List>
-                    </Box>
+                                </ListItemButton>
 
-                    {selectedUserId && (
-                      <Box
-                        sx={{
-                          mt: 2,
-                          p: 1.5,
-                          bgcolor: "#e3f2fd",
-                          borderRadius: 1,
-                          border: "1px solid",
-                          borderColor: "#64b5f6",
-                        }}
-                      >
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          <IconCheck size={16} style={{ color: "#1976d2" }} />
-                          <Typography
-                            variant="caption"
-                            sx={{ color: "#0d47a1", fontWeight: 500 }}
+                                {/* User Items */}
+                                {filteredUserOptions.map(
+                                  (user: { id: string; label: string }) => (
+                                    <ListItemButton
+                                      key={user.id}
+                                      selected={
+                                        String(selectedUserId) === user.id
+                                      }
+                                      onClick={() => {
+                                        onUserChange?.(Number(user.id));
+                                        setUserSearchQuery("");
+                                      }}
+                                    >
+                                      <ListItemAvatar>
+                                        <Avatar
+                                          sx={{
+                                            bgcolor:
+                                              String(selectedUserId) === user.id
+                                                ? "primary.main"
+                                                : "action.hover",
+                                            color:
+                                              String(selectedUserId) === user.id
+                                                ? "white"
+                                                : "text.primary",
+                                            width: 32,
+                                            height: 32,
+                                          }}
+                                        >
+                                          <IconUser size={18} />
+                                        </Avatar>
+                                      </ListItemAvatar>
+                                      <ListItemText
+                                        primary={user.label}
+                                        secondary={`User ID: ${user.id}`}
+                                        primaryTypographyProps={{
+                                          fontWeight:
+                                            String(selectedUserId) === user.id
+                                              ? 600
+                                              : 400,
+                                          variant: "body2",
+                                        }}
+                                        secondaryTypographyProps={{
+                                          variant: "caption",
+                                        }}
+                                      />
+                                      {String(selectedUserId) === user.id && (
+                                        <IconCheck
+                                          size={18}
+                                          color={theme.palette.primary.main}
+                                        />
+                                      )}
+                                    </ListItemButton>
+                                  )
+                                )}
+                              </>
+                            )}
+                          </List>
+                        </Box>
+
+                        {selectedUserId && (
+                          <Box
+                            sx={{
+                              mt: 2,
+                              p: 1.5,
+                              bgcolor: "#e3f2fd",
+                              borderRadius: 1,
+                              border: "1px solid",
+                              borderColor: "#64b5f6",
+                            }}
                           >
-                            Viewing: <strong>User {selectedUserId}</strong>
-                          </Typography>
-                        </Stack>
-                      </Box>
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              alignItems="center"
+                            >
+                              <IconCheck
+                                size={16}
+                                style={{ color: "#1976d2" }}
+                              />
+                              <Typography
+                                variant="caption"
+                                sx={{ color: "#0d47a1", fontWeight: 500 }}
+                              >
+                                Viewing: <strong>User {selectedUserId}</strong>
+                              </Typography>
+                            </Stack>
+                          </Box>
+                        )}
+                      </>
+                    ) : (
+                      <Typography variant="caption" color="text.disabled">
+                        No users available
+                      </Typography>
                     )}
-                  </>
-                ) : (
-                  <Typography variant="caption" color="text.disabled">
-                    No users available
-                  </Typography>
-                )}
-              </Box>
-            )}
+                  </Box>
+                </StepContent>
+              </Step>
+            </Stepper>
           </Box>
         </Box>
 
