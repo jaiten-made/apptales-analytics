@@ -448,7 +448,6 @@ const FlowGraph: React.FC = () => {
           minZoom: 0.5,
           maxZoom: 1.5,
         }}
-        attributionPosition="bottom-left"
         nodesDraggable={false}
         elementsSelectable={true}
         proOptions={{ hideAttribution: true }}
@@ -459,7 +458,7 @@ const FlowGraph: React.FC = () => {
         minZoom={0.1}
         maxZoom={2}
       >
-        <Controls showInteractive={false} position="top-left" />
+        <Controls showInteractive={false} />
         <Background gap={16} />
       </ReactFlow>
     </div>
