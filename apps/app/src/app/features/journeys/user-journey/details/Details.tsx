@@ -3,7 +3,7 @@ import FlowGraph from "../../components/FlowGraph/FlowGraph";
 
 const UserStoryDetails = () => {
   return (
-    <Paper className="h-full">
+    <Paper className="h-full flex">
       <FlowGraph />
     </Paper>
   );

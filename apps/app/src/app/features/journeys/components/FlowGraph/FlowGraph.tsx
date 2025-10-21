@@ -17,6 +17,7 @@ import ReactFlow, {
   applyNodeChanges,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import FilterDrawer from "../../../../components/FilterDrawer";
 import CustomListNode from "./CustomListNode";
 import data from "./data.json";
 const nodeTypes = { listNode: CustomListNode };
@@ -55,17 +56,22 @@ const FlowGraph: React.FC = () => {
   const [nodes, setNodes] = useState<Node<CustomListNodeData>[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [startNodeId, setStartNodeId] = useState<string | undefined>(undefined);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   // read route params: /journeys/:id/user-journey/:userId?
   const { id: journeyId, userId } = useParams();
 
+  // Effective userId is either from route or from filter selection
+  const effectiveUserId =
+    userId || (selectedUserId ? String(selectedUserId) : undefined);
+
   // Determine overall status priority order (user journey attempt first, then journey)
   const overallStatus = useMemo(() => {
-    // try to find user attempt status if userId present
-    if (userId) {
+    // try to find user attempt status if effectiveUserId present
+    if (effectiveUserId) {
       const attempt = (userJourneyAttempts as UserJourneyAttemptRow[]).find(
         (a) =>
-          String(a.id) === String(userId) &&
+          String(a.id) === String(effectiveUserId) &&
           (journeyId ? String(a.journeyId) === String(journeyId) : true)
       );
       if (attempt?.status) return String(attempt.status).toLowerCase();
@@ -78,7 +84,20 @@ const FlowGraph: React.FC = () => {
       if (journey?.status) return String(journey.status).toLowerCase();
     }
     return undefined;
-  }, [journeyId, userId]);
+  }, [journeyId, effectiveUserId]);
+
+  // Get all available user IDs for the filter
+  const allUserIds = useMemo(() => {
+    return Array.from(
+      new Set(
+        (userJourneyAttempts as UserJourneyAttemptRow[])
+          .filter(
+            (a) => !journeyId || String(a.journeyId) === String(journeyId)
+          )
+          .map((a) => a.id)
+      )
+    ).sort((a, b) => Number(a) - Number(b));
+  }, [journeyId]);
 
   // Build nodes/edges whenever overallStatus changes so we can override node completion state.
   useEffect(() => {
@@ -433,34 +452,66 @@ const FlowGraph: React.FC = () => {
     []
   );
 
+  // Prepare data for FilterDrawer
+  const allNodeIds = useMemo(() => {
+    const json = data as unknown as {
+      nodes: Array<{ id: string | number; data: { label: string } }>;
+    };
+    return json.nodes.map((n) => String(n.id));
+  }, []);
+
+  const allNodeLabels = useMemo(() => {
+    const json = data as unknown as {
+      nodes: Array<{ id: string | number; data: { label: string } }>;
+    };
+    const labels: Record<string, string> = {};
+    json.nodes.forEach((n) => {
+      labels[String(n.id)] = String(n.data.label);
+    });
+    return labels;
+  }, []);
+
   return (
-    <div className="h-full w-full bg-gray-50">
-      <ReactFlow
-        nodeTypes={nodeTypes}
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-        fitViewOptions={{
-          padding: 0.2,
-          minZoom: 0.5,
-          maxZoom: 1.5,
-        }}
-        nodesDraggable={false}
-        elementsSelectable={true}
-        proOptions={{ hideAttribution: true }}
-        defaultEdgeOptions={{
-          type: "bezier",
-          animated: false,
-        }}
-        minZoom={0.1}
-        maxZoom={2}
-      >
-        <Controls showInteractive={false} />
-        <Background gap={16} />
-      </ReactFlow>
+    <div className="flex h-full w-full">
+      <FilterDrawer
+        allNodeIds={allNodeIds}
+        allNodeLabels={allNodeLabels}
+        selectedStartNodeId={startNodeId}
+        onStartNodeChange={setStartNodeId}
+        allUserIds={allUserIds}
+        selectedUserId={selectedUserId ?? undefined}
+        onUserChange={(userId) =>
+          setSelectedUserId(userId ? Number(userId) : null)
+        }
+      />
+      <div className="flex-1 bg-gray-50">
+        <ReactFlow
+          nodeTypes={nodeTypes}
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+          fitViewOptions={{
+            padding: 0.2,
+            minZoom: 0.5,
+            maxZoom: 1.5,
+          }}
+          nodesDraggable={false}
+          elementsSelectable={true}
+          proOptions={{ hideAttribution: true }}
+          defaultEdgeOptions={{
+            type: "bezier",
+            animated: false,
+          }}
+          minZoom={0.1}
+          maxZoom={2}
+        >
+          <Controls showInteractive={false} />
+          <Background gap={16} />
+        </ReactFlow>
+      </div>
     </div>
   );
 };
