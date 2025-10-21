@@ -338,12 +338,6 @@ const FilterDrawer = ({
               <AlertTitle>Selected User</AlertTitle>
               {selectedUserId ? `User ${selectedUserId}` : "No user selected"}
             </Alert>
-            {selectedUserId && isUserTabComplete && (
-              <Alert severity="success" icon={<IconCalendarEvent size={18} />}>
-                <AlertTitle>Journey Visualization</AlertTitle>
-                Showing the actual path taken by User {selectedUserId}
-              </Alert>
-            )}
           </Stack>
         </Box>
 
