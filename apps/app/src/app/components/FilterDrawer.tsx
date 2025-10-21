@@ -1,3 +1,5 @@
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,7 +18,6 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import {
   IconCalendarEvent,
-  IconCheck,
   IconClearAll,
   IconFilter,
   IconRefresh,
@@ -291,29 +292,6 @@ const FilterDrawer = ({
                       selectOnFocus
                       clearOnBlur={false}
                     />
-
-                    {selectedUserId && (
-                      <Box
-                        sx={{
-                          mt: 2,
-                          p: 1.5,
-                          bgcolor: "#e3f2fd",
-                          borderRadius: 1,
-                          border: "1px solid",
-                          borderColor: "#64b5f6",
-                        }}
-                      >
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          <IconCheck size={16} style={{ color: "#1976d2" }} />
-                          <Typography
-                            variant="caption"
-                            sx={{ color: "#0d47a1", fontWeight: 500 }}
-                          >
-                            Viewing: <strong>User {selectedUserId}</strong>
-                          </Typography>
-                        </Stack>
-                      </Box>
-                    )}
                     <Box sx={{ mt: 2 }}>
                       <Stack direction="row" spacing={1}>
                         <Button size="small" onClick={() => setActiveTab(0)}>
@@ -333,6 +311,30 @@ const FilterDrawer = ({
               </Step>
             </Stepper>
           </Box>
+        </Box>
+
+        {/* Selected Filters Summary as Alerts at the bottom */}
+        <Box
+          sx={{ px: 2, py: 2, borderTop: `1px solid ${theme.palette.divider}` }}
+        >
+          <Stack spacing={1}>
+            <Alert
+              severity={selectedStartNodeId ? "info" : "warning"}
+              icon={<IconCalendarEvent size={18} />}
+            >
+              <AlertTitle>Selected Event</AlertTitle>
+              {selectedStartNodeId
+                ? allNodeLabels[selectedStartNodeId] || selectedStartNodeId
+                : "No event selected"}
+            </Alert>
+            <Alert
+              severity={selectedUserId ? "info" : "warning"}
+              icon={<IconUser size={18} />}
+            >
+              <AlertTitle>Selected User</AlertTitle>
+              {selectedUserId ? `User ${selectedUserId}` : "No user selected"}
+            </Alert>
+          </Stack>
         </Box>
 
         <style>{`
