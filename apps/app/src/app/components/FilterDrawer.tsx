@@ -153,7 +153,7 @@ const FilterDrawer = ({
                     <Stack direction="row" alignItems="center" spacing={1}>
                       <IconCalendarEvent size={16} />
                       <Typography variant="caption" sx={{ fontWeight: 600 }}>
-                        Event
+                        Starting Event
                       </Typography>
                     </Stack>
                   </StepLabel>
@@ -322,10 +322,10 @@ const FilterDrawer = ({
               severity={selectedStartNodeId ? "info" : "warning"}
               icon={<IconCalendarEvent size={18} />}
             >
-              <AlertTitle>Selected Event</AlertTitle>
+              <AlertTitle>Starting Event</AlertTitle>
               {selectedStartNodeId
                 ? allNodeLabels[selectedStartNodeId] || selectedStartNodeId
-                : "No event selected"}
+                : "No starting event selected"}
             </Alert>
             <Alert
               severity={selectedUserId ? "info" : "warning"}
