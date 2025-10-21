@@ -76,7 +76,7 @@ const FilterDrawer = ({
 
   const handleEventSelect = (nodeId: string) => {
     onStartNodeChange?.(nodeId);
-    setTimeout(() => setActiveTab(1), 300);
+    // Do not auto-advance; user controls navigation via buttons
   };
 
   const handleClearAll = () => {
