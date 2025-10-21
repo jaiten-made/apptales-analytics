@@ -301,6 +301,10 @@ const FilterDrawer = ({
                           size="small"
                           variant="contained"
                           disabled={!selectedStartNodeId}
+                          onClick={() => {
+                            // When both filters are set, the flow graph will automatically update
+                            // to show the user's journey path
+                          }}
                         >
                           Complete
                         </Button>
@@ -334,6 +338,12 @@ const FilterDrawer = ({
               <AlertTitle>Selected User</AlertTitle>
               {selectedUserId ? `User ${selectedUserId}` : "No user selected"}
             </Alert>
+            {selectedUserId && isUserTabComplete && (
+              <Alert severity="success" icon={<IconCalendarEvent size={18} />}>
+                <AlertTitle>Journey Visualization</AlertTitle>
+                Showing the actual path taken by User {selectedUserId}
+              </Alert>
+            )}
           </Stack>
         </Box>
 

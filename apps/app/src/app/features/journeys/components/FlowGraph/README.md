@@ -37,7 +37,9 @@ Each node displays:
   - Green: High traffic (> 50% of total)
   - Orange: Medium traffic (25-50%)
   - Red: Low traffic (< 25%)
-- **Labels**: Show user count and duration for each transition
+- **Labels**: Show how many times a path was taken and the percentage vs alternatives
+  - Format examples: `2 times • 67%`, `1 time • 100%`
+  - Aggregate view uses total across users; user view uses the selected user's own path
 - **Smooth transitions**: Uses "smoothstep" edge type for curved paths
 
 ### 5. **Multiple Paths & Branching**

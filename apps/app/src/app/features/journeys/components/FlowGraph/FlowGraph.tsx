@@ -1,5 +1,4 @@
 import dagre from "dagre";
-import { intervalToDuration } from "date-fns";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router";
 import type {
@@ -121,10 +120,22 @@ const FlowGraph: React.FC = () => {
       animated?: boolean;
     };
 
+    type UserJourneyStep = {
+      nodeId: string;
+      timestamp: string;
+      completed: boolean;
+    };
+
+    type UserJourney = {
+      userId: number;
+      steps: UserJourneyStep[];
+    };
+
     type FlowJson = {
       nodes: JsonNode[];
       edges: JsonEdge[];
       startNodeId?: string | number;
+      userJourneys?: Record<string, UserJourney>;
     };
 
     const json = data as unknown as FlowJson;
@@ -149,24 +160,51 @@ const FlowGraph: React.FC = () => {
           ? String(json.nodes[0].id)
           : undefined;
 
-    // Traverse from start node to collect reachable nodes/edges
+    // Get user journey data if user is selected
+    const userJourney =
+      effectiveUserId && json.userJourneys
+        ? json.userJourneys[effectiveUserId]
+        : undefined;
+
+    // If user journey exists, use it to determine which nodes/edges to show
     const reachableNodeIds = new Set<string>();
     const reachableEdgeIds = new Set<string>();
-    function traverse(nodeId: string) {
-      if (reachableNodeIds.has(nodeId)) return;
-      reachableNodeIds.add(nodeId);
-      const children = edgeMap.get(nodeId) || [];
-      children.forEach((childId) => {
-        // Find edge connecting nodeId -> childId
-        const edge = json.edges.find(
-          (e) => String(e.source) === nodeId && String(e.target) === childId
-        );
-        if (edge) reachableEdgeIds.add(String(edge.id));
-        traverse(childId);
+
+    if (userJourney) {
+      // Show only the path the user took
+      const userSteps = userJourney.steps;
+      userSteps.forEach((step, index) => {
+        reachableNodeIds.add(step.nodeId);
+
+        // Add edge from previous step to current step
+        if (index > 0) {
+          const prevStep = userSteps[index - 1];
+          const edge = json.edges.find(
+            (e) =>
+              String(e.source) === prevStep.nodeId &&
+              String(e.target) === step.nodeId
+          );
+          if (edge) reachableEdgeIds.add(String(edge.id));
+        }
       });
-    }
-    if (effectiveStartNodeId) {
-      traverse(effectiveStartNodeId);
+    } else {
+      // Traverse from start node to collect reachable nodes/edges (original behavior)
+      function traverse(nodeId: string) {
+        if (reachableNodeIds.has(nodeId)) return;
+        reachableNodeIds.add(nodeId);
+        const children = edgeMap.get(nodeId) || [];
+        children.forEach((childId) => {
+          // Find edge connecting nodeId -> childId
+          const edge = json.edges.find(
+            (e) => String(e.source) === nodeId && String(e.target) === childId
+          );
+          if (edge) reachableEdgeIds.add(String(edge.id));
+          traverse(childId);
+        });
+      }
+      if (effectiveStartNodeId) {
+        traverse(effectiveStartNodeId);
+      }
     }
 
     // Calculate mock traffic metrics (GA4 style)
@@ -235,10 +273,20 @@ const FlowGraph: React.FC = () => {
         const nodeId = String(n.id);
         const labelText = String(n.data.label);
         const jsonNode = n as JsonNode;
-        const isCompleted =
+        // Check if this node was completed by the user (if viewing a user journey)
+        let isCompleted =
           overallStatus === "success"
             ? true
             : Boolean(jsonNode.data?.hasCompleted);
+
+        if (userJourney) {
+          // Override completion status based on user's actual steps
+          const userStep = userJourney.steps.find(
+            (step) => step.nodeId === nodeId
+          );
+          isCompleted = userStep ? userStep.completed : false;
+        }
+
         const isStartNode = nodeId === effectiveStartNodeId;
         const metrics = nodeMetrics.get(nodeId) || {
           userCount: 0,
@@ -339,105 +387,172 @@ const FlowGraph: React.FC = () => {
       "TB" // Top to Bottom layout
     );
 
-    // Helper to format milliseconds to human-readable string using date-fns
-    const formatDuration = (ms: unknown) => {
-      if (ms == null) return "";
-      const n = Number(ms);
-      if (!isFinite(n) || n <= 0) return "";
-      // For values below 1000ms, keep ms precision
-      if (n < 1000) return `${n}ms`;
+    // Removed duration formatting since labels no longer include time
 
-      const secondsTotal = Math.floor(n / 1000);
-      const duration = intervalToDuration({
-        start: 0,
-        end: secondsTotal * 1000,
+    // Calculate edge statistics: how many users took each edge and percentage vs alternatives
+    const edgeStats = new Map<string, { count: number; percentage: number }>();
+
+    if (json.userJourneys) {
+      // Count how many times each edge was traversed
+      const edgeTraversalCount = new Map<string, number>();
+      const sourceNodeTraversalCount = new Map<string, number>();
+
+      Object.values(json.userJourneys).forEach((journey) => {
+        journey.steps.forEach((step, index) => {
+          if (index > 0) {
+            const prevStep = journey.steps[index - 1];
+            const edgeKey = `${prevStep.nodeId}->${step.nodeId}`;
+            edgeTraversalCount.set(
+              edgeKey,
+              (edgeTraversalCount.get(edgeKey) || 0) + 1
+            );
+
+            // Count how many times users left from the source node
+            sourceNodeTraversalCount.set(
+              prevStep.nodeId,
+              (sourceNodeTraversalCount.get(prevStep.nodeId) || 0) + 1
+            );
+          }
+        });
       });
 
-      // Use only minutes and seconds if present, otherwise seconds
-      const parts: Record<string, number> = {
-        years: duration.years || 0,
-        months: duration.months || 0,
-        days: duration.days || 0,
-        hours: duration.hours || 0,
-        minutes: duration.minutes || 0,
-        seconds: duration.seconds || 0,
-      };
+      // Calculate percentages
+      edgeTraversalCount.forEach((count, edgeKey) => {
+        const [sourceNode] = edgeKey.split("->");
+        const totalFromSource = sourceNodeTraversalCount.get(sourceNode) || 1;
+        const percentage = (count / totalFromSource) * 100;
+        edgeStats.set(edgeKey, { count, percentage });
+      });
+    }
 
-      // Produce a short string like '1m 12s' or '2h 3m' depending on magnitude
-      const tokens: string[] = [];
-      if (parts.years) tokens.push(`${parts.years}y`);
-      if (parts.months) tokens.push(`${parts.months}mo`);
-      if (parts.days) tokens.push(`${parts.days}d`);
-      if (parts.hours) tokens.push(`${parts.hours}h`);
-      if (parts.minutes) tokens.push(`${parts.minutes}m`);
-      if (parts.seconds || tokens.length === 0)
-        tokens.push(`${parts.seconds}s`);
-
-      return tokens.join(" ");
-    };
+    // Per-user edge stats (when a specific user is selected):
+    // count how many times the selected user took each edge, and percentage vs that user's alternatives from the same source.
+    const userEdgeTraversalCount = new Map<string, number>();
+    const userSourceTraversalCount = new Map<string, number>();
+    if (userJourney) {
+      const steps = userJourney.steps;
+      steps.forEach((step, index) => {
+        if (index > 0) {
+          const prev = steps[index - 1];
+          const edgeKey = `${prev.nodeId}->${step.nodeId}`;
+          userEdgeTraversalCount.set(
+            edgeKey,
+            (userEdgeTraversalCount.get(edgeKey) || 0) + 1
+          );
+          userSourceTraversalCount.set(
+            prev.nodeId,
+            (userSourceTraversalCount.get(prev.nodeId) || 0) + 1
+          );
+        }
+      });
+    }
 
     // Build edges and attach metrics (GA4 style with traffic volume)
-    const loadedEdges: Edge[] = json.edges.map((e) => {
-      const sourceId = String(e.source);
-      const targetId = String(e.target);
+    const loadedEdges: Edge[] = json.edges
+      .filter((e) => {
+        // Only show edges that are reachable
+        return reachableEdgeIds.has(String(e.id));
+      })
+      .map((e) => {
+        const sourceId = String(e.source);
+        const targetId = String(e.target);
+        const edgeKey = `${sourceId}->${targetId}`;
 
-      const targetNode = json.nodes.find((n) => String(n.id) === targetId);
+        const targetMetrics = nodeMetrics.get(targetId);
+        const edgeStat = edgeStats.get(edgeKey);
 
-      const targetMetrics = nodeMetrics.get(targetId);
+        // Check if this edge is part of the user's journey
+        const isUserJourneyEdge = userJourney
+          ? userJourney.steps.some((step, index) => {
+              if (index === 0) return false;
+              const prevStep = userJourney.steps[index - 1];
+              return prevStep.nodeId === sourceId && step.nodeId === targetId;
+            })
+          : false;
 
-      // Calculate edge thickness based on user count (1-10 range)
-      const userCount = targetMetrics?.userCount || 0;
-      const maxUsers = totalUsers;
-      const thickness = Math.max(1, Math.min(10, (userCount / maxUsers) * 10));
+        // Calculate edge thickness based on user journey or user count
+        let thickness: number;
+        if (userJourney) {
+          thickness = isUserJourneyEdge ? 4 : 2; // Highlight user's path
+        } else if (edgeStat) {
+          // Base thickness on percentage (1-8 range)
+          thickness = Math.max(2, Math.min(8, (edgeStat.percentage / 100) * 8));
+        } else {
+          const userCount = targetMetrics?.userCount || 0;
+          const maxUsers = totalUsers;
+          thickness = Math.max(1, Math.min(10, (userCount / maxUsers) * 10));
+        }
 
-      // Format label with user count and duration
-      const durationLabel = targetNode
-        ? formatDuration(targetNode.data?.durationMs)
-        : "";
+        // Format label with count and percentage (no duration)
+        let label = "";
+        if (userJourney) {
+          // For selected user: show how many times THEY did this action and the % of THEIR choices from this source
+          const userCountOnEdge = userEdgeTraversalCount.get(edgeKey) || 0;
+          const userDeparturesFromSource =
+            userSourceTraversalCount.get(sourceId) || 0;
+          const userPercentage = userDeparturesFromSource
+            ? Math.round((userCountOnEdge / userDeparturesFromSource) * 100)
+            : 0;
+          const timesText =
+            userCountOnEdge === 1 ? "1 time" : `${userCountOnEdge} times`;
+          label = `${timesText} • ${userPercentage}%`;
+        } else if (edgeStat) {
+          // Aggregate view: show total times across users and percentage vs alternatives from the same node
+          const timesText =
+            edgeStat.count === 1 ? "1 time" : `${edgeStat.count} times`;
+          label = `${timesText} • ${edgeStat.percentage.toFixed(0)}%`;
+        } else {
+          // Fallback (no stats available)
+          label = "";
+        }
 
-      const userLabel = targetMetrics
-        ? `${targetMetrics.userCount.toLocaleString()} users`
-        : "";
+        // Color based on traffic volume or user journey
+        const getEdgeColor = () => {
+          if (userJourney) {
+            return isUserJourneyEdge ? "#1976d2" : "#b0b0b0"; // Blue for user's path
+          }
+          if (edgeStat) {
+            // Color based on percentage of users taking this path
+            const percentage = edgeStat.percentage;
+            if (percentage >= 60) return "#388e3c"; // Green - high percentage (60%+)
+            if (percentage >= 30) return "#f57c00"; // Orange - medium percentage (30-60%)
+            return "#d32f2f"; // Red - low percentage (<30%)
+          }
+          if (!targetMetrics) return "#b0b0b0";
+          const ratio = targetMetrics.userCount / totalUsers;
+          if (ratio > 0.5) return "#388e3c"; // Green - high traffic
+          if (ratio > 0.25) return "#f57c00"; // Orange - medium traffic
+          return "#d32f2f"; // Red - low traffic
+        };
 
-      const label = [userLabel, durationLabel].filter(Boolean).join(" • ");
-
-      // Color based on traffic volume
-      const getEdgeColor = () => {
-        if (!targetMetrics) return "#b0b0b0";
-        const ratio = targetMetrics.userCount / totalUsers;
-        if (ratio > 0.5) return "#388e3c"; // Green - high traffic
-        if (ratio > 0.25) return "#f57c00"; // Orange - medium traffic
-        return "#d32f2f"; // Red - low traffic
-      };
-
-      const edge: Edge = {
-        id: String(e.id),
-        source: sourceId,
-        target: targetId,
-        animated: Boolean(e.animated),
-        label: label || undefined,
-        labelStyle: label
-          ? {
-              fontSize: 11,
-              fill: "#555",
-              fontWeight: 600,
-              background: "white",
-              padding: "4px 8px",
-              borderRadius: "4px",
-            }
-          : undefined,
-        style: {
-          strokeWidth: thickness,
-          stroke: getEdgeColor(),
-        },
-        type: "bezier",
-      };
-      return edge;
-    });
+        const edge: Edge = {
+          id: String(e.id),
+          source: sourceId,
+          target: targetId,
+          animated: isUserJourneyEdge || Boolean(e.animated),
+          label: label || undefined,
+          labelStyle: label
+            ? {
+                fontSize: 11,
+                fill: "#555",
+                fontWeight: 600,
+                background: "white",
+                padding: "4px 8px",
+                borderRadius: "4px",
+              }
+            : undefined,
+          style: {
+            strokeWidth: thickness,
+            stroke: getEdgeColor(),
+          },
+          type: "bezier",
+        };
+        return edge;
+      });
 
     setNodes(loadedNodes);
     setEdges(loadedEdges);
-  }, [overallStatus, startNodeId]);
+  }, [overallStatus, startNodeId, effectiveUserId]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
