@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Tracker Integration Example</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      button {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 5px;
+        font-size: 16px;
+      }
+      button:hover {
+        background: #5568d3;
+      }
+      .info {
+        background: #f0f0f0;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Simple Tracker Integration</h1>
+
+    <div class="info">
+      <p><strong>Status:</strong> <span id="status">Initializing...</span></p>
+      <p><strong>Session ID:</strong> <span id="session-id">-</span></p>
+    </div>
+
+    <h2>Test Interactions</h2>
+    <button id="btn-1">Click Me!</button>
+    <button id="btn-2">Another Button</button>
+    <button id="btn-3">One More</button>
+
+    <h2>Form Test</h2>
+    <form id="test-form">
+      <input
+        type="text"
+        placeholder="Name"
+        required
+        style="padding: 10px; margin: 5px; width: 300px"
+      />
+      <button type="submit">Submit</button>
+    </form>
+
+    <!-- Configure and load tracker -->
+    <script>
+      // Configure before loading the script
+      window.appTalesTrackerConfig = {
+        endpoint: "https://httpbin.org/post",
+        debug: true,
+        trackClicks: true,
+        trackFormSubmits: true,
+        trackPageViews: true,
+        trackScrollDepth: true,
+        trackErrors: true,
+        batchSize: 3,
+        batchInterval: 2000,
+        customData: {
+          page: "simple-example",
+          version: "1.0.0",
+        },
+      };
+    </script>
+
+    <!-- Load the built tracker -->
+    <script src="./dist/tracker.min.js"></script>
+
+    <!-- Update UI after tracker loads -->
+    <script>
+      setTimeout(() => {
+        const tracker = window.AppTalesTracker;
+        if (tracker) {
+          document.getElementById("status").textContent = "✅ Active";
+          document.getElementById("status").style.color = "green";
+          console.log("Tracker loaded successfully!");
+        } else {
+          document.getElementById("status").textContent = "❌ Failed to load";
+          document.getElementById("status").style.color = "red";
+        }
+      }, 100);
+
+      // Prevent form submission to keep page active
+      document.getElementById("test-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        alert("Form submitted! Check network tab for tracking event.");
+      });
+    </script>
+  </body>
+</html>
