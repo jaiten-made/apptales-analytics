@@ -34,8 +34,8 @@ interface FilterDrawerProps {
   selectedStartNodeId?: string;
   onStartNodeChange?: (nodeId: string) => void;
   allUserIds?: (string | number)[];
-  selectedUserId?: string | number;
-  onUserChange?: (userId: string | number | null) => void;
+  selectedUserId?: string | number | "all";
+  onUserChange?: (userId: string | number | "all" | null) => void;
 }
 
 const FilterDrawer = ({
@@ -52,7 +52,10 @@ const FilterDrawer = ({
     [allNodeIds, allNodeLabels]
   );
   const userOptions = useMemo(
-    () => allUserIds.map((id) => ({ id: String(id), label: `User ${id}` })),
+    () => [
+      { id: "all", label: "All Users" },
+      ...allUserIds.map((id) => ({ id: String(id), label: `User ${id}` })),
+    ],
     [allUserIds]
   );
 
@@ -62,6 +65,9 @@ const FilterDrawer = ({
 
   const isEventTabComplete = Boolean(selectedStartNodeId);
   const isUserTabComplete = Boolean(selectedUserId);
+
+  // Default to "all" users if no selection is made
+  const effectiveUserId = selectedUserId || "all";
 
   const matchFirstEvent = useMemo(() => {
     const q = eventInputValue.trim().toLowerCase();
@@ -82,7 +88,7 @@ const FilterDrawer = ({
 
   const handleClearAll = () => {
     onStartNodeChange?.("");
-    onUserChange?.(null);
+    onUserChange?.("all");
     setEventInputValue("");
     setUserInputValue("");
     setActiveTab(0);
@@ -258,20 +264,31 @@ const FilterDrawer = ({
                       getOptionLabel={(option) => option.label}
                       value={
                         userOptions.find(
-                          (u) => u.id === String(selectedUserId)
+                          (u) => u.id === String(effectiveUserId)
                         ) || null
                       }
                       inputValue={userInputValue}
                       onInputChange={(_e, v) => setUserInputValue(v)}
                       onChange={(_e, v) => {
-                        if (v) onUserChange?.(Number(v.id));
-                        else onUserChange?.(null);
+                        if (v) {
+                          if (v.id === "all") {
+                            onUserChange?.("all");
+                          } else {
+                            onUserChange?.(Number(v.id));
+                          }
+                        } else {
+                          onUserChange?.("all");
+                        }
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           const first = matchFirstUser;
                           if (first) {
-                            onUserChange?.(Number(first.id));
+                            if (first.id === "all") {
+                              onUserChange?.("all");
+                            } else {
+                              onUserChange?.(Number(first.id));
+                            }
                             e.preventDefault();
                             e.stopPropagation();
                           }
@@ -332,11 +349,13 @@ const FilterDrawer = ({
                 : "No starting event selected"}
             </Alert>
             <Alert
-              severity={selectedUserId ? "info" : "warning"}
+              severity={effectiveUserId === "all" ? "success" : "info"}
               icon={<IconUser size={18} />}
             >
               <AlertTitle>Selected User</AlertTitle>
-              {selectedUserId ? `User ${selectedUserId}` : "No user selected"}
+              {effectiveUserId === "all"
+                ? "All Users"
+                : `User ${effectiveUserId}`}
             </Alert>
           </Stack>
         </Box>

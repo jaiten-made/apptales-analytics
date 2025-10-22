@@ -49,6 +49,8 @@ interface CustomListNodeData {
   percentage?: number;
   dropOffRate?: number;
   totalUsers?: number;
+  isSingleUserView?: boolean;
+  userDroppedOff?: boolean;
 }
 
 const FlowGraph: React.FC = () => {
@@ -208,7 +210,9 @@ const FlowGraph: React.FC = () => {
     }
 
     // Calculate mock traffic metrics (GA4 style)
-    const totalUsers = 10000; // Starting traffic
+    const totalUsers = json.userJourneys
+      ? Object.keys(json.userJourneys).length
+      : 0;
     const nodeMetrics = new Map<
       string,
       { userCount: number; percentage: number; dropOffRate: number }
@@ -293,6 +297,31 @@ const FlowGraph: React.FC = () => {
           percentage: 0,
           dropOffRate: 0,
         };
+
+        // Check if user dropped off at this node
+        let userDroppedOff = false;
+        if (userJourney) {
+          const userStep = userJourney.steps.find(
+            (step) => step.nodeId === nodeId
+          );
+          if (userStep) {
+            // If user reached this node but didn't complete it, they dropped off
+            userDroppedOff = !userStep.completed;
+
+            // Check if this was their last completed step
+            const stepIndex = userJourney.steps.indexOf(userStep);
+            if (
+              stepIndex === userJourney.steps.length - 1 &&
+              userStep.completed
+            ) {
+              // They completed this step and it was their last
+              // Only mark as drop-off if there are outgoing edges (meaning they could have continued)
+              const hasOutgoingEdges = edgeMap.has(nodeId);
+              userDroppedOff = hasOutgoingEdges;
+            }
+          }
+        }
+
         return {
           id: nodeId,
           position: { x: 0, y: 0 }, // Temporary position
@@ -313,6 +342,8 @@ const FlowGraph: React.FC = () => {
             percentage: metrics.percentage,
             dropOffRate: metrics.dropOffRate,
             totalUsers,
+            isSingleUserView: Boolean(userJourney),
+            userDroppedOff,
           },
         };
       });
@@ -377,7 +408,7 @@ const FlowGraph: React.FC = () => {
       return layoutedNodes;
     };
 
-    const loadedNodes = getLayoutedElements(
+    let loadedNodes = getLayoutedElements(
       initialNodes,
       json.edges.map((e) => ({
         id: String(e.id),
@@ -448,7 +479,7 @@ const FlowGraph: React.FC = () => {
     }
 
     // Build edges and attach metrics (GA4 style with traffic volume)
-    const loadedEdges: Edge[] = json.edges
+    let loadedEdges: Edge[] = json.edges
       .filter((e) => {
         // Only show edges that are reachable
         return reachableEdgeIds.has(String(e.id));
@@ -509,20 +540,40 @@ const FlowGraph: React.FC = () => {
         // Color based on traffic volume or user journey
         const getEdgeColor = () => {
           if (userJourney) {
+            // Check if this edge leads to a drop-off point
+            const targetStep = userJourney.steps.find(
+              (step) => step.nodeId === targetId
+            );
+            const isTargetLastStep = targetStep
+              ? userJourney.steps.indexOf(targetStep) ===
+                userJourney.steps.length - 1
+              : false;
+            const targetNotCompleted = targetStep && !targetStep.completed;
+
+            // Only mark edge as red if it leads to an INCOMPLETE action
+            // OR if it leads to the last step that has outgoing edges (could have continued)
+            if (isUserJourneyEdge && targetNotCompleted) {
+              return "#d32f2f"; // Red - leads to incomplete action
+            }
+
+            // If target is the last step and completed, check if there were more possible steps
+            if (
+              isUserJourneyEdge &&
+              isTargetLastStep &&
+              targetStep?.completed
+            ) {
+              const targetHasOutgoingEdges = edgeMap.has(targetId);
+              if (targetHasOutgoingEdges) {
+                // This edge leads to a node where user could have continued but didn't
+                // Don't color this edge red - the drop-off indicator will show after
+                return "#1976d2"; // Blue for user's path
+              }
+            }
+
             return isUserJourneyEdge ? "#1976d2" : "#b0b0b0"; // Blue for user's path
           }
-          if (edgeStat) {
-            // Color based on percentage of users taking this path
-            const percentage = edgeStat.percentage;
-            if (percentage >= 60) return "#388e3c"; // Green - high percentage (60%+)
-            if (percentage >= 30) return "#f57c00"; // Orange - medium percentage (30-60%)
-            return "#d32f2f"; // Red - low percentage (<30%)
-          }
-          if (!targetMetrics) return "#b0b0b0";
-          const ratio = targetMetrics.userCount / totalUsers;
-          if (ratio > 0.5) return "#388e3c"; // Green - high traffic
-          if (ratio > 0.25) return "#f57c00"; // Orange - medium traffic
-          return "#d32f2f"; // Red - low traffic
+          // Aggregate view: always green for edges
+          return "#388e3c"; // Green for all edges in aggregate view
         };
 
         const edge: Edge = {
@@ -549,6 +600,77 @@ const FlowGraph: React.FC = () => {
         };
         return edge;
       });
+
+    // Add drop-off indicator if user dropped off (didn't complete the journey)
+    if (userJourney) {
+      const lastStep = userJourney.steps[userJourney.steps.length - 1];
+      const lastNode = loadedNodes.find((n) => n.id === lastStep.nodeId);
+
+      // Determine if user dropped off:
+      // 1. If last step was NOT completed (they started but didn't finish the action)
+      // 2. If last step was completed BUT there are more possible steps (they could have continued but didn't)
+      let droppedOff = false;
+
+      if (!lastStep.completed) {
+        // User started this action but didn't complete it
+        droppedOff = true;
+      } else if (lastNode) {
+        // User completed this action, but check if there were more steps available
+        const hasOutgoingEdges = edgeMap.has(lastStep.nodeId);
+        if (hasOutgoingEdges) {
+          droppedOff = true;
+        }
+      }
+
+      if (droppedOff && lastNode) {
+        // Create an invisible target node for the drop-off edge
+        const dropOffTargetId = `drop-off-target-${lastStep.nodeId}`;
+        const dropOffTargetNode: Node = {
+          id: dropOffTargetId,
+          position: {
+            x: lastNode.position.x + 140, // Center horizontally
+            y: lastNode.position.y + 200, // Position below the last node
+          },
+          data: {},
+          style: {
+            width: 1,
+            height: 1,
+            opacity: 0,
+            pointerEvents: "none",
+          },
+          draggable: false,
+          selectable: false,
+          connectable: false,
+        };
+
+        // Create red dashed edge pointing to the invisible node (appears to point to nothing)
+        const dropOffEdge: Edge = {
+          id: `drop-off-edge-${lastStep.nodeId}`,
+          source: lastStep.nodeId,
+          target: dropOffTargetId,
+          animated: true,
+          label: "Dropped off",
+          labelStyle: {
+            fontSize: 11,
+            fill: "#d32f2f",
+            fontWeight: 700,
+            background: "white",
+            padding: "4px 8px",
+            borderRadius: "4px",
+          },
+          style: {
+            strokeWidth: 4,
+            stroke: "#d32f2f",
+            strokeDasharray: "5,5",
+          },
+          type: "straight",
+          markerEnd: undefined, // Remove arrow at the end
+        };
+
+        loadedNodes = [...loadedNodes, dropOffTargetNode];
+        loadedEdges = [...loadedEdges, dropOffEdge];
+      }
+    }
 
     setNodes(loadedNodes);
     setEdges(loadedEdges);
@@ -594,10 +716,14 @@ const FlowGraph: React.FC = () => {
         selectedStartNodeId={startNodeId}
         onStartNodeChange={setStartNodeId}
         allUserIds={allUserIds}
-        selectedUserId={selectedUserId ?? undefined}
-        onUserChange={(userId) =>
-          setSelectedUserId(userId ? Number(userId) : null)
-        }
+        selectedUserId={selectedUserId ?? "all"}
+        onUserChange={(userId) => {
+          if (userId === "all") {
+            setSelectedUserId(null);
+          } else {
+            setSelectedUserId(Number(userId));
+          }
+        }}
       />
       <div className="flex-1 bg-gray-50">
         <ReactFlow

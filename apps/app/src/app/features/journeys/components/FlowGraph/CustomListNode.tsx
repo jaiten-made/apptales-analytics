@@ -1,5 +1,4 @@
 import { Box, Menu, MenuItem, Typography } from "@mui/material";
-import { IconTrendingDown } from "@tabler/icons-react";
 import React from "react";
 import type { NodeProps } from "reactflow";
 import { Handle, Position } from "reactflow";
@@ -16,6 +15,8 @@ type Data = {
   percentage?: number;
   dropOffRate?: number;
   totalUsers?: number;
+  isSingleUserView?: boolean;
+  userDroppedOff?: boolean;
 };
 
 const CustomListNode: React.FC<NodeProps<Data>> = ({ data, id }) => {
@@ -31,16 +32,17 @@ const CustomListNode: React.FC<NodeProps<Data>> = ({ data, id }) => {
     percentage = 0,
     dropOffRate = 0,
     totalUsers,
+    isSingleUserView = false,
+    userDroppedOff = false,
   } = data || {};
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  // Determine color based on completion and drop-off rate
+  // Nodes are always green (or blue for start node, red for drop-off indicator)
   const getNodeColor = () => {
     if (isStartNode) return "#1976d2"; // Blue for start
-    if (dropOffRate > 50) return "#d32f2f"; // Red for high drop-off
-    if (dropOffRate > 25) return "#f57c00"; // Orange for medium drop-off
-    return "#388e3c"; // Green for low drop-off
+    if (userDroppedOff && title.includes("Drop-off")) return "#d32f2f"; // Red for drop-off indicator
+    return "#388e3c"; // Green for all other nodes
   };
 
   const nodeColor = getNodeColor();
@@ -122,50 +124,35 @@ const CustomListNode: React.FC<NodeProps<Data>> = ({ data, id }) => {
           </Box>
         </Box>
 
-        {/* Metrics section - GA4 style */}
-        <Box className="mt-2 pt-2 border-t border-gray-200">
-          <Box className="flex items-center justify-between mb-1">
-            <Typography variant="caption" className="text-gray-600">
-              Users
-            </Typography>
-            <Typography
-              variant="body2"
-              className="font-bold"
-              sx={{ color: nodeColor }}
-            >
-              {userCount.toLocaleString()}
-            </Typography>
-          </Box>
-
-          {!isStartNode && totalUsers && totalUsers > 0 && (
+        {/* Metrics section - GA4 style or simple drop-off indicator */}
+        {isSingleUserView ? null : ( // Single user view: don't show drop-off text on regular nodes
+          // Aggregate view: show full statistics
+          <Box className="mt-2 pt-2 border-t border-gray-200">
             <Box className="flex items-center justify-between mb-1">
               <Typography variant="caption" className="text-gray-600">
-                % of total
+                Users
               </Typography>
-              <Typography variant="body2" className="font-semibold">
-                {percentage.toFixed(1)}%
-              </Typography>
-            </Box>
-          )}
-
-          {dropOffRate > 0 && (
-            <Box className="flex items-center justify-between">
-              <Box className="flex items-center gap-0.5">
-                <IconTrendingDown size={14} color="#d32f2f" />
-                <Typography variant="caption" className="text-gray-600">
-                  Drop-off
-                </Typography>
-              </Box>
               <Typography
                 variant="body2"
-                className="font-semibold"
-                sx={{ color: "#d32f2f" }}
+                className="font-bold"
+                sx={{ color: nodeColor }}
               >
-                {dropOffRate.toFixed(1)}%
+                {userCount.toLocaleString()}
               </Typography>
             </Box>
-          )}
-        </Box>
+
+            {!isStartNode && totalUsers && totalUsers > 0 && (
+              <Box className="flex items-center justify-between mb-1">
+                <Typography variant="caption" className="text-gray-600">
+                  % of total
+                </Typography>
+                <Typography variant="body2" className="font-semibold">
+                  {percentage.toFixed(1)}%
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        )}
 
         {/* Status indicator dot */}
         <Box
