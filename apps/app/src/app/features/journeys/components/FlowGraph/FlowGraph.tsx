@@ -1,5 +1,11 @@
 import dagre from "dagre";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+} from "react";
 import { useParams } from "react-router";
 import type {
   Connection,
@@ -111,13 +117,25 @@ type EdgeStats = {
 const nodeTypes = { listNode: CustomListNode };
 
 const LAYOUT_CONFIG = {
+  // Width of each node in pixels - affects horizontal size of node boxes
   nodeWidth: 280,
+  // Height of each node in pixels - affects vertical size of node boxes
   nodeHeight: 180,
-  nodesep: 120,
-  ranksep: 180,
+  // Horizontal spacing between nodes in the same rank (row)
+  // Controls the gap between sibling nodes side-by-side
+  nodesep: 10,
+  // Vertical spacing between ranks (rows) of nodes
+  // Controls the height of edge connectors between parent and child nodes
+  ranksep: 10,
+  // Left and right margin around the entire graph
   marginx: 50,
+  // Top and bottom margin around the entire graph
   marginy: 50,
+  // Fixed X position for the start node (if specified)
+  // Used to pin the starting node at a specific horizontal location
   fixedStartX: 300,
+  // Fixed Y position for the start node (if specified)
+  // Used to pin the starting node at a specific vertical location
   fixedStartY: 50,
 };
 
@@ -130,7 +148,7 @@ const DROP_OFF_CONFIG = {
 // ============================================================================
 
 const DropOffEdge: React.FC<EdgeProps> = (props) => {
-  const { id, sourceX, sourceY, selected, style, label } = props;
+  const { id, sourceX, sourceY, style, label } = props;
 
   const y1 = sourceY;
   const y2 = y1 + DROP_OFF_CONFIG.length;
@@ -696,7 +714,7 @@ const FlowGraph: React.FC = () => {
           siblingEdges.length > 0
             ? Math.max(
                 ...siblingEdges.map((e) =>
-                  Number((e.style as any)?.strokeWidth ?? 2)
+                  Number((e.style as CSSProperties)?.strokeWidth ?? 2)
                 )
               )
             : 4;
