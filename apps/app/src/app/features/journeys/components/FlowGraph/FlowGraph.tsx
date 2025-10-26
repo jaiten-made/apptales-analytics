@@ -122,8 +122,7 @@ const LAYOUT_CONFIG = {
 };
 
 const DROP_OFF_CONFIG = {
-  length: 140,
-  targetOffsetY: 200,
+  length: 70,
 };
 
 // ============================================================================
@@ -680,7 +679,7 @@ const FlowGraph: React.FC = () => {
           id: dropOffTargetId,
           position: {
             x: lastNode.position.x + LAYOUT_CONFIG.nodeWidth / 2,
-            y: lastNode.position.y + DROP_OFF_CONFIG.targetOffsetY,
+            y: lastNode.position.y,
           },
           data: {},
           style: { width: 1, height: 1, opacity: 0, pointerEvents: "none" },
