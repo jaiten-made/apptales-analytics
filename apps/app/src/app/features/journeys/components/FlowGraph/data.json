@@ -543,92 +543,77 @@
     {
       "id": "e1",
       "source": "start_upload",
-      "target": "select_file",
-      "animated": true
+      "target": "select_file"
     },
     {
       "id": "e2",
       "source": "select_file",
-      "target": "upload_processing",
-      "animated": true
+      "target": "upload_processing"
     },
     {
       "id": "e3",
       "source": "upload_processing",
-      "target": "video_details",
-      "animated": true
+      "target": "video_details"
     },
     {
       "id": "e4",
       "source": "video_details",
-      "target": "add_elements",
-      "animated": true
+      "target": "add_elements"
     },
     {
       "id": "e5",
       "source": "video_details",
-      "target": "skip_elements",
-      "animated": false
+      "target": "skip_elements"
     },
     {
       "id": "e6",
       "source": "add_elements",
-      "target": "run_checks",
-      "animated": true
+      "target": "run_checks"
     },
     {
       "id": "e7",
       "source": "skip_elements",
-      "target": "run_checks",
-      "animated": false
+      "target": "run_checks"
     },
     {
       "id": "e8",
       "source": "run_checks",
-      "target": "visibility_public",
-      "animated": true
+      "target": "visibility_public"
     },
     {
       "id": "e9",
       "source": "run_checks",
-      "target": "visibility_private",
-      "animated": true
+      "target": "visibility_private"
     },
     {
       "id": "e10",
       "source": "run_checks",
-      "target": "visibility_unlisted",
-      "animated": false
+      "target": "visibility_unlisted"
     },
     {
       "id": "e11",
       "source": "visibility_public",
-      "target": "publish",
-      "animated": true
+      "target": "publish"
     },
     {
       "id": "e12",
       "source": "visibility_private",
-      "target": "publish",
-      "animated": true
+      "target": "publish"
     },
     {
       "id": "e13",
       "source": "visibility_unlisted",
-      "target": "publish",
-      "animated": false
+      "target": "publish"
     },
     {
       "id": "e14",
       "source": "visibility_public",
-      "target": "save_draft",
-      "animated": false
+      "target": "save_draft"
     },
     {
       "id": "e15",
       "source": "visibility_private",
-      "target": "save_draft",
-      "animated": false
+      "target": "save_draft"
     }
   ]
 }

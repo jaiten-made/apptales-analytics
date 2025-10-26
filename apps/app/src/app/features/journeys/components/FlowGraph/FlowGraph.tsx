@@ -644,7 +644,6 @@ const FlowGraph: React.FC = () => {
           id: String(e.id),
           source: sourceId,
           target: targetId,
-          animated: isUserJourneyEdge || Boolean(e.animated),
           label: label || undefined,
           labelStyle: label
             ? {
@@ -780,7 +779,7 @@ const FlowGraph: React.FC = () => {
           nodesDraggable={false}
           elementsSelectable={true}
           proOptions={{ hideAttribution: true }}
-          defaultEdgeOptions={{ type: "bezier", animated: false }}
+          defaultEdgeOptions={{ type: "bezier", animated: true }}
           minZoom={0.1}
           maxZoom={2}
         >
