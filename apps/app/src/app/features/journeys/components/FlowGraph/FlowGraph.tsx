@@ -540,40 +540,12 @@ const FlowGraph: React.FC = () => {
         // Color based on traffic volume or user journey
         const getEdgeColor = () => {
           if (userJourney) {
-            // Check if this edge leads to a drop-off point
-            const targetStep = userJourney.steps.find(
-              (step) => step.nodeId === targetId
-            );
-            const isTargetLastStep = targetStep
-              ? userJourney.steps.indexOf(targetStep) ===
-                userJourney.steps.length - 1
-              : false;
-            const targetNotCompleted = targetStep && !targetStep.completed;
-
-            // Only mark edge as red if it leads to an INCOMPLETE action
-            // OR if it leads to the last step that has outgoing edges (could have continued)
-            if (isUserJourneyEdge && targetNotCompleted) {
-              return "#d32f2f"; // Red - leads to incomplete action
-            }
-
-            // If target is the last step and completed, check if there were more possible steps
-            if (
-              isUserJourneyEdge &&
-              isTargetLastStep &&
-              targetStep?.completed
-            ) {
-              const targetHasOutgoingEdges = edgeMap.has(targetId);
-              if (targetHasOutgoingEdges) {
-                // This edge leads to a node where user could have continued but didn't
-                // Don't color this edge red - the drop-off indicator will show after
-                return "#1976d2"; // Blue for user's path
-              }
-            }
-
-            return isUserJourneyEdge ? "#1976d2" : "#b0b0b0"; // Blue for user's path
+            // In user view, edges along the user's path are always blue.
+            // Drop-offs are indicated by a separate dashed red edge from the node itself.
+            return isUserJourneyEdge ? "#1976d2" : "#b0b0b0";
           }
           // Aggregate view: always green for edges
-          return "#388e3c"; // Green for all edges in aggregate view
+          return "#388e3c";
         };
 
         const edge: Edge = {
