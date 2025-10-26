@@ -23,7 +23,7 @@ import {
   IconRefresh,
   IconUser,
 } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import theme from "../../lib/mui/theme";
 
 const DRAWER_WIDTH = 320;
@@ -63,10 +63,27 @@ const FilterDrawer = ({
   const [eventInputValue, setEventInputValue] = useState("");
   const [userInputValue, setUserInputValue] = useState("");
 
-  const isEventTabComplete = Boolean(selectedStartNodeId);
-  const isUserTabComplete = Boolean(selectedUserId);
+  // Draft (local) selections that should NOT affect charts until Done is pressed
+  const [draftStartNodeId, setDraftStartNodeId] = useState<string | null>(
+    selectedStartNodeId ?? null
+  );
+  const [draftUserId, setDraftUserId] = useState<string>(
+    String(selectedUserId ?? "all")
+  );
 
-  // Default to "all" users if no selection is made
+  // Keep drafts in sync if external (applied) selections change from elsewhere
+  useEffect(() => {
+    setDraftStartNodeId(selectedStartNodeId ?? null);
+  }, [selectedStartNodeId]);
+  useEffect(() => {
+    setDraftUserId(String(selectedUserId ?? "all"));
+  }, [selectedUserId]);
+
+  // Completion indicator should be based on draft values, not applied ones
+  const isEventTabComplete = Boolean(draftStartNodeId);
+  const isUserTabComplete = Boolean(draftUserId);
+
+  // Default to "all" users if no applied selection is made
   const effectiveUserId = selectedUserId || "all";
 
   const matchFirstEvent = useMemo(() => {
@@ -81,12 +98,10 @@ const FilterDrawer = ({
     return userOptions.find((o) => o.label.toLowerCase().includes(q)) || null;
   }, [userInputValue, userOptions]);
 
-  const handleEventSelect = (nodeId: string) => {
-    onStartNodeChange?.(nodeId);
-    // Do not auto-advance; user controls navigation via buttons
-  };
-
   const handleClearAll = () => {
+    // Clear both draft and applied selections explicitly
+    setDraftStartNodeId(null);
+    setDraftUserId("all");
     onStartNodeChange?.("");
     onUserChange?.("all");
     setEventInputValue("");
@@ -95,9 +110,21 @@ const FilterDrawer = ({
   };
 
   const handleReset = () => {
+    // Reset search inputs only; do not apply
     setEventInputValue("");
     setUserInputValue("");
-    if (!selectedStartNodeId) setActiveTab(0);
+    if (!draftStartNodeId) setActiveTab(0);
+  };
+
+  const handleDone = () => {
+    // Apply filters based on DRAFT selections only when Done is pressed
+    if (draftStartNodeId) {
+      onStartNodeChange?.(draftStartNodeId);
+    }
+    onUserChange?.(draftUserId === "all" ? "all" : Number(draftUserId));
+    // Clear input values after applying filters (keeps draft selections visible in chips)
+    setEventInputValue("");
+    setUserInputValue("");
   };
 
   return (
@@ -179,19 +206,19 @@ const FilterDrawer = ({
                       options={nodeOptions}
                       getOptionLabel={(option) => option.label}
                       value={
-                        nodeOptions.find((n) => n.id === selectedStartNodeId) ||
+                        nodeOptions.find((n) => n.id === draftStartNodeId) ||
                         null
                       }
                       inputValue={eventInputValue}
                       onInputChange={(_e, v) => setEventInputValue(v)}
                       onChange={(_e, v) => {
-                        if (v) handleEventSelect(v.id);
+                        setDraftStartNodeId(v ? v.id : null);
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           const first = matchFirstEvent;
                           if (first) {
-                            handleEventSelect(first.id);
+                            setDraftStartNodeId(first.id);
                             e.preventDefault();
                             e.stopPropagation();
                           }
@@ -221,7 +248,7 @@ const FilterDrawer = ({
                           size="small"
                           variant="contained"
                           onClick={() => setActiveTab(1)}
-                          disabled={!selectedStartNodeId}
+                          disabled={!draftStartNodeId}
                         >
                           Next
                         </Button>
@@ -263,32 +290,19 @@ const FilterDrawer = ({
                       options={userOptions}
                       getOptionLabel={(option) => option.label}
                       value={
-                        userOptions.find(
-                          (u) => u.id === String(effectiveUserId)
-                        ) || null
+                        userOptions.find((u) => u.id === String(draftUserId)) ||
+                        null
                       }
                       inputValue={userInputValue}
                       onInputChange={(_e, v) => setUserInputValue(v)}
                       onChange={(_e, v) => {
-                        if (v) {
-                          if (v.id === "all") {
-                            onUserChange?.("all");
-                          } else {
-                            onUserChange?.(Number(v.id));
-                          }
-                        } else {
-                          onUserChange?.("all");
-                        }
+                        setDraftUserId(v ? String(v.id) : "all");
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           const first = matchFirstUser;
                           if (first) {
-                            if (first.id === "all") {
-                              onUserChange?.("all");
-                            } else {
-                              onUserChange?.(Number(first.id));
-                            }
+                            setDraftUserId(String(first.id));
                             e.preventDefault();
                             e.stopPropagation();
                           }
@@ -317,11 +331,8 @@ const FilterDrawer = ({
                         <Button
                           size="small"
                           variant="contained"
-                          disabled={!selectedStartNodeId}
-                          onClick={() => {
-                            // When both filters are set, the flow graph will automatically update
-                            // to show the user's journey path
-                          }}
+                          disabled={!draftStartNodeId}
+                          onClick={handleDone}
                         >
                           Done
                         </Button>
