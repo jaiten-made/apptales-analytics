@@ -150,12 +150,11 @@ const DropOffEdge: React.FC<EdgeProps> = (props) => {
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
               pointerEvents: "all",
               fontSize: 11,
-              color: "#555",
+              color: "#fff",
               fontWeight: 700,
-              background: "white",
+              background: "#d32f2f",
               padding: "4px 8px",
               borderRadius: 4,
-              border: selected ? "1px solid #bbb" : "none",
               whiteSpace: "nowrap",
             }}
             className="nodrag nopan"
