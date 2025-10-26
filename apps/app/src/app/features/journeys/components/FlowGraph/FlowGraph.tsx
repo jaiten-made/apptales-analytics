@@ -700,9 +700,6 @@ const FlowGraph: React.FC = () => {
                 )
               )
             : 4;
-        const matchedStroke =
-          (siblingEdges.find((e) => (e.style as any)?.stroke)?.style as any)
-            ?.stroke ?? "#1976d2";
 
         const dropOffEdge: Edge = {
           id: `drop-off-edge-${lastStep.nodeId}`,
@@ -710,7 +707,7 @@ const FlowGraph: React.FC = () => {
           target: dropOffTargetId,
           animated: false,
           label: "Dropped off",
-          style: { strokeWidth: matchedStrokeWidth, stroke: matchedStroke },
+          style: { strokeWidth: matchedStrokeWidth, stroke: "#d32f2f" },
           type: "dropoff",
           markerEnd: undefined,
         };
