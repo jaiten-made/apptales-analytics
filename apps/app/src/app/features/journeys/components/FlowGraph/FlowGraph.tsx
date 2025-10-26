@@ -137,7 +137,7 @@ const DropOffEdge: React.FC<EdgeProps> = (props) => {
   const path = `M ${sourceX},${y1} L ${sourceX},${y2}`;
 
   const labelX = sourceX;
-  const labelY = (y1 + y2) / 2;
+  const labelY = y2 + 5; // Reduce gap between line and label
 
   return (
     <>
@@ -679,7 +679,10 @@ const FlowGraph: React.FC = () => {
           id: dropOffTargetId,
           position: {
             x: lastNode.position.x + LAYOUT_CONFIG.nodeWidth / 2,
-            y: lastNode.position.y,
+            y:
+              lastNode.position.y +
+              LAYOUT_CONFIG.nodeHeight +
+              DROP_OFF_CONFIG.length,
           },
           data: {},
           style: { width: 1, height: 1, opacity: 0, pointerEvents: "none" },
