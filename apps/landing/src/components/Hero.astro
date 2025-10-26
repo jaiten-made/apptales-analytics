@@ -97,4 +97,41 @@ if (title.includes(highlightWord)) {
       </div>
     </div>
   </div>
+
+  <!-- Animated scroll indicator -->
+  <div
+    class="pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-slate-500"
+    aria-hidden="true"
+  >
+    <div class="w-6 h-10 rounded-full border border-slate-400/80 relative">
+      <div
+        class="w-1 h-2 bg-slate-400/90 rounded-full absolute left-1/2 -translate-x-1/2 top-2 animate-mouse-wheel"
+      >
+      </div>
+    </div>
+  </div>
 </section>
+
+<style>
+  @keyframes mouse-wheel {
+    0% {
+      top: 0.5rem;
+      opacity: 1;
+    }
+    70% {
+      top: 1rem;
+      opacity: 0;
+    }
+    70.01% {
+      top: 0.5rem;
+      opacity: 0;
+    } /* instant jump back while hidden */
+    100% {
+      top: 0.5rem;
+      opacity: 1;
+    } /* matches 0% to prevent loop-edge anim */
+  }
+  .animate-mouse-wheel {
+    animation: mouse-wheel 1.6s ease-in-out infinite;
+  }
+</style>
