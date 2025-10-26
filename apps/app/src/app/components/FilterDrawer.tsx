@@ -323,7 +323,7 @@ const FilterDrawer = ({
                             // to show the user's journey path
                           }}
                         >
-                          Complete
+                          Done
                         </Button>
                       </Stack>
                     </Box>
