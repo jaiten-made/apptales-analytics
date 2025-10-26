@@ -95,14 +95,6 @@ const CustomListNode: React.FC<NodeProps<Data>> = ({ data, id }) => {
                     START
                   </Box>
                 </Box>
-                {onChangeStartNode && allNodeIds && allNodeIds.length > 1 && (
-                  <Typography
-                    variant="caption"
-                    sx={{ color: "#1976d2", fontWeight: 600 }}
-                  >
-                    Select a starting event below:
-                  </Typography>
-                )}
               </Box>
             )}
             <Typography
