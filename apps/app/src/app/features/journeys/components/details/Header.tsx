@@ -5,8 +5,8 @@ import theme from "../../../../../lib/mui/theme";
 import { actions } from "../../../../../lib/redux/features/journeys/slice";
 import { selectSelectedJourney } from "../../../../../lib/redux/features/journeys/slice/selectors";
 import { useAppDispatch, useAppSelector } from "../../../../../lib/redux/hook";
+import rows from "../../data/journeys.json";
 import { computeJourneyCompletionPercent } from "../../lib/computeCompletion";
-import rows from "../DataTable/data.json";
 
 interface HeaderProps {
   rows?: typeof rows;

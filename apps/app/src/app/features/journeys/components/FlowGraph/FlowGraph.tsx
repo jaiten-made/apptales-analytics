@@ -17,13 +17,13 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import FilterDrawer from "../../../../components/FilterDrawer";
+import data from "../../data/flow.json";
 import CustomListNode from "./CustomListNode";
-import data from "./data.json";
 const nodeTypes = { listNode: CustomListNode };
 // Journey list (table) data includes status for each journey id
-import journeys from "../DataTable/data.json";
+import journeys from "../../data/journeys.json";
 // User journey attempts data (per journey) includes status per attempt
-import userJourneyAttempts from "../details/data.json";
+import userJourneyAttempts from "../../data/attempts.json";
 
 // Types for imported static JSON (mock data)
 interface JourneyRow {

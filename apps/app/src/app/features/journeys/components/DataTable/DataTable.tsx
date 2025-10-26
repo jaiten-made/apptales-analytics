@@ -6,8 +6,8 @@ import { IconArrowRight } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { actions } from "../../../../../lib/redux/features/journeys/slice";
 import { useAppDispatch } from "../../../../../lib/redux/hook";
+import rows from "../../data/journeys.json";
 import { computeJourneyCompletionPercent } from "../../lib/computeCompletion";
-import rows from "./data.json";
 
 interface JourneyRow {
   id: number | string;

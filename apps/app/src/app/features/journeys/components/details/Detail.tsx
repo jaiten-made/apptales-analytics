@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 import { actions } from "../../../../../lib/redux/features/user-journey/slice";
 import { useAppDispatch } from "../../../../../lib/redux/hook";
-import rawData from "./data.json";
+import rawData from "../../data/attempts.json";
 
 type Row = {
   id: number;

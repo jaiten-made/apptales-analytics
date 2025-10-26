@@ -1,5 +1,5 @@
-import journeysRaw from "../components/DataTable/data.json";
-import attemptsRaw from "../components/details/data.json";
+import attemptsRaw from "../data/attempts.json";
+import journeysRaw from "../data/journeys.json";
 // NOTE: The attempts dataset is intentionally large & varied to yield
 // diverse completion percentages per journey. Percentages are derived
 // purely from (success count / total attempts for that journey) * 100 and

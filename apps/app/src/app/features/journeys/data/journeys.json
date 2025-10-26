@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "name": "First Project Setup",
+    "completeRatePercent": 80,
+    "status": "success"
+  },
+  {
+    "id": 2,
+    "name": "Upload Your First File",
+    "completeRatePercent": 70,
+    "status": "success"
+  },
+  {
+    "id": 3,
+    "name": "Complete Profile Setup",
+    "completeRatePercent": 55,
+    "status": "success"
+  },
+  {
+    "id": 4,
+    "name": "Connect Your Account",
+    "completeRatePercent": 45,
+    "status": "failed"
+  },
+  {
+    "id": 5,
+    "name": "Enable Notifications",
+    "completeRatePercent": 40,
+    "status": "failed"
+  },
+  {
+    "id": 6,
+    "name": "Invite Your First Team Member",
+    "completeRatePercent": 18,
+    "status": "failed"
+  },
+  {
+    "id": 7,
+    "name": "Create Your First Dashboard",
+    "completeRatePercent": 25,
+    "status": "failed"
+  },
+  {
+    "id": 8,
+    "name": "Integrate Your First App",
+    "completeRatePercent": 12,
+    "status": "failed"
+  },
+  {
+    "id": 9,
+    "name": "Set Up Billing Info",
+    "completeRatePercent": 8,
+    "status": "failed"
+  },
+  {
+    "id": 10,
+    "name": "Start First Task / Workflow",
+    "completeRatePercent": 60,
+    "status": "success"
+  },
+  {
+    "id": 11,
+    "name": "Complete First Tutorial",
+    "completeRatePercent": 50,
+    "status": "success"
+  },
+  {
+    "id": 12,
+    "name": "Connect a Calendar",
+    "completeRatePercent": 30,
+    "status": "failed"
+  },
+  {
+    "id": 13,
+    "name": "Add First Contact / Client",
+    "completeRatePercent": 35,
+    "status": "failed"
+  },
+  {
+    "id": 14,
+    "name": "Create First Report",
+    "completeRatePercent": 20,
+    "status": "failed"
+  },
+  {
+    "id": 15,
+    "name": "Set Up Two-Factor Authentication",
+    "completeRatePercent": 22,
+    "status": "failed"
+  },
+  {
+    "id": 16,
+    "name": "Customize Dashboard Layout",
+    "completeRatePercent": 18,
+    "status": "failed"
+  },
+  {
+    "id": 17,
+    "name": "Schedule First Automation",
+    "completeRatePercent": 10,
+    "status": "failed"
+  },
+  {
+    "id": 18,
+    "name": "Create First Template",
+    "completeRatePercent": 15,
+    "status": "failed"
+  },
+  {
+    "id": 19,
+    "name": "Enable Dark / Light Mode",
+    "completeRatePercent": 65,
+    "status": "success"
+  },
+  {
+    "id": 20,
+    "name": "Send First Notification / Email",
+    "completeRatePercent": 28,
+    "status": "failed"
+  }
+]

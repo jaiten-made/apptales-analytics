@@ -1,4 +1,4 @@
-import rows from "./components/DataTable/data.json";
+import rows from "./data/journeys.json";
 
 // Story shape mirrors the rows in DataTable data.json.
 // Adding optional fields ensures forward compatibility if mock data extends.
