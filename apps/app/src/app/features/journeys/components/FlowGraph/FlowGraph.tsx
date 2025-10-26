@@ -4,13 +4,16 @@ import { useParams } from "react-router";
 import type {
   Connection,
   Edge,
+  EdgeProps,
   Node,
   OnEdgesChange,
   OnNodesChange,
 } from "reactflow";
 import ReactFlow, {
   Background,
+  BaseEdge,
   Controls,
+  EdgeLabelRenderer,
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
@@ -52,6 +55,56 @@ interface CustomListNodeData {
   isSingleUserView?: boolean;
   userDroppedOff?: boolean;
 }
+
+// Custom vertical drop-off edge: draws a dashed red vertical line with a small gap from the node
+const DropOffEdge: React.FC<EdgeProps> = (props) => {
+  const { id, sourceX, sourceY, selected, style, label } = props;
+
+  const gap = 0;
+  const length = 140;
+
+  const y1 = sourceY + gap;
+  const y2 = y1 + length;
+  const x = sourceX;
+
+  // Use the incoming edge style (same as other edges)
+  const edgeStyle = {
+    ...(style || {}),
+  } as React.CSSProperties;
+
+  const path = `M ${x},${y1} L ${x},${y2}`;
+
+  const labelX = x;
+  const labelY = (y1 + y2) / 2;
+
+  return (
+    <>
+      <BaseEdge id={id} path={path} style={edgeStyle} />
+      {label && (
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: "absolute",
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              pointerEvents: "all",
+              fontSize: 11,
+              color: "#555", // align with other edge labels
+              fontWeight: 700,
+              background: "white",
+              padding: "4px 8px",
+              borderRadius: 4,
+              border: selected ? "1px solid #bbb" : "none",
+              whiteSpace: "nowrap",
+            }}
+            className="nodrag nopan"
+          >
+            {label}
+          </div>
+        </EdgeLabelRenderer>
+      )}
+    </>
+  );
+};
 
 const FlowGraph: React.FC = () => {
   const [nodes, setNodes] = useState<Node<CustomListNodeData>[]>([]);
@@ -615,28 +668,39 @@ const FlowGraph: React.FC = () => {
           connectable: false,
         };
 
-        // Create red dashed edge pointing to the invisible node (appears to point to nothing)
+        // Derive style from sibling edges (edges sharing the same source)
+        const siblingEdges = loadedEdges.filter(
+          (e) => e.source === lastStep.nodeId
+        );
+        const siblingStrokeWidths = siblingEdges.map((e) =>
+          Number((e.style as any)?.strokeWidth ?? 2)
+        );
+        const matchedStrokeWidth =
+          siblingStrokeWidths.length > 0
+            ? Math.max(...siblingStrokeWidths)
+            : userJourney
+              ? 4
+              : 2;
+
+        const siblingStroke = (
+          siblingEdges.find((e) => (e.style as any)?.stroke)?.style as any
+        )?.stroke as string | undefined;
+        const fallbackStroke = userJourney ? "#1976d2" : "#388e3c";
+        const matchedStroke = siblingStroke ?? fallbackStroke;
+
+        // Create drop-off edge with matched style
         const dropOffEdge: Edge = {
           id: `drop-off-edge-${lastStep.nodeId}`,
           source: lastStep.nodeId,
           target: dropOffTargetId,
-          animated: true,
+          animated: false,
           label: "Dropped off",
-          labelStyle: {
-            fontSize: 11,
-            fill: "#d32f2f",
-            fontWeight: 700,
-            background: "white",
-            padding: "4px 8px",
-            borderRadius: "4px",
-          },
           style: {
-            strokeWidth: 4,
-            stroke: "#d32f2f",
-            strokeDasharray: "5,5",
+            strokeWidth: matchedStrokeWidth,
+            stroke: matchedStroke,
           },
-          type: "straight",
-          markerEnd: undefined, // Remove arrow at the end
+          type: "dropoff",
+          markerEnd: undefined,
         };
 
         loadedNodes = [...loadedNodes, dropOffTargetNode];
@@ -700,6 +764,7 @@ const FlowGraph: React.FC = () => {
       <div className="flex-1 bg-gray-50">
         <ReactFlow
           nodeTypes={nodeTypes}
+          edgeTypes={{ dropoff: DropOffEdge }}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
