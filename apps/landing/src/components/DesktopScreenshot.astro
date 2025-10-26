@@ -17,15 +17,102 @@
       <div
         class="relative border border-gray-200 p-4 rounded-2xl overflow-hidden"
       >
-        <img
-          src="/images/desktop-filter-all.png"
-          alt="Desktop Screenshot"
-          class="block w-full h-auto"
-        />
+        <button
+          type="button"
+          id="screenshot-trigger"
+          class="block w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary rounded-lg relative"
+          aria-label="Enlarge screenshot"
+        >
+          <img
+            src="/images/desktop-filter-all.png"
+            alt="Desktop Screenshot"
+            class="block w-full h-auto"
+          />
+          <!-- Mobile-only enlarge icon badge -->
+          <span
+            class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white rounded-full p-2 md:hidden pointer-events-none"
+            aria-hidden="true"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+              ></path>
+            </svg>
+          </span>
+        </button>
       </div>
     </div>
   </div>
 </section>
+
+<!-- Modal overlay -->
+<div
+  id="screenshot-modal"
+  class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+>
+  <button
+    type="button"
+    id="modal-close"
+    class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10"
+    aria-label="Close modal"
+  >
+    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M6 18L18 6M6 6l12 12"></path>
+    </svg>
+  </button>
+  <div class="max-w-7xl max-h-full overflow-auto">
+    <img
+      src="/images/desktop-filter-all.png"
+      alt="Desktop Screenshot - Enlarged"
+      id="modal-title"
+      class="w-full h-auto rounded-lg"
+    />
+  </div>
+</div>
+
+<script>
+  const trigger = document.getElementById("screenshot-trigger");
+  const modal = document.getElementById("screenshot-modal");
+  const closeBtn = document.getElementById("modal-close");
+
+  function openModal() {
+    modal?.classList.remove("hidden");
+    modal?.classList.add("flex");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modal?.classList.add("hidden");
+    modal?.classList.remove("flex");
+    document.body.style.overflow = "";
+  }
+
+  trigger?.addEventListener("click", openModal);
+  closeBtn?.addEventListener("click", closeModal);
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal?.classList.contains("flex")) {
+      closeModal();
+    }
+  });
+</script>
 
 <style>
   /* Animated dashed line around the OUTER rounded box */
