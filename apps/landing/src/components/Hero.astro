@@ -40,7 +40,7 @@ if (title.includes(highlightWord)) {
     class="w-full gap-8 container mx-auto flex flex-col lg:flex-row items-center justify-center min-h-[calc(100vh-4rem)] relative z-10"
   >
     <!-- Left content -->
-    <div class="flex-1 flex flex-col justify-center">
+    <div class="flex-1 flex flex-col justify-center relative">
       <img src="logo.svg" class="w-16 h-16 mb-4" />
       <h1
         class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight -translate-y-px [letter-spacing:-0.02em] leading-tight mb-4"
@@ -65,6 +65,18 @@ if (title.includes(highlightWord)) {
         )
       }
       <SubscribeForm client:load />
+      <!-- Scroll indicator: relative on mobile, absolute on desktop -->
+      <div
+        class="scroll-indicator-mobile block lg:hidden w-full flex justify-center mt-8"
+        aria-hidden="true"
+      >
+        <div class="w-6 h-10 rounded-full border border-slate-400/80 relative">
+          <div
+            class="w-1 h-2 bg-slate-400/90 rounded-full absolute left-1/2 -translate-x-1/2 top-2 animate-mouse-wheel"
+          >
+          </div>
+        </div>
+      </div>
     </div>
     <!-- Right content -->
     <div class="flex-1 flex items-center justify-center relative py-32 w-full">
@@ -98,9 +110,9 @@ if (title.includes(highlightWord)) {
     </div>
   </div>
 
-  <!-- Animated scroll indicator -->
+  <!-- Animated scroll indicator: absolute on desktop only -->
   <div
-    class="pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-slate-500"
+    class="scroll-indicator-desktop hidden lg:flex pointer-events-none absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex-col items-center gap-2 text-slate-500"
     aria-hidden="true"
   >
     <div class="w-6 h-10 rounded-full border border-slate-400/80 relative">
@@ -125,13 +137,18 @@ if (title.includes(highlightWord)) {
     70.01% {
       top: 0.5rem;
       opacity: 0;
-    } /* instant jump back while hidden */
+    }
     100% {
       top: 0.5rem;
       opacity: 1;
-    } /* matches 0% to prevent loop-edge anim */
+    }
   }
   .animate-mouse-wheel {
     animation: mouse-wheel 1.6s ease-in-out infinite;
+  }
+  /* Ensure scroll indicator is above graphics on mobile */
+  .scroll-indicator-mobile {
+    z-index: 30;
+    position: relative;
   }
 </style>
