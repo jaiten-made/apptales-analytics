@@ -3,13 +3,10 @@
   "version": "1.0.0",
   "description": "A lightweight CDN script for tracking all events on websites",
   "type": "module",
-  "main": "./dist/tracker.umd.js",
-  "module": "./dist/tracker.es.js",
+  "main": "./dist/tracker.js",
+  "module": "./dist/tracker.js",
   "exports": {
-    ".": {
-      "import": "./dist/tracker.es.js",
-      "require": "./dist/tracker.umd.js"
-    }
+    ".": "./dist/tracker.js"
   },
   "files": [
     "dist"
@@ -18,6 +15,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "test": "vite --open",
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
