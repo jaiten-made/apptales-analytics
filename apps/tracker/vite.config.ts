@@ -1,16 +1,13 @@
-import { defineConfig } from "vite";
 import { resolve } from "path";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "AppTalesTracker",
-      formats: ["es", "umd", "iife"],
-      fileName: (format) => {
-        if (format === "iife") return "tracker.min.js";
-        return `tracker.${format}.js`;
-      },
+      formats: ["iife"],
+      fileName: () => "tracker.js",
     },
     minify: "terser",
     terserOptions: {
