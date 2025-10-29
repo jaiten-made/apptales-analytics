@@ -14,8 +14,15 @@ datasource db {
 }
 
 model Event {
-  id        Int      @id @default(autoincrement())
-  type      String
-  data      Json
-  createdAt DateTime @default(now())
+  id          Int       @id @default(autoincrement())
+  type        String
+  data        EventData @relation(fields: [eventDataId], references: [id])
+  createdAt   DateTime  @default(now())
+  eventDataId Int
+}
+
+model EventData {
+  id    Int     @id @default(autoincrement())
+  name  String
+  Event Event[]
 }

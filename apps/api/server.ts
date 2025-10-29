@@ -14,16 +14,23 @@ app.get("/", (req: Request, res: Response) => {
 
 // POST /events to save click events
 app.post("/events", async (req: Request, res: Response) => {
-  const { type, data } = req.body;
+  const { type } = req.body;
   if (type !== "click") {
     return res.status(400).json({ error: "Only click events are supported." });
   }
   try {
-    // Save to Prisma DB (assumes Event model exists)
+    // Save to Prisma DB - create EventData and Event together
     const event = await prisma.event.create({
       data: {
         type,
-        data,
+        data: {
+          create: {
+            name: "Test Name",
+          },
+        },
+      },
+      include: {
+        data: true,
       },
     });
     res.status(201).json(event);
