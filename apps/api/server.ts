@@ -1,10 +1,35 @@
+import { PrismaClient } from "@prisma/client";
 import express, { Request, Response } from "express";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const prisma = new PrismaClient();
+
+app.use(express.json());
+
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
+});
+
+// POST /events to save click events
+app.post("/events", async (req: Request, res: Response) => {
+  const { type, data } = req.body;
+  if (type !== "click") {
+    return res.status(400).json({ error: "Only click events are supported." });
+  }
+  try {
+    // Save to Prisma DB (assumes Event model exists)
+    const event = await prisma.event.create({
+      data: {
+        type,
+        data,
+      },
+    });
+    res.status(201).json(event);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to save event", details: error });
+  }
 });
 
 app.listen(PORT, () => {
