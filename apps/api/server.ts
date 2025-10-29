@@ -14,7 +14,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // POST /events to save click events
 app.post("/events", async (req: Request, res: Response) => {
-  const { type } = req.body;
+  const { type, data } = req.body;
   if (type !== "click") {
     return res.status(400).json({ error: "Only click events are supported." });
   }
@@ -24,9 +24,7 @@ app.post("/events", async (req: Request, res: Response) => {
       data: {
         type,
         data: {
-          create: {
-            name: "Test Name",
-          },
+          create: data,
         },
       },
       include: {
