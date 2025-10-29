@@ -15,11 +15,6 @@ export default defineConfig({
         drop_console: true,
       },
     },
-    rollupOptions: {
-      output: {
-        globals: {},
-      },
-    },
   },
   server: {
     port: 3000,
