@@ -1,27 +1,10 @@
-import { PrismaClient } from "@prisma/client";
-import cors from "cors";
 import express, { Request, Response } from "express";
+import { prisma } from "../../lib/prisma/client";
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-const prisma = new PrismaClient();
-
-app.use(
-  cors({
-    origin: "http://localhost:3001",
-    credentials: true,
-  })
-);
-
-app.use(express.json());
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
-});
+const router = express.Router();
 
 // POST /events to save click events
-app.post("/events", async (req: Request, res: Response) => {
+router.post("/", async (req: Request, res: Response) => {
   const { type, data } = req.body;
   if (type !== "click") {
     return res.status(400).json({ error: "Only click events are supported." });
@@ -45,6 +28,4 @@ app.post("/events", async (req: Request, res: Response) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+export default router;
