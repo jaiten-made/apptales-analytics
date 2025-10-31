@@ -23,7 +23,6 @@ import {
   IconRefresh,
   IconUser,
 } from "@tabler/icons-react";
-import { useEffect } from "react";
 import theme from "../../lib/mui/theme";
 import { useGetEventsQuery } from "../../lib/redux/api/events/events";
 
@@ -37,10 +36,6 @@ const FilterDrawer = () => {
   ];
 
   const { data: events } = useGetEventsQuery(undefined);
-
-  useEffect(() => {
-    console.log(events);
-  }, [events]);
 
   // Transform events data to match the expected format
   const eventOptions =
