@@ -7,7 +7,7 @@ export enum TAGS {
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3000",
+    baseUrl: "http://localhost:3001",
   }),
   tagTypes: [...Object.values(TAGS)],
   endpoints: () => ({}),
