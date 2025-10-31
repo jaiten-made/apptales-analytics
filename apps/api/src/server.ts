@@ -3,11 +3,11 @@ import express, { Response } from "express";
 import eventsRouter from "./routes/EventsRoute/router";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(
   cors({
-    origin: "http://localhost:3001",
+    origin: ["http://localhost:3000", "http://localhost:3002"], // app, tracker
     credentials: true,
   })
 );

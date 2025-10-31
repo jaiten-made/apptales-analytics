@@ -2,7 +2,7 @@
 
 import { Event } from "./types";
 
-const API_URL = "http://localhost:3000/events"; // Update with your actual API URL
+const API_URL = "http://localhost:3001/events"; // Update with your actual API URL
 
 export const sendEvent = async (event: Event) => {
   try {
