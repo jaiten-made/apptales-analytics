@@ -1,6 +1,6 @@
-import { safeParseEvent } from "@apptales/events-schema";
 import express, { Request, Response } from "express";
 import { prisma } from "../../lib/prisma/client";
+import { validateEvent } from "../../middleware/validateEvent";
 
 const router = express.Router();
 
@@ -22,19 +22,8 @@ router.get("/", async (req, res) => {
 });
 
 // POST /events to save events (validated by Zod)
-router.post("/", async (req: Request, res: Response) => {
-  const parsed = safeParseEvent(req.body);
-  if (!parsed.success) {
-    const errors = parsed.error.issues.map((issue) => ({
-      path: issue.path.join("."),
-      message: issue.message,
-    }));
-    return res.status(400).json({
-      error: "Invalid event payload",
-      details: errors,
-    });
-  }
-  const { type, properties } = parsed.data;
+router.post("/", validateEvent, async (req: Request, res: Response) => {
+  const { type, properties } = req.body;
   try {
     // Save to Prisma DB - simple properties JSON column
     const event = await prisma.event.create({
