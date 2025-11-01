@@ -7,18 +7,7 @@ export const validateEvent = (
   next: NextFunction
 ) => {
   const parsed = safeParseEvent(req.body);
-
-  if (!parsed.success) {
-    const errors = parsed.error.issues.map((issue) => ({
-      path: issue.path.join("."),
-      message: issue.message,
-    }));
-    return res.status(400).json({
-      error: "Invalid event payload",
-      details: errors,
-    });
-  }
-
+  if (!parsed.success) return res.status(400).json(parsed.error);
   // Attach validated data to request for use in route handler
   req.body = parsed.data;
   next();
