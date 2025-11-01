@@ -4,7 +4,11 @@
   "main": "server.ts",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed": "tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",

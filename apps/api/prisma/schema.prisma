@@ -23,9 +23,8 @@ model Event {
   type        String
   properties  Json
   createdAt   DateTime  @default(now())
-  sessionId   Int?
-  session     Session?  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId   Int
+  session     Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }
 
 
- 
