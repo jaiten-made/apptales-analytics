@@ -4,20 +4,6 @@ import { Prisma } from "@prisma/client";
 // Adds runtime validation for Event create/update and a computed typedProperties field
 export const eventsExtension = Prisma.defineExtension((client) => {
   return client.$extends({
-    result: {
-      event: {
-        typedProperties: {
-          needs: { properties: true, type: true },
-          compute(e) {
-            const parsed = EventSchema.parse({
-              type: e.type,
-              properties: e.properties,
-            });
-            return parsed.properties;
-          },
-        },
-      },
-    },
     query: {
       event: {
         create({ args, query }) {

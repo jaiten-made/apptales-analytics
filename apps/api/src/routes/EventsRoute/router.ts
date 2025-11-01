@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import { prisma } from "../../lib/prisma/client";
-import { validateEvent } from "../../middleware/validateEvent";
+import { validateEvent } from "../../middleware/validation/validateEvent";
 
 const router = express.Router();
 
