@@ -21,7 +21,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /events to save events (validated by Zod)
+// POST /events to save events (validated by Zod
 router.post("/", validateEvent, async (req: Request, res: Response) => {
   const { type, properties } = req.body;
   try {

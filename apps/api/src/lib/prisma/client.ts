@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { eventsExtension } from "./extensions/events";
 
 const createPrisma = () =>
   new PrismaClient({
@@ -7,7 +6,7 @@ const createPrisma = () =>
       process.env.NODE_ENV === "development"
         ? ["query", "error", "warn"]
         : ["error"],
-  }).$extends(eventsExtension);
+  });
 
 type PrismaWithEvents = ReturnType<typeof createPrisma>;
 
