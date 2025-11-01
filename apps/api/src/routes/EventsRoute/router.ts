@@ -1,3 +1,4 @@
+import { safeParseEvent } from "@apptales/events-schema";
 import express, { Request, Response } from "express";
 import { prisma } from "../../lib/prisma/client";
 
@@ -7,11 +8,7 @@ const router = express.Router();
 // @desc   Get all events
 router.get("/", async (req, res) => {
   try {
-    const events = await prisma.event.findMany({
-      include: {
-        data: true,
-      },
-    });
+    const events = await prisma.event.findMany();
     res.json(events);
   } catch (error) {
     let message = "";
@@ -24,24 +21,24 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /events to save click events
+// POST /events to save events (validated by Zod)
 router.post("/", async (req: Request, res: Response) => {
-  const { type, data } = req.body;
-  if (type !== "click") {
-    return res.status(400).json({ error: "Only click events are supported." });
+  const parsed = safeParseEvent(req.body);
+  if (!parsed.success) {
+    const errors = parsed.error.issues.map((issue) => ({
+      path: issue.path.join("."),
+      message: issue.message,
+    }));
+    return res.status(400).json({
+      error: "Invalid event payload",
+      details: errors,
+    });
   }
+  const { type, properties } = parsed.data;
   try {
-    // Save to Prisma DB - create EventData and Event together
+    // Save to Prisma DB - simple properties JSON column
     const event = await prisma.event.create({
-      data: {
-        type,
-        data: {
-          create: data,
-        },
-      },
-      include: {
-        data: true,
-      },
+      data: { type, properties },
     });
     res.status(201).json(event);
   } catch (error) {
