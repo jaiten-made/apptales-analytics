@@ -1,12 +1,3 @@
-/*
-  Warnings:
-
-  - The required column `projectId` was added to the `Event` table with a prisma-level default value. This is not possible if the table is not empty. Please add this column as optional, then populate it before making it required.
-
-*/
--- AlterTable
-ALTER TABLE "Event" ADD COLUMN     "projectId" TEXT NOT NULL;
-
 -- CreateTable
 CREATE TABLE "Project" (
     "id" TEXT NOT NULL,
@@ -14,6 +5,18 @@ CREATE TABLE "Project" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Event" (
+    "id" TEXT NOT NULL,
+    "sessionId" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "properties" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "projectId" TEXT NOT NULL,
+
+    CONSTRAINT "Event_pkey" PRIMARY KEY ("id")
 );
 
 -- AddForeignKey
