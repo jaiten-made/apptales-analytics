@@ -1,1 +1,1 @@
-export { default as eventsRouter } from "./router";
+export { default as projectsRoute } from "./router";
