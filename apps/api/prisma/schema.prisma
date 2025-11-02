@@ -13,12 +13,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  events    Event[]
+}
+
 model Event {
   id          String    @id @default(cuid())
   sessionId   String    @default(cuid())
   type        String
   properties  Json
   createdAt   DateTime  @default(now())
+  projectId   String    @default(cuid())
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 

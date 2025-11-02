@@ -9,6 +9,11 @@ async function main() {
   const session1Id = generateCuid();
   const session2Id = generateCuid();
 
+  // Create a project and use its id for events
+  const project = await prisma.project.create({
+    data: { name: "Sample Project" },
+  });
+
   // Create some events and attach them to an existing session
   await prisma.event.createMany({
     data: [
@@ -20,11 +25,13 @@ async function main() {
             pathname: "https://example.com/home",
           },
         },
+        projectId: project.id,
       },
       {
         sessionId: session1Id,
         type: "click",
         properties: {},
+        projectId: project.id,
       },
       {
         sessionId: session2Id,
@@ -34,16 +41,18 @@ async function main() {
             pathname: "https://example.com/about",
           },
         },
+        projectId: project.id,
       },
       {
         sessionId: session2Id,
         type: "click",
         properties: {},
+        projectId: project.id,
       },
     ],
   });
 
-  console.log("✅ Seed completed!");
+  console.log("✅ Seed completed! Project ID:", project.id);
 }
 
 main()
