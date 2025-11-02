@@ -11,9 +11,10 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@apptales/events-schema": "workspace:*",
+    "@apptales/utils": "workspace:*",
     "@prisma/client": "^6.18.0",
     "@prisma/extension-accelerate": "^2.0.2",
-    "@apptales/events-schema": "workspace:*",
     "cors": "^2.8.5",
     "express": "^4.17.1"
   },

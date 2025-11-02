@@ -13,18 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Session {
-  id         Int      @id @default(autoincrement())
-  events     Event[]
-}
-
 model Event {
-  id          Int       @id @default(autoincrement())
+  id          String    @id @default(cuid())
+  sessionId   String    @default(cuid())
   type        String
   properties  Json
   createdAt   DateTime  @default(now())
-  sessionId   Int
-  session     Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 }
 
 

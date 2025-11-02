@@ -1,25 +1,29 @@
 import { z } from "zod";
 
-export const EventSchema = z.discriminatedUnion("type", [
+const BaseEventProperties = z.object({
+  sessionId: z.string(),
+});
+
+export const EventSchema = z.intersection(
   z.object({
-    type: z.literal("page_view"),
-    properties: z.object({
-      url: z.string().url(),
-      title: z.string().optional(),
+    sessionId: z.string(),
+  }),
+  z.discriminatedUnion("type", [
+    z.object({
+      type: z.literal("page_view"),
+      properties: z.object({
+        location: z.object({
+          pathname: z.string().url(),
+        }),
+      }),
     }),
-  }),
-  z.object({
-    type: z.literal("click"),
-    properties: z.object({ elementId: z.string() }),
-  }),
-]);
+    z.object({
+      type: z.literal("click"),
+    }),
+  ])
+);
 
 export type Event = z.infer<typeof EventSchema>;
-export type EventType = Event["type"];
-export type EventProperties<TType extends EventType = EventType> = Extract<
-  Event,
-  { type: TType }
->["properties"];
 
 export const parseEvent = (input: unknown) => EventSchema.parse(input);
 export const safeParseEvent = (input: unknown) => EventSchema.safeParse(input);

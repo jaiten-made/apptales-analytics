@@ -1,6 +1,4 @@
-// apiService.ts
-
-import { Event } from "./types";
+import { Event } from "@apptales/events-schema";
 
 const API_URL = "http://localhost:3001/events"; // Update with your actual API URL
 
