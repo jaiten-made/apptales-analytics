@@ -26,23 +26,13 @@ router.get("/", async (req, res) => {
 router.post(
   "/",
   validateEvent,
-  async (
-    req: Request & {
-      body: Event;
-    },
-    res: Response
-  ) => {
-    const { properties } = req.body;
+  async (req: Request<{}, {}, Event>, res: Response) => {
     try {
       // Save to Prisma DB - simple properties JSON column
       const event = await prisma.event.create({
         data: {
           ...req.body,
-          properties: {
-            ...properties,
-            session: undefined,
-          },
-          sessionId: properties.session.id,
+          properties: req.body.type === "page_view" ? req.body.properties : {},
         },
       });
       res.status(201).json(event);

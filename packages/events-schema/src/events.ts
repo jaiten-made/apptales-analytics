@@ -13,7 +13,7 @@ export const EventSchema = z.intersection(
       type: z.literal("page_view"),
       properties: z.object({
         location: z.object({
-          pathname: z.string().url(),
+          pathname: z.string(),
         }),
       }),
     }),
