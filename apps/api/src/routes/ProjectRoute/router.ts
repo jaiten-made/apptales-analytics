@@ -16,32 +16,46 @@ router.get(
     const { projectId } = req.params;
 
     try {
-      // Your exact query, using bound parameter for safety
+      // Path exploration query using EventIdentity transitions
       const sql = `
+      WITH ordered AS (
+        SELECT
+          e."sessionId",
+          e."eventIdentityId" AS from_id,
+          LEAD(e."eventIdentityId") OVER (
+            PARTITION BY e."sessionId"
+            ORDER BY e."createdAt"
+          ) AS to_id
+        FROM "Event" e
+        WHERE e."eventIdentityId" IS NOT NULL
+          AND e."projectId" = $1
+      )
       SELECT
-        "sessionId",
-        json_agg(
-          json_build_object(
-            'id', e.id,
-            'type', e.type,
-            'createdAt', e."createdAt",
-            'properties', e.properties
-          ) ORDER BY e."createdAt", e.id
-        ) AS events
-      FROM "Event" e
-      WHERE e."projectId" = $1
-      GROUP BY e."sessionId"
-      ORDER BY MIN(e."createdAt");
+        json_build_object('id', ei_from.id, 'key', ei_from."key") AS "from",
+        json_build_object('id', ei_to.id, 'key', ei_to."key") AS "to",
+        COUNT(*) AS count
+      FROM ordered
+      JOIN "EventIdentity" ei_from ON ei_from.id = from_id
+      JOIN "EventIdentity" ei_to ON ei_to.id = to_id
+      WHERE to_id IS NOT NULL
+      GROUP BY ei_from.id, ei_from."key", ei_to.id, ei_to."key"
+      ORDER BY count DESC;
     `;
 
       // Execute the query safely
       const results = (await prisma.$queryRawUnsafe(sql, projectId)) as Array<{
-        from_event: string;
-        to_event: string;
+        from: { id: string; key: string };
+        to: { id: string; key: string };
         count: bigint;
       }>;
 
-      return res.status(200).json(results);
+      // Convert BigInt to string for JSON serialization
+      const serializedResults = results.map((row) => ({
+        ...row,
+        count: row.count.toString(),
+      }));
+
+      return res.status(200).json(serializedResults);
     } catch (error) {
       let message = "";
       if (error instanceof Error) {
