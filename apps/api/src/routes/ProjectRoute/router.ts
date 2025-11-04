@@ -19,20 +19,19 @@ router.get(
       // Your exact query, using bound parameter for safety
       const sql = `
       SELECT
-        e1.type AS from_event,
-        e2.type AS to_event,
-        COUNT(*) AS count
-      FROM "Event" e1
-      JOIN "Event" e2
-        ON e1."sessionId" = e2."sessionId"
-       AND e2."projectId" = e1."projectId"
-       AND (
-         e2."createdAt" > e1."createdAt"
-         OR (e2."createdAt" = e1."createdAt" AND e2.id > e1.id)
-       )
-      WHERE e1."projectId" = $1
-      GROUP BY from_event, to_event
-      ORDER BY count DESC;
+        "sessionId",
+        json_agg(
+          json_build_object(
+            'id', e.id,
+            'type', e.type,
+            'createdAt', e."createdAt",
+            'properties', e.properties
+          ) ORDER BY e."createdAt", e.id
+        ) AS events
+      FROM "Event" e
+      WHERE e."projectId" = $1
+      GROUP BY e."sessionId"
+      ORDER BY MIN(e."createdAt");
     `;
 
       // Execute the query safely
@@ -42,14 +41,7 @@ router.get(
         count: bigint;
       }>;
 
-      // normalize count to number
-      const data = results.map((r) => ({
-        from_event: r.from_event,
-        to_event: r.to_event,
-        count: Number(r.count),
-      }));
-
-      return res.status(200).json(data);
+      return res.status(200).json(results);
     } catch (error) {
       let message = "";
       if (error instanceof Error) {

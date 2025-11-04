@@ -1,8 +1,14 @@
 import baseApi from "../../base";
 
-interface PathExplorationData {
-  from_event: string;
-  to_event: string;
+export interface PathTransition {
+  from: {
+    id: string;
+    type: string;
+  };
+  to: {
+    id: string;
+    type: string;
+  };
   count: number;
 }
 
@@ -10,7 +16,7 @@ const BASE_URL = (projectId: string) => `/projects/${projectId}`;
 
 export const projectApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPathExploration: builder.query<PathExplorationData[], string>({
+    getPathExploration: builder.query<PathTransition[], string>({
       query: (projectId) => `${BASE_URL(projectId)}/path-exploration`,
     }),
   }),
