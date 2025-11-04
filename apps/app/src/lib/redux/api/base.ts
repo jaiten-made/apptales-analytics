@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export enum TAGS {
   EVENTS = "events",
+  PROJECT = "project",
 }
 
 export const api = createApi({
