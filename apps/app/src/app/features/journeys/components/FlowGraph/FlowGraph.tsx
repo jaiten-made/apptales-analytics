@@ -48,14 +48,16 @@ function buildGraph(data: typeof mockData) {
   // Build nodes
   const nodes: Node[] = [];
   steps.forEach((events, step) => {
+    const gapX = 240;
+    const baseX = -((events.length - 1) * gapX) / 2; // center row around x=0
     events.forEach((event, idx) => {
       nodes.push({
         id: event.id,
         data: { label: `${event.label} (${event.count})` },
-        // Horizontal layout: steps on x, events on y
-        position: { x: 260 * (step - 1), y: 80 * idx },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
+        // Vertical layout: steps on y, events on x (centered)
+        position: { x: baseX + gapX * idx, y: 120 * (step - 1) },
+        sourcePosition: Position.Bottom,
+        targetPosition: Position.Top,
         style: {
           width: 200,
           height: 40,
