@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from "react";
-import type { Edge, Node, NodeMouseHandler } from "reactflow";
+import type { Edge, Node, NodeMouseHandler, NodeProps } from "reactflow";
 import ReactFlow, {
   Background,
   BackgroundVariant,
   Controls,
+  Handle,
   Position,
 } from "reactflow";
 import "reactflow/dist/style.css";
@@ -58,20 +59,19 @@ function buildGraph(data: typeof mockData) {
     events.forEach((event, idx) => {
       nodes.push({
         id: event.id,
-        data: { label: `${event.label} (${event.count})` },
-        // Vertical layout: steps on y, events on x (centered)
+        type: "stepNode",
+        data: {
+          label: event.label,
+          count: event.count,
+        },
         position: { x: baseX + gapX * idx, y: 120 * (step - 1) },
         sourcePosition: Position.Bottom,
         targetPosition: Position.Top,
         style: {
+          // let the custom node style dominate
           width: 200,
-          height: 40,
-          borderRadius: 8,
-          background: "#fff",
-          border: "1px solid #bbb",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          background: "transparent",
+          border: "none",
         },
       });
     });
@@ -112,21 +112,67 @@ function buildGraph(data: typeof mockData) {
   return { nodes, edges };
 }
 
+// Custom Node that visually matches the screenshot using Tailwind
+const StepNode: React.FC<
+  NodeProps<{
+    label: string;
+    count: number;
+    percent: number;
+    isStart?: boolean;
+    selected?: boolean;
+  }>
+> = ({ data }) => {
+  return (
+    <div
+      className={[
+        "relative w-[200px] bg-white border border-emerald-500 rounded-lg",
+        "shadow-inner text-neutral-900 text-[12px] leading-[1.2]",
+        data.selected ? "ring-2 ring-blue-500/30" : "",
+      ].join(" ")}
+    >
+      {data.isStart ? (
+        <div className="absolute -top-3 left-2 bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold tracking-wide">
+          START
+        </div>
+      ) : null}
+
+      <div className="text-center px-2.5 pt-2 pb-1 font-semibold text-neutral-800 truncate">
+        {data.label}
+      </div>
+
+      <div className="flex flex-row justify-between items-center w-full gap-2 border-t border-gray-200 px-2 py-2">
+        <div className="text-[10px] text-gray-500 mb-0.5">Events</div>
+        <div className="text-emerald-700 font-semibold text-xs">
+          {data.count}
+        </div>
+      </div>
+
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="w-2 h-2 bg-emerald-700 border-2 border-white rounded-full"
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className="w-2 h-2 bg-emerald-700 border-2 border-white rounded-full"
+      />
+    </div>
+  );
+};
+
 const { nodes: initialNodes, edges: initialEdges } = buildGraph(mockData);
 
 const FlowGraph: React.FC = () => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // Memoize nodes to add selection style
+  // Memoize nodes and pass selection via data (no inline styles)
   const nodes = useMemo(() => {
     return initialNodes.map((node) => ({
       ...node,
-      style: {
-        ...node.style,
-        border:
-          node.id === selectedNodeId ? "2px solid #1976d2" : node.style?.border,
-        boxShadow:
-          node.id === selectedNodeId ? "0 0 0 2px #1976d233" : undefined,
+      data: {
+        ...node.data,
+        selected: node.id === selectedNodeId,
       },
     }));
   }, [selectedNodeId]);
@@ -141,8 +187,8 @@ const FlowGraph: React.FC = () => {
         ...edge,
         style: {
           ...edge.style,
-          stroke: isAttached ? "#ff9800" : edge.style?.stroke,
-          opacity: isAttached ? 1 : 0.4,
+          stroke: isAttached ? "#1b5e20" : "#2e7d32",
+          opacity: isAttached ? 1 : 0.35,
         },
       };
     });
@@ -152,6 +198,9 @@ const FlowGraph: React.FC = () => {
   const onNodeClick: NodeMouseHandler = (_, node) => {
     setSelectedNodeId((prev) => (prev === node.id ? null : node.id));
   };
+
+  // register custom node
+  const nodeTypes = useMemo(() => ({ stepNode: StepNode }), []);
 
   return (
     <div className="flex h-full w-full">
@@ -167,6 +216,7 @@ const FlowGraph: React.FC = () => {
           className="rfCustomCursor"
           nodes={nodes}
           edges={edges}
+          nodeTypes={nodeTypes}
           fitView
           fitViewOptions={{ padding: 0.2, minZoom: 0.5, maxZoom: 1.5 }}
           nodesDraggable={false}
