@@ -1,5 +1,5 @@
-import React from "react";
-import type { Edge, Node } from "reactflow";
+import React, { useMemo, useState } from "react";
+import type { Edge, Node, NodeMouseHandler } from "reactflow";
 import ReactFlow, { Background, Controls, Position } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -37,7 +37,7 @@ function buildGraph(data: typeof mockData) {
     number,
     { id: string; label: string; count: number }[]
   >();
-  data.forEach((item, idx) => {
+  data.forEach((item) => {
     const id = `step${item.step}_${item.event_key}`;
     if (!steps.has(item.step)) steps.set(item.step, []);
     steps
@@ -107,9 +107,47 @@ function buildGraph(data: typeof mockData) {
   return { nodes, edges };
 }
 
-const { nodes, edges } = buildGraph(mockData);
+const { nodes: initialNodes, edges: initialEdges } = buildGraph(mockData);
 
 const FlowGraph: React.FC = () => {
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+
+  // Memoize nodes to add selection style
+  const nodes = useMemo(() => {
+    return initialNodes.map((node) => ({
+      ...node,
+      style: {
+        ...node.style,
+        border:
+          node.id === selectedNodeId ? "2px solid #1976d2" : node.style?.border,
+        boxShadow:
+          node.id === selectedNodeId ? "0 0 0 2px #1976d233" : undefined,
+      },
+    }));
+  }, [selectedNodeId]);
+
+  // Memoize edges to highlight attached ones
+  const edges = useMemo(() => {
+    if (!selectedNodeId) return initialEdges;
+    return initialEdges.map((edge) => {
+      const isAttached =
+        edge.source === selectedNodeId || edge.target === selectedNodeId;
+      return {
+        ...edge,
+        style: {
+          ...edge.style,
+          stroke: isAttached ? "#ff9800" : edge.style?.stroke,
+          opacity: isAttached ? 1 : 0.4,
+        },
+      };
+    });
+  }, [selectedNodeId]);
+
+  // Handle node selection
+  const onNodeClick: NodeMouseHandler = (_, node) => {
+    setSelectedNodeId((prev) => (prev === node.id ? null : node.id));
+  };
+
   return (
     <div className="flex h-full w-full">
       <div className="flex-1 bg-gray-50">
@@ -123,6 +161,7 @@ const FlowGraph: React.FC = () => {
           proOptions={{ hideAttribution: true }}
           minZoom={0.1}
           maxZoom={2}
+          onNodeClick={onNodeClick}
         >
           <Controls showInteractive={false} />
           <Background gap={16} />
