@@ -1,6 +1,11 @@
 import React, { useMemo, useState } from "react";
 import type { Edge, Node, NodeMouseHandler } from "reactflow";
-import ReactFlow, { Background, Controls, Position } from "reactflow";
+import ReactFlow, {
+  Background,
+  BackgroundVariant,
+  Controls,
+  Position,
+} from "reactflow";
 import "reactflow/dist/style.css";
 
 // New mock data
@@ -151,7 +156,15 @@ const FlowGraph: React.FC = () => {
   return (
     <div className="flex h-full w-full">
       <div className="flex-1 bg-gray-50">
+        {/* cursor overrides */}
+        <style>{`
+        .rfCustomCursor .react-flow__pane { cursor: default !important; }
+        .rfCustomCursor .react-flow__pane.dragging { cursor: grabbing !important; }
+        /* optional: make nodes look clickable */
+        .rfCustomCursor .react-flow__node { cursor: pointer; }
+      `}</style>
         <ReactFlow
+          className="rfCustomCursor"
           nodes={nodes}
           edges={edges}
           fitView
@@ -162,9 +175,12 @@ const FlowGraph: React.FC = () => {
           minZoom={0.1}
           maxZoom={2}
           onNodeClick={onNodeClick}
+          panOnDrag={[1]}
+          zoomOnPinch={true}
+          onPaneClick={() => setSelectedNodeId(null)}
         >
           <Controls showInteractive={false} />
-          <Background gap={16} />
+          <Background variant={BackgroundVariant.Dots} gap={24} />
         </ReactFlow>
       </div>
     </div>
