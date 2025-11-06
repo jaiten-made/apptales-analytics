@@ -129,6 +129,11 @@ const StepNode: React.FC<
     dimmed?: boolean;
   }>
 > = ({ data }) => {
+  const exitRate =
+    data.exits !== undefined
+      ? ((data.exits / data.count) * 100).toFixed(1)
+      : undefined;
+
   return (
     <div
       className={[
@@ -152,18 +157,19 @@ const StepNode: React.FC<
       <div className="flex flex-row border-t border-gray-200 px-2 py-2">
         <div className="flex-1 flex flex-col items-center gap-0.5">
           <div className="text-[10px] text-gray-500">Events</div>
-          <div className="text-emerald-700 font-semibold text-xs">
-            {data.count}
-          </div>
+          <div className="font-semibold text-xs">{data.count}</div>
         </div>
         {data.exits !== undefined && (
           <>
             <div className="w-px bg-gray-200" />
             <div className="flex-1 flex flex-col items-center gap-0.5">
               <div className="text-[10px] text-gray-500">Exits</div>
-              <div className="text-red-600 font-semibold text-xs">
-                {data.exits}
-              </div>
+              <div className="font-semibold text-xs">{data.exits}</div>
+            </div>
+            <div className="w-px bg-gray-200" />
+            <div className="flex-1 flex flex-col items-center gap-0.5">
+              <div className="text-[10px] text-gray-500">Rate</div>
+              <div className=" font-semibold text-xs">{exitRate}%</div>
             </div>
           </>
         )}
