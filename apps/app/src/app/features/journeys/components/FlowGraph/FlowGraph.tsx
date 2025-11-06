@@ -127,7 +127,7 @@ const StepNode: React.FC<
   return (
     <div
       className={[
-        "relative w-[200px] bg-white border border-emerald-500 rounded-lg",
+        "relative w-[200px] bg-white border border-gray-300 rounded-lg",
         "shadow-inner text-neutral-900 text-[12px] leading-[1.2]",
         "transition-opacity duration-200",
         data.selected ? "ring-2 ring-blue-500/30" : "",
