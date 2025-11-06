@@ -1,3 +1,4 @@
+import { colors, useTheme } from "@mui/material";
 import React, { useMemo, useState } from "react";
 import type { Edge, Node, NodeMouseHandler, NodeProps } from "reactflow";
 import ReactFlow, {
@@ -8,6 +9,7 @@ import ReactFlow, {
   Position,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import theme from "../../../../../lib/mui/theme";
 
 // New mock data
 const mockData = [
@@ -102,8 +104,7 @@ function buildGraph(data: typeof mockData) {
           id: `e_${from.id}_${to.id}`,
           source: from.id,
           target: to.id,
-          animated: false,
-          style: { strokeWidth, stroke: "#1976d2" },
+          style: { strokeWidth, stroke: colors.grey[500] },
         });
       });
     });
@@ -123,6 +124,8 @@ const StepNode: React.FC<
     dimmed?: boolean;
   }>
 > = ({ data }) => {
+  const theme = useTheme();
+
   return (
     <div
       className={[
@@ -205,7 +208,7 @@ const FlowGraph: React.FC = () => {
         ...edge,
         style: {
           ...edge.style,
-          stroke: isAttached ? "#1b5e20" : "#2e7d32",
+          stroke: isAttached ? theme.palette.primary.main : colors.grey[400],
           opacity: isAttached ? 1 : 0.35,
         },
       };
