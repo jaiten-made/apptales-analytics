@@ -1,4 +1,4 @@
-import { colors, useTheme } from "@mui/material";
+import { colors } from "@mui/material";
 import React, { useMemo, useState } from "react";
 import type { Edge, Node, NodeMouseHandler, NodeProps } from "reactflow";
 import ReactFlow, {
@@ -124,8 +124,6 @@ const StepNode: React.FC<
     dimmed?: boolean;
   }>
 > = ({ data }) => {
-  const theme = useTheme();
-
   return (
     <div
       className={[
