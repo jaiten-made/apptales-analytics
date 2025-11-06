@@ -120,6 +120,7 @@ const StepNode: React.FC<
     percent: number;
     isStart?: boolean;
     selected?: boolean;
+    dimmed?: boolean;
   }>
 > = ({ data }) => {
   return (
@@ -127,7 +128,9 @@ const StepNode: React.FC<
       className={[
         "relative w-[200px] bg-white border border-emerald-500 rounded-lg",
         "shadow-inner text-neutral-900 text-[12px] leading-[1.2]",
+        "transition-opacity duration-200",
         data.selected ? "ring-2 ring-blue-500/30" : "",
+        data.dimmed ? "opacity-25" : "opacity-100",
       ].join(" ")}
     >
       {data.isStart ? (
@@ -168,11 +171,26 @@ const FlowGraph: React.FC = () => {
 
   // Memoize nodes and pass selection via data (no inline styles)
   const nodes = useMemo(() => {
+    // Find connected node IDs if a node is selected
+    const connectedNodeIds = new Set<string>();
+    if (selectedNodeId) {
+      connectedNodeIds.add(selectedNodeId);
+      initialEdges.forEach((edge) => {
+        if (edge.source === selectedNodeId) {
+          connectedNodeIds.add(edge.target);
+        }
+        if (edge.target === selectedNodeId) {
+          connectedNodeIds.add(edge.source);
+        }
+      });
+    }
+
     return initialNodes.map((node) => ({
       ...node,
       data: {
         ...node.data,
         selected: node.id === selectedNodeId,
+        dimmed: selectedNodeId !== null && !connectedNodeIds.has(node.id),
       },
     }));
   }, [selectedNodeId]);
