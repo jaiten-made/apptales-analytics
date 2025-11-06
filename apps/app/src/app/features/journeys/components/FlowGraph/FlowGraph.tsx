@@ -1,4 +1,4 @@
-import { colors } from "@mui/material";
+import { colors, ListItem, ListItemText } from "@mui/material";
 import React, { useMemo, useState } from "react";
 import type { Edge, Node, NodeMouseHandler, NodeProps } from "reactflow";
 import ReactFlow, {
@@ -13,29 +13,183 @@ import theme from "../../../../../lib/mui/theme";
 
 // New mock data
 const mockData = [
-  { step: 1, event_key: "page_view:/home", count: 50 },
-  { step: 2, event_key: "click:view_product_button", count: 20 },
-  { step: 2, event_key: "click:learn_more_button", count: 18, exits: 3 },
-  { step: 2, event_key: "click:read_more_button", count: 12, exits: 5 },
-  { step: 3, event_key: "page_view:/products", count: 22 },
-  { step: 3, event_key: "page_view:/about", count: 19, exits: 4 },
-  { step: 3, event_key: "page_view:/blog", count: 13, exits: 2 },
-  { step: 4, event_key: "click:buy_now_button", count: 21 },
-  { step: 4, event_key: "click:view_product_button", count: 17, exits: 3 },
-  { step: 4, event_key: "click:generic", count: 11, exits: 4 },
-  { step: 5, event_key: "page_view:/products", count: 23 },
-  { step: 5, event_key: "page_view:/pricing", count: 20, exits: 2 },
-  { step: 5, event_key: "page_view:/services", count: 14, exits: 3 },
-  { step: 6, event_key: "click:buy_now_button", count: 19 },
-  { step: 6, event_key: "click:signup_button", count: 15, exits: 4 },
-  { step: 6, event_key: "click:submit_button", count: 13, exits: 3 },
-  { step: 7, event_key: "page_view:/checkout", count: 18, exits: 5 },
-  { step: 7, event_key: "page_view:/contact", count: 16, exits: 2 },
-  { step: 7, event_key: "page_view:/pricing", count: 14, exits: 3 },
-  { step: 8, event_key: "click:submit_button", count: 17, exits: 6 },
-  { step: 8, event_key: "click:signup_button", count: 15, exits: 4 },
-  { step: 9, event_key: "page_view:/thank-you", count: 16 },
-  { step: 9, event_key: "page_view:/checkout", count: 13, exits: 7 },
+  {
+    step: 1,
+    event_key: "page_view:/home",
+    event_type: "page_view",
+    event_name: "/home",
+    count: 50,
+  },
+  {
+    step: 2,
+    event_key: "click:view_product_button",
+    event_type: "click",
+    event_name: "view_product_button",
+    count: 20,
+  },
+  {
+    step: 2,
+    event_key: "click:learn_more_button",
+    event_type: "click",
+    event_name: "learn_more_button",
+    count: 18,
+    exits: 3,
+  },
+  {
+    step: 2,
+    event_key: "click:read_more_button",
+    event_type: "click",
+    event_name: "read_more_button",
+    count: 12,
+    exits: 5,
+  },
+  {
+    step: 3,
+    event_key: "page_view:/products",
+    event_type: "page_view",
+    event_name: "/products",
+    count: 22,
+  },
+  {
+    step: 3,
+    event_key: "page_view:/about",
+    event_type: "page_view",
+    event_name: "/about",
+    count: 19,
+    exits: 4,
+  },
+  {
+    step: 3,
+    event_key: "page_view:/blog",
+    event_type: "page_view",
+    event_name: "/blog",
+    count: 13,
+    exits: 2,
+  },
+  {
+    step: 4,
+    event_key: "click:buy_now_button",
+    event_type: "click",
+    event_name: "buy_now_button",
+    count: 21,
+  },
+  {
+    step: 4,
+    event_key: "click:view_product_button",
+    event_type: "click",
+    event_name: "view_product_button",
+    count: 17,
+    exits: 3,
+  },
+  {
+    step: 4,
+    event_key: "click:generic",
+    event_type: "click",
+    event_name: "generic",
+    count: 11,
+    exits: 4,
+  },
+  {
+    step: 5,
+    event_key: "page_view:/products",
+    event_type: "page_view",
+    event_name: "/products",
+    count: 23,
+  },
+  {
+    step: 5,
+    event_key: "page_view:/pricing",
+    event_type: "page_view",
+    event_name: "/pricing",
+    count: 20,
+    exits: 2,
+  },
+  {
+    step: 5,
+    event_key: "page_view:/services",
+    event_type: "page_view",
+    event_name: "/services",
+    count: 14,
+    exits: 3,
+  },
+  {
+    step: 6,
+    event_key: "click:buy_now_button",
+    event_type: "click",
+    event_name: "buy_now_button",
+    count: 19,
+  },
+  {
+    step: 6,
+    event_key: "click:signup_button",
+    event_type: "click",
+    event_name: "signup_button",
+    count: 15,
+    exits: 4,
+  },
+  {
+    step: 6,
+    event_key: "click:submit_button",
+    event_type: "click",
+    event_name: "submit_button",
+    count: 13,
+    exits: 3,
+  },
+  {
+    step: 7,
+    event_key: "page_view:/checkout",
+    event_type: "page_view",
+    event_name: "/checkout",
+    count: 18,
+    exits: 5,
+  },
+  {
+    step: 7,
+    event_key: "page_view:/contact",
+    event_type: "page_view",
+    event_name: "/contact",
+    count: 16,
+    exits: 2,
+  },
+  {
+    step: 7,
+    event_key: "page_view:/pricing",
+    event_type: "page_view",
+    event_name: "/pricing",
+    count: 14,
+    exits: 3,
+  },
+  {
+    step: 8,
+    event_key: "click:submit_button",
+    event_type: "click",
+    event_name: "submit_button",
+    count: 17,
+    exits: 6,
+  },
+  {
+    step: 8,
+    event_key: "click:signup_button",
+    event_type: "click",
+    event_name: "signup_button",
+    count: 15,
+    exits: 4,
+  },
+  {
+    step: 9,
+    event_key: "page_view:/thank-you",
+    event_type: "page_view",
+    event_name: "/thank-you",
+    count: 16,
+  },
+  {
+    step: 9,
+    event_key: "page_view:/checkout",
+    event_type: "page_view",
+    event_name: "/checkout",
+    count: 13,
+    exits: 7,
+  },
 ];
 
 // Build nodes and edges from new mock data
@@ -43,7 +197,14 @@ function buildGraph(data: typeof mockData) {
   // Group events by step
   const steps = new Map<
     number,
-    { id: string; label: string; count: number; exits?: number }[]
+    {
+      id: string;
+      label: string;
+      event_type: string;
+      event_name: string;
+      count: number;
+      exits?: number;
+    }[]
   >();
   data.forEach((item) => {
     const id = `step${item.step}_${item.event_key}`;
@@ -51,6 +212,8 @@ function buildGraph(data: typeof mockData) {
     steps.get(item.step)!.push({
       id,
       label: item.event_key,
+      event_type: item.event_type,
+      event_name: item.event_name,
       count: item.count,
       exits: item.exits,
     });
@@ -67,6 +230,8 @@ function buildGraph(data: typeof mockData) {
         type: "stepNode",
         data: {
           label: event.label,
+          event_type: event.event_type,
+          event_name: event.event_name,
           count: event.count,
           exits: event.exits,
         },
@@ -121,6 +286,8 @@ function buildGraph(data: typeof mockData) {
 const StepNode: React.FC<
   NodeProps<{
     label: string;
+    event_type: string;
+    event_name: string;
     count: number;
     exits?: number;
     percent: number;
@@ -150,9 +317,25 @@ const StepNode: React.FC<
         </div>
       ) : null}
 
-      <div className="text-center px-2.5 pt-2 pb-1 font-semibold text-neutral-800 truncate">
-        {data.label}
-      </div>
+      <ListItem sx={{ px: 1, py: 0.5 }}>
+        <ListItemText
+          primary={data.event_name}
+          secondary={data.event_type}
+          slotProps={{
+            primary: {
+              fontSize: "12px",
+              fontWeight: 600,
+              textAlign: "center",
+              noWrap: true,
+            },
+            secondary: {
+              fontSize: "10px",
+              textAlign: "center",
+              noWrap: true,
+            },
+          }}
+        />
+      </ListItem>
 
       <div className="flex flex-row border-t border-gray-200 px-2 py-2">
         <div className="flex-1 flex flex-col items-center gap-0.5">
