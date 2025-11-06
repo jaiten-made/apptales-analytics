@@ -15,27 +15,27 @@ import theme from "../../../../../lib/mui/theme";
 const mockData = [
   { step: 1, event_key: "page_view:/home", count: 50 },
   { step: 2, event_key: "click:view_product_button", count: 20 },
-  { step: 2, event_key: "click:learn_more_button", count: 18 },
-  { step: 2, event_key: "click:read_more_button", count: 12 },
+  { step: 2, event_key: "click:learn_more_button", count: 18, exits: 3 },
+  { step: 2, event_key: "click:read_more_button", count: 12, exits: 5 },
   { step: 3, event_key: "page_view:/products", count: 22 },
-  { step: 3, event_key: "page_view:/about", count: 19 },
-  { step: 3, event_key: "page_view:/blog", count: 13 },
+  { step: 3, event_key: "page_view:/about", count: 19, exits: 4 },
+  { step: 3, event_key: "page_view:/blog", count: 13, exits: 2 },
   { step: 4, event_key: "click:buy_now_button", count: 21 },
-  { step: 4, event_key: "click:view_product_button", count: 17 },
-  { step: 4, event_key: "click:generic", count: 11 },
+  { step: 4, event_key: "click:view_product_button", count: 17, exits: 3 },
+  { step: 4, event_key: "click:generic", count: 11, exits: 4 },
   { step: 5, event_key: "page_view:/products", count: 23 },
-  { step: 5, event_key: "page_view:/pricing", count: 20 },
-  { step: 5, event_key: "page_view:/services", count: 14 },
+  { step: 5, event_key: "page_view:/pricing", count: 20, exits: 2 },
+  { step: 5, event_key: "page_view:/services", count: 14, exits: 3 },
   { step: 6, event_key: "click:buy_now_button", count: 19 },
-  { step: 6, event_key: "click:signup_button", count: 15 },
-  { step: 6, event_key: "click:submit_button", count: 13 },
-  { step: 7, event_key: "page_view:/checkout", count: 18 },
-  { step: 7, event_key: "page_view:/contact", count: 16 },
-  { step: 7, event_key: "page_view:/pricing", count: 14 },
-  { step: 8, event_key: "click:submit_button", count: 17 },
-  { step: 8, event_key: "click:signup_button", count: 15 },
+  { step: 6, event_key: "click:signup_button", count: 15, exits: 4 },
+  { step: 6, event_key: "click:submit_button", count: 13, exits: 3 },
+  { step: 7, event_key: "page_view:/checkout", count: 18, exits: 5 },
+  { step: 7, event_key: "page_view:/contact", count: 16, exits: 2 },
+  { step: 7, event_key: "page_view:/pricing", count: 14, exits: 3 },
+  { step: 8, event_key: "click:submit_button", count: 17, exits: 6 },
+  { step: 8, event_key: "click:signup_button", count: 15, exits: 4 },
   { step: 9, event_key: "page_view:/thank-you", count: 16 },
-  { step: 9, event_key: "page_view:/checkout", count: 13 },
+  { step: 9, event_key: "page_view:/checkout", count: 13, exits: 7 },
 ];
 
 // Build nodes and edges from new mock data
@@ -43,14 +43,17 @@ function buildGraph(data: typeof mockData) {
   // Group events by step
   const steps = new Map<
     number,
-    { id: string; label: string; count: number }[]
+    { id: string; label: string; count: number; exits?: number }[]
   >();
   data.forEach((item) => {
     const id = `step${item.step}_${item.event_key}`;
     if (!steps.has(item.step)) steps.set(item.step, []);
-    steps
-      .get(item.step)!
-      .push({ id, label: item.event_key, count: item.count });
+    steps.get(item.step)!.push({
+      id,
+      label: item.event_key,
+      count: item.count,
+      exits: item.exits,
+    });
   });
 
   // Build nodes
@@ -65,8 +68,9 @@ function buildGraph(data: typeof mockData) {
         data: {
           label: event.label,
           count: event.count,
+          exits: event.exits,
         },
-        position: { x: baseX + gapX * idx, y: 120 * (step - 1) },
+        position: { x: baseX + gapX * idx, y: 175 * (step - 1) },
         sourcePosition: Position.Bottom,
         targetPosition: Position.Top,
         style: {
@@ -118,6 +122,7 @@ const StepNode: React.FC<
   NodeProps<{
     label: string;
     count: number;
+    exits?: number;
     percent: number;
     isStart?: boolean;
     selected?: boolean;
@@ -144,11 +149,24 @@ const StepNode: React.FC<
         {data.label}
       </div>
 
-      <div className="flex flex-row justify-between items-center w-full gap-2 border-t border-gray-200 px-2 py-2">
-        <div className="text-[10px] text-gray-500 mb-0.5">Events</div>
-        <div className="text-emerald-700 font-semibold text-xs">
-          {data.count}
+      <div className="flex flex-row border-t border-gray-200 px-2 py-2">
+        <div className="flex-1 flex flex-col items-center gap-0.5">
+          <div className="text-[10px] text-gray-500">Events</div>
+          <div className="text-emerald-700 font-semibold text-xs">
+            {data.count}
+          </div>
         </div>
+        {data.exits !== undefined && (
+          <>
+            <div className="w-px bg-gray-200" />
+            <div className="flex-1 flex flex-col items-center gap-0.5">
+              <div className="text-[10px] text-gray-500">Exits</div>
+              <div className="text-red-600 font-semibold text-xs">
+                {data.exits}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <Handle
