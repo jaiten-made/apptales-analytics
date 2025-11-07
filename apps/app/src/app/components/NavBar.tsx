@@ -26,7 +26,7 @@ const NavBar = () => {
               letterSpacing: 0.5,
             }}
           >
-            Appales
+            Apptales
           </Typography>
         </Box>
       </Toolbar>
