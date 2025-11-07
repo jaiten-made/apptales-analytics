@@ -1,9 +1,5 @@
 import { z } from "zod";
 
-const BaseEventProperties = z.object({
-  sessionId: z.string(),
-});
-
 export const EventSchema = z.intersection(
   z.object({
     sessionId: z.string(),
