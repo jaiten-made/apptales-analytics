@@ -1,3 +1,4 @@
+import { type FlowGraph as FlowGraphType } from "@apptales/events-schema";
 import { colors, ListItem, ListItemText } from "@mui/material";
 import React, { useMemo, useState } from "react";
 import type { Edge, Node, NodeMouseHandler, NodeProps } from "reactflow";
@@ -10,236 +11,10 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import theme from "../../../../../lib/mui/theme";
-
-// New mock data
-const mockData = [
-  {
-    step: 1,
-    event: {
-      key: "page_view:/home",
-      type: "page_view",
-      name: "/home",
-    },
-    count: 50,
-  },
-  {
-    step: 2,
-    event: {
-      key: "click:view_product_button",
-      type: "click",
-      name: "view_product_button",
-    },
-    count: 20,
-  },
-  {
-    step: 2,
-    event: {
-      key: "click:learn_more_button",
-      type: "click",
-      name: "learn_more_button",
-    },
-    count: 18,
-    exits: 3,
-  },
-  {
-    step: 2,
-    event: {
-      key: "click:read_more_button",
-      type: "click",
-      name: "read_more_button",
-    },
-    count: 12,
-    exits: 5,
-  },
-  {
-    step: 3,
-    event: {
-      key: "page_view:/products",
-      type: "page_view",
-      name: "/products",
-    },
-    count: 22,
-  },
-  {
-    step: 3,
-    event: {
-      key: "page_view:/about",
-      type: "page_view",
-      name: "/about",
-    },
-    count: 19,
-    exits: 4,
-  },
-  {
-    step: 3,
-    event: {
-      key: "page_view:/blog",
-      type: "page_view",
-      name: "/blog",
-    },
-    count: 13,
-    exits: 2,
-  },
-  {
-    step: 4,
-    event: {
-      key: "click:buy_now_button",
-      type: "click",
-      name: "buy_now_button",
-    },
-    count: 21,
-  },
-  {
-    step: 4,
-    event: {
-      key: "click:view_product_button",
-      type: "click",
-      name: "view_product_button",
-    },
-    count: 17,
-    exits: 3,
-  },
-  {
-    step: 4,
-    event: {
-      key: "click:generic",
-      type: "click",
-      name: "generic",
-    },
-    count: 11,
-    exits: 4,
-  },
-  {
-    step: 5,
-    event: {
-      key: "page_view:/products",
-      type: "page_view",
-      name: "/products",
-    },
-    count: 23,
-  },
-  {
-    step: 5,
-    event: {
-      key: "page_view:/pricing",
-      type: "page_view",
-      name: "/pricing",
-    },
-    count: 20,
-    exits: 2,
-  },
-  {
-    step: 5,
-    event: {
-      key: "page_view:/services",
-      type: "page_view",
-      name: "/services",
-    },
-    count: 14,
-    exits: 3,
-  },
-  {
-    step: 6,
-    event: {
-      key: "click:buy_now_button",
-      type: "click",
-      name: "buy_now_button",
-    },
-    count: 19,
-  },
-  {
-    step: 6,
-    event: {
-      key: "click:signup_button",
-      type: "click",
-      name: "signup_button",
-    },
-    count: 15,
-    exits: 4,
-  },
-  {
-    step: 6,
-    event: {
-      key: "click:submit_button",
-      type: "click",
-      name: "submit_button",
-    },
-    count: 13,
-    exits: 3,
-  },
-  {
-    step: 7,
-    event: {
-      key: "page_view:/checkout",
-      type: "page_view",
-      name: "/checkout",
-    },
-    count: 18,
-    exits: 5,
-  },
-  {
-    step: 7,
-    event: {
-      key: "page_view:/contact",
-      type: "page_view",
-      name: "/contact",
-    },
-    count: 16,
-    exits: 2,
-  },
-  {
-    step: 7,
-    event: {
-      key: "page_view:/pricing",
-      type: "page_view",
-      name: "/pricing",
-    },
-    count: 14,
-    exits: 3,
-  },
-  {
-    step: 8,
-    event: {
-      key: "click:submit_button",
-      type: "click",
-      name: "submit_button",
-    },
-    count: 17,
-    exits: 6,
-  },
-  {
-    step: 8,
-    event: {
-      key: "click:signup_button",
-      type: "click",
-      name: "signup_button",
-    },
-    count: 15,
-    exits: 4,
-  },
-  {
-    step: 9,
-    event: {
-      key: "page_view:/thank-you",
-      type: "page_view",
-      name: "/thank-you",
-    },
-    count: 16,
-  },
-  {
-    step: 9,
-    event: {
-      key: "page_view:/checkout",
-      type: "page_view",
-      name: "/checkout",
-    },
-    count: 13,
-    exits: 7,
-  },
-];
+import { useGetPathExplorationQuery } from "../../../../../lib/redux/api/projects/project/project";
 
 // Build nodes and edges from new mock data
-function buildGraph(data: typeof mockData) {
+function buildGraph(data: FlowGraphType) {
   // Group events by step
   const steps = new Map<
     number,
@@ -305,8 +80,8 @@ function buildGraph(data: typeof mockData) {
         // Sankey-like: strokeWidth proportional to source count
         const minStroke = 2;
         const maxStroke = 16;
-        const minCount = Math.min(...mockData.map((d) => d.count));
-        const maxCount = Math.max(...mockData.map((d) => d.count));
+        const minCount = Math.min(...data.map((d) => d.count));
+        const maxCount = Math.max(...data.map((d) => d.count));
         // Normalize stroke width
         const strokeWidth =
           minCount === maxCount
@@ -418,10 +193,19 @@ const StepNode: React.FC<
   );
 };
 
-const { nodes: initialNodes, edges: initialEdges } = buildGraph(mockData);
-
-const FlowGraph: React.FC = () => {
+const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+
+  const {
+    data: graph,
+    isLoading,
+    error,
+  } = useGetPathExplorationQuery(projectId);
+
+  const { nodes: initialNodes, edges: initialEdges } = useMemo(
+    () => (graph ? buildGraph(graph) : { nodes: [], edges: [] }),
+    [graph]
+  );
 
   // Memoize nodes and pass selection via data (no inline styles)
   const nodes = useMemo(() => {
@@ -447,7 +231,7 @@ const FlowGraph: React.FC = () => {
         dimmed: selectedNodeId !== null && !connectedNodeIds.has(node.id),
       },
     }));
-  }, [selectedNodeId]);
+  }, [initialEdges, initialNodes, selectedNodeId]);
 
   // Memoize edges to highlight attached ones
   const edges = useMemo(() => {
@@ -464,7 +248,7 @@ const FlowGraph: React.FC = () => {
         },
       };
     });
-  }, [selectedNodeId]);
+  }, [initialEdges, selectedNodeId]);
 
   // Handle node selection
   const onNodeClick: NodeMouseHandler = (_, node) => {
@@ -473,6 +257,22 @@ const FlowGraph: React.FC = () => {
 
   // register custom node
   const nodeTypes = useMemo(() => ({ stepNode: StepNode }), []);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error || !graph) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        Error loading flow graph
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full w-full">

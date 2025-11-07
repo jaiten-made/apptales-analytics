@@ -73,6 +73,9 @@ importers:
 
   apps/app:
     dependencies:
+      '@apptales/events-schema':
+        specifier: workspace:*
+        version: link:../../packages/events-schema
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.1.13)(react@19.1.1)

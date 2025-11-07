@@ -1,3 +1,4 @@
+import type { FlowGraph } from "@apptales/events-schema";
 import baseApi from "../../base";
 
 export interface PathTransition {
@@ -16,7 +17,7 @@ const BASE_URL = (projectId: string) => `/projects/${projectId}`;
 
 export const projectApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPathExploration: builder.query<PathTransition[], string>({
+    getPathExploration: builder.query<FlowGraph, string>({
       query: (projectId) => `${BASE_URL(projectId)}/path-exploration`,
     }),
   }),
