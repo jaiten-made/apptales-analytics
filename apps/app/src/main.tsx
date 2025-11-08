@@ -1,8 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter } from "react-router";
-import { RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./app";
+import SignIn from "./app/features/auth/SignIn";
 import FlowGraphHome from "./app/features/home/FlowGraphHome";
 import journeysRoute from "./app/features/journeys/route";
 import "./global.css";
@@ -16,6 +16,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <FlowGraphHome />,
+      },
+      {
+        path: "auth/signin",
+        element: <SignIn />,
       },
       journeysRoute,
     ],
