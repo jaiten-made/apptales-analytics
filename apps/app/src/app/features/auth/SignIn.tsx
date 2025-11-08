@@ -54,21 +54,13 @@ export default function SignIn() {
             className="h-12 w-auto opacity-90"
           />
           <Typography variant="h5" gutterBottom>
-            Sign in
+            Welcome to Apptales
           </Typography>
         </Stack>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          gutterBottom
-          align="center"
-        >
-          We'll email you a magic link to sign in. No password needed.
-        </Typography>
         <Box
           component="form"
           onSubmit={handleSubmit}
-          className="flex flex-col gap-4 mt-2"
+          className="flex flex-col gap-4 mt-8"
         >
           <TextField
             label="Email"
@@ -79,6 +71,12 @@ export default function SignIn() {
             required
             fullWidth
             disabled={loading}
+            placeholder="name@example.com"
+            slotProps={{
+              inputLabel: {
+                shrink: true,
+              },
+            }}
           />
           <Button
             variant="contained"
@@ -86,8 +84,9 @@ export default function SignIn() {
             disabled={loading}
             fullWidth
             size="large"
+            sx={{ textTransform: "none" }}
           >
-            {loading ? <CircularProgress size={24} /> : "Send Magic Link"}
+            {loading ? <CircularProgress size={24} /> : "Sign in with email"}
           </Button>
           {error && <Alert severity="error">{error}</Alert>}
           {sent && <Alert severity="success">Magic link sent</Alert>}
