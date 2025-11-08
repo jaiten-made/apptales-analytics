@@ -2,6 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import HttpError from "../../../errors/HttpError";
+import { sendEmail } from "../../../services/email";
 
 const router = express.Router();
 
@@ -14,11 +15,11 @@ router.post("/", async (req, res, next) => {
     });
     const origin = `${req.protocol}://${req.get("host")}`;
     const link = `${origin}/auth/magic-link/verify?token=${token}`;
-    // await sendEmail({
-    //   to: email,
-    //   subject: "Magic Link",
-    //   text: `You can log in using the following link: ${link}`,
-    // });
+    await sendEmail({
+      to: email,
+      subject: "Magic Link",
+      text: `You can log in using the following link: ${link}`,
+    });
     res.json({ message: "Magic link sent" });
   } catch (error) {
     next(error);

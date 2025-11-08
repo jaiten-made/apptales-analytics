@@ -10,14 +10,16 @@ export const sendEmail = async ({
   text: string;
 }) => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.zoho.com.au", // for Zoho Mail
+    port: 465, // use 465 for SSL, 587 for TLS
+    secure: true, // true for 465, false for 587
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: process.env.ZOHO_USER_EMAIL,
+      pass: process.env.ZOHO_APP_PASSWORD,
     },
   });
   await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: process.env.ZOHO_USER_EMAIL,
     to,
     subject,
     text,

@@ -23,16 +23,14 @@ app.use("/projects/:projectId", projectRouter);
 app.use("/auth/magic-link", magicLinkRouter);
 
 // Centralized error handler for this router
-app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-  if (err instanceof ZodError) {
-    return res.status(400).json({ message: err.errors });
-  }
-  if (err instanceof HttpError) {
-    return res.status(err.status).json({ message: err.message });
-  }
-  if (err instanceof Error) {
-    return res.status(500).json({ message: err.message });
-  }
+app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {
+  console.error(error);
+  if (error instanceof ZodError)
+    return res.status(400).json({ message: error.errors });
+  if (error instanceof HttpError)
+    return res.status(error.status).json({ message: error.message });
+  if (error instanceof Error)
+    return res.status(500).json({ message: error.message });
   res.status(500).json({ message: "Unknown error" });
 });
 
