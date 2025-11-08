@@ -6,6 +6,11 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Starting seed...");
 
+  // Seed customers (3 sample customers)
+  const primaryCustomer = await prisma.customer.create({ data: {} });
+  await prisma.customer.createMany({ data: [{}, {}] });
+  console.log("✅ Customers seeded");
+
   // Create multiple session IDs to simulate different users
   const session1Id = generateCuid();
   const session2Id = generateCuid();
@@ -18,7 +23,7 @@ async function main() {
 
   // Create a project and use its id for events
   const project = await prisma.project.create({
-    data: { name: "Sample Project" },
+    data: { name: "Sample Project", customerId: primaryCustomer.id },
   });
 
   // Create event identities for unique events
@@ -380,6 +385,8 @@ async function main() {
 
   console.log("✅ Seed completed!");
   console.log(`Project ID: ${project.id}`);
+  console.log(`Primary Customer ID: ${primaryCustomer.id}`);
+  console.log(`Customers seeded: 3`);
   console.log(
     `Created 5 sessions with overlapping paths for path exploration testing`
   );

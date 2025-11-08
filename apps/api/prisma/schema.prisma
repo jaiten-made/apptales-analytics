@@ -19,6 +19,8 @@ model Project {
   createdAt  DateTime        @default(now())
   events     Event[]
   identities EventIdentity[]
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }
 
 model EventIdentity {
@@ -28,8 +30,13 @@ model EventIdentity {
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   events    Event[]
+  @@unique([key, projectId])
+}
 
-  @@unique([key, projectId]) // ensures uniqueness per project
+model Customer {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  projects  Project[]
 }
 
 model Event {
@@ -43,5 +50,3 @@ model Event {
   eventIdentityId String
   eventIdentity   EventIdentity @relation(fields: [eventIdentityId], references: [id])
 }
-
-
