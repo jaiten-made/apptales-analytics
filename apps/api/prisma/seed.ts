@@ -26,359 +26,321 @@ async function main() {
     data: { name: "Sample Project", customerId: primaryCustomer.id },
   });
 
-  // Create event identities for unique events
+  // EventIdentity now has no projectId relation
   const pageViewHome = await prisma.eventIdentity.create({
-    data: { key: "page_view:/home", projectId: project.id },
+    data: { key: "page_view:/home" },
   });
-
   const pageViewAbout = await prisma.eventIdentity.create({
-    data: { key: "page_view:/about", projectId: project.id },
+    data: { key: "page_view:/about" },
   });
-
   const pageViewContact = await prisma.eventIdentity.create({
-    data: { key: "page_view:/contact", projectId: project.id },
+    data: { key: "page_view:/contact" },
   });
-
   const pageViewServices = await prisma.eventIdentity.create({
-    data: { key: "page_view:/services", projectId: project.id },
+    data: { key: "page_view:/services" },
   });
-
   const pageViewProducts = await prisma.eventIdentity.create({
-    data: { key: "page_view:/products", projectId: project.id },
+    data: { key: "page_view:/products" },
   });
-
   const pageViewBlog = await prisma.eventIdentity.create({
-    data: { key: "page_view:/blog", projectId: project.id },
+    data: { key: "page_view:/blog" },
   });
-
   const pageViewPricing = await prisma.eventIdentity.create({
-    data: { key: "page_view:/pricing", projectId: project.id },
+    data: { key: "page_view:/pricing" },
   });
-
   const pageViewCheckout = await prisma.eventIdentity.create({
-    data: { key: "page_view:/checkout", projectId: project.id },
+    data: { key: "page_view:/checkout" },
   });
-
   const pageViewThankYou = await prisma.eventIdentity.create({
-    data: { key: "page_view:/thank-you", projectId: project.id },
+    data: { key: "page_view:/thank-you" },
   });
-
   const clickSubmitButton = await prisma.eventIdentity.create({
-    data: { key: "click:submit_button", projectId: project.id },
+    data: { key: "click:submit_button" },
   });
-
   const clickLearnMoreButton = await prisma.eventIdentity.create({
-    data: { key: "click:learn_more_button", projectId: project.id },
+    data: { key: "click:learn_more_button" },
   });
-
   const clickViewProductButton = await prisma.eventIdentity.create({
-    data: { key: "click:view_product_button", projectId: project.id },
+    data: { key: "click:view_product_button" },
   });
-
   const clickReadMoreButton = await prisma.eventIdentity.create({
-    data: { key: "click:read_more_button", projectId: project.id },
+    data: { key: "click:read_more_button" },
   });
-
   const clickSignupButton = await prisma.eventIdentity.create({
-    data: { key: "click:signup_button", projectId: project.id },
+    data: { key: "click:signup_button" },
   });
-
   const clickBuyNowButton = await prisma.eventIdentity.create({
-    data: { key: "click:buy_now_button", projectId: project.id },
+    data: { key: "click:buy_now_button" },
   });
-
   const clickGeneric = await prisma.eventIdentity.create({
-    data: { key: "click:generic", projectId: project.id },
+    data: { key: "click:generic" },
   });
 
-  // Create events across multiple sessions with realistic user journeys
+  // Create Session records (Events now reference Session.id)
+  const s1 = await prisma.session.create({
+    data: { projectId: project.id, sessionId: session1Id },
+  });
+  const s2 = await prisma.session.create({
+    data: { projectId: project.id, sessionId: session2Id },
+  });
+  const s3 = await prisma.session.create({
+    data: { projectId: project.id, sessionId: session3Id },
+  });
+  const s4 = await prisma.session.create({
+    data: { projectId: project.id, sessionId: session4Id },
+  });
+  const s5 = await prisma.session.create({
+    data: { projectId: project.id, sessionId: session5Id },
+  });
+
+  // Create events across multiple sessions with realistic user journeys (removed projectId, sessionId now Session.id)
   await prisma.event.createMany({
     data: [
       // Session 1: Home -> Products -> Pricing -> Checkout -> Thank You (conversion)
       {
-        sessionId: session1Id,
+        sessionId: s1.id,
         type: "page_view",
         properties: { location: { pathname: "/home" } },
-        projectId: project.id,
         eventIdentityId: pageViewHome.id,
       },
       {
-        sessionId: session1Id,
+        sessionId: s1.id,
         type: "click",
         properties: { elementId: "view_product_button" },
-        projectId: project.id,
         eventIdentityId: clickViewProductButton.id,
       },
       {
-        sessionId: session1Id,
+        sessionId: s1.id,
         type: "page_view",
         properties: { location: { pathname: "/products" } },
-        projectId: project.id,
         eventIdentityId: pageViewProducts.id,
       },
       {
-        sessionId: session1Id,
+        sessionId: s1.id,
         type: "click",
         properties: { elementId: "buy_now_button" },
-        projectId: project.id,
         eventIdentityId: clickBuyNowButton.id,
       },
       {
-        sessionId: session1Id,
+        sessionId: s1.id,
         type: "page_view",
         properties: { location: { pathname: "/pricing" } },
-        projectId: project.id,
         eventIdentityId: pageViewPricing.id,
       },
       {
-        sessionId: session1Id,
+        sessionId: s1.id,
         type: "click",
         properties: { elementId: "signup_button" },
-        projectId: project.id,
         eventIdentityId: clickSignupButton.id,
       },
       {
-        sessionId: session1Id,
+        sessionId: s1.id,
         type: "page_view",
         properties: { location: { pathname: "/checkout" } },
-        projectId: project.id,
         eventIdentityId: pageViewCheckout.id,
       },
       {
-        sessionId: session1Id,
+        sessionId: s1.id,
         type: "click",
         properties: { elementId: "submit_button" },
-        projectId: project.id,
         eventIdentityId: clickSubmitButton.id,
       },
       {
-        sessionId: session1Id,
+        sessionId: s1.id,
         type: "page_view",
         properties: { location: { pathname: "/thank-you" } },
-        projectId: project.id,
         eventIdentityId: pageViewThankYou.id,
       },
 
       // Session 2: Home -> About -> Services -> Contact (drop-off)
       {
-        sessionId: session2Id,
+        sessionId: s2.id,
         type: "page_view",
         properties: { location: { pathname: "/home" } },
-        projectId: project.id,
         eventIdentityId: pageViewHome.id,
       },
       {
-        sessionId: session2Id,
+        sessionId: s2.id,
         type: "click",
         properties: { elementId: "learn_more_button" },
-        projectId: project.id,
         eventIdentityId: clickLearnMoreButton.id,
       },
       {
-        sessionId: session2Id,
+        sessionId: s2.id,
         type: "page_view",
         properties: { location: { pathname: "/about" } },
-        projectId: project.id,
         eventIdentityId: pageViewAbout.id,
       },
       {
-        sessionId: session2Id,
+        sessionId: s2.id,
         type: "click",
         properties: {},
-        projectId: project.id,
         eventIdentityId: clickGeneric.id,
       },
       {
-        sessionId: session2Id,
+        sessionId: s2.id,
         type: "page_view",
         properties: { location: { pathname: "/services" } },
-        projectId: project.id,
         eventIdentityId: pageViewServices.id,
       },
       {
-        sessionId: session2Id,
+        sessionId: s2.id,
         type: "click",
         properties: { elementId: "submit_button" },
-        projectId: project.id,
         eventIdentityId: clickSubmitButton.id,
       },
       {
-        sessionId: session2Id,
+        sessionId: s2.id,
         type: "page_view",
         properties: { location: { pathname: "/contact" } },
-        projectId: project.id,
         eventIdentityId: pageViewContact.id,
       },
 
       // Session 3: Home -> Products -> Pricing (drop-off at pricing)
       {
-        sessionId: session3Id,
+        sessionId: s3.id,
         type: "page_view",
         properties: { location: { pathname: "/home" } },
-        projectId: project.id,
         eventIdentityId: pageViewHome.id,
       },
       {
-        sessionId: session3Id,
+        sessionId: s3.id,
         type: "click",
         properties: { elementId: "view_product_button" },
-        projectId: project.id,
         eventIdentityId: clickViewProductButton.id,
       },
       {
-        sessionId: session3Id,
+        sessionId: s3.id,
         type: "page_view",
         properties: { location: { pathname: "/products" } },
-        projectId: project.id,
         eventIdentityId: pageViewProducts.id,
       },
       {
-        sessionId: session3Id,
+        sessionId: s3.id,
         type: "click",
         properties: { elementId: "buy_now_button" },
-        projectId: project.id,
         eventIdentityId: clickBuyNowButton.id,
       },
       {
-        sessionId: session3Id,
+        sessionId: s3.id,
         type: "page_view",
         properties: { location: { pathname: "/pricing" } },
-        projectId: project.id,
         eventIdentityId: pageViewPricing.id,
       },
 
       // Session 4: Home -> Blog -> Products -> Checkout -> Thank You (conversion via blog)
       {
-        sessionId: session4Id,
+        sessionId: s4.id,
         type: "page_view",
         properties: { location: { pathname: "/home" } },
-        projectId: project.id,
         eventIdentityId: pageViewHome.id,
       },
       {
-        sessionId: session4Id,
+        sessionId: s4.id,
         type: "click",
         properties: { elementId: "read_more_button" },
-        projectId: project.id,
         eventIdentityId: clickReadMoreButton.id,
       },
       {
-        sessionId: session4Id,
+        sessionId: s4.id,
         type: "page_view",
         properties: { location: { pathname: "/blog" } },
-        projectId: project.id,
         eventIdentityId: pageViewBlog.id,
       },
       {
-        sessionId: session4Id,
+        sessionId: s4.id,
         type: "click",
         properties: { elementId: "view_product_button" },
-        projectId: project.id,
         eventIdentityId: clickViewProductButton.id,
       },
       {
-        sessionId: session4Id,
+        sessionId: s4.id,
         type: "page_view",
         properties: { location: { pathname: "/products" } },
-        projectId: project.id,
         eventIdentityId: pageViewProducts.id,
       },
       {
-        sessionId: session4Id,
+        sessionId: s4.id,
         type: "click",
         properties: { elementId: "buy_now_button" },
-        projectId: project.id,
         eventIdentityId: clickBuyNowButton.id,
       },
       {
-        sessionId: session4Id,
+        sessionId: s4.id,
         type: "page_view",
         properties: { location: { pathname: "/checkout" } },
-        projectId: project.id,
         eventIdentityId: pageViewCheckout.id,
       },
       {
-        sessionId: session4Id,
+        sessionId: s4.id,
         type: "click",
         properties: { elementId: "submit_button" },
-        projectId: project.id,
         eventIdentityId: clickSubmitButton.id,
       },
       {
-        sessionId: session4Id,
+        sessionId: s4.id,
         type: "page_view",
         properties: { location: { pathname: "/thank-you" } },
-        projectId: project.id,
         eventIdentityId: pageViewThankYou.id,
       },
 
       // Session 5: Home -> About -> Products -> Pricing -> Checkout (drop-off at checkout)
       {
-        sessionId: session5Id,
+        sessionId: s5.id,
         type: "page_view",
         properties: { location: { pathname: "/home" } },
-        projectId: project.id,
         eventIdentityId: pageViewHome.id,
       },
       {
-        sessionId: session5Id,
+        sessionId: s5.id,
         type: "click",
         properties: { elementId: "learn_more_button" },
-        projectId: project.id,
         eventIdentityId: clickLearnMoreButton.id,
       },
       {
-        sessionId: session5Id,
+        sessionId: s5.id,
         type: "page_view",
         properties: { location: { pathname: "/about" } },
-        projectId: project.id,
         eventIdentityId: pageViewAbout.id,
       },
       {
-        sessionId: session5Id,
+        sessionId: s5.id,
         type: "click",
         properties: { elementId: "view_product_button" },
-        projectId: project.id,
         eventIdentityId: clickViewProductButton.id,
       },
       {
-        sessionId: session5Id,
+        sessionId: s5.id,
         type: "page_view",
         properties: { location: { pathname: "/products" } },
-        projectId: project.id,
         eventIdentityId: pageViewProducts.id,
       },
       {
-        sessionId: session5Id,
+        sessionId: s5.id,
         type: "click",
         properties: { elementId: "buy_now_button" },
-        projectId: project.id,
         eventIdentityId: clickBuyNowButton.id,
       },
       {
-        sessionId: session5Id,
+        sessionId: s5.id,
         type: "page_view",
         properties: { location: { pathname: "/pricing" } },
-        projectId: project.id,
         eventIdentityId: pageViewPricing.id,
       },
       {
-        sessionId: session5Id,
+        sessionId: s5.id,
         type: "click",
         properties: { elementId: "signup_button" },
-        projectId: project.id,
         eventIdentityId: clickSignupButton.id,
       },
       {
-        sessionId: session5Id,
+        sessionId: s5.id,
         type: "page_view",
         properties: { location: { pathname: "/checkout" } },
-        projectId: project.id,
         eventIdentityId: pageViewCheckout.id,
       },
     ].map((e, i) => ({
       ...e,
-      // space events by 15 seconds to simulate real flow
       createdAt: new Date(startTime.getTime() + i * 15_000),
     })),
   });

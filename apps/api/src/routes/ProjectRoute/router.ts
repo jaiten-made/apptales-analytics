@@ -27,8 +27,9 @@ router.get(
             ORDER BY e."createdAt"
           ) AS step
         FROM "Event" e
+        JOIN "Session" s ON s.id = e."sessionId"
         WHERE e."eventIdentityId" IS NOT NULL
-          AND e."projectId" = $1
+          AND s."projectId" = $1
       ),
       max_steps AS (
         SELECT
