@@ -1,5 +1,7 @@
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
+import { ZodError } from "zod";
+import HttpError from "./errors/HttpError";
 import magicLinkRouter from "./routes/AuthRoute/MagicLink/router";
 import eventsRouter from "./routes/EventsRoute/router";
 import projectRouter from "./routes/ProjectRoute/router";
@@ -22,9 +24,16 @@ app.use("/auth/magic-link", magicLinkRouter);
 
 // Centralized error handler for this router
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-  const status = err.status || 500;
-  const message = err.message || "Internal Server Error";
-  res.status(status).json({ message });
+  if (err instanceof ZodError) {
+    return res.status(400).json({ message: err.errors });
+  }
+  if (err instanceof HttpError) {
+    return res.status(err.status).json({ message: err.message });
+  }
+  if (err instanceof Error) {
+    return res.status(500).json({ message: err.message });
+  }
+  res.status(500).json({ message: "Unknown error" });
 });
 
 app.get("/", (_, res: Response) => {

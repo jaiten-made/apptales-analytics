@@ -1,5 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import { z } from "zod";
 import HttpError from "../../../errors/HttpError";
 
 const router = express.Router();
@@ -7,7 +8,7 @@ const router = express.Router();
 router.post("/", async (req, res, next) => {
   try {
     const { email } = req.body;
-    if (!email) throw new HttpError(400, "Email is required");
+    z.string().email().parse(email);
     const token = jwt.sign({ email }, process.env.JWT_SECRET!, {
       expiresIn: "15m",
     });
@@ -20,10 +21,7 @@ router.post("/", async (req, res, next) => {
     // });
     res.json({ message: "Magic link sent" });
   } catch (error) {
-    if (error instanceof HttpError) return next(error);
-    const message =
-      error instanceof Error ? error.message : "Failed to verify token";
-    next(new HttpError(401, message));
+    next(error);
   }
 });
 
@@ -41,10 +39,7 @@ router.get("/verify", async (req, res, next) => {
     });
     res.redirect(process.env.APP_URL!);
   } catch (error) {
-    if (error instanceof HttpError) return next(error);
-    const message =
-      error instanceof Error ? error.message : "Failed to verify token";
-    next(new HttpError(401, message));
+    next(error);
   }
 });
 
