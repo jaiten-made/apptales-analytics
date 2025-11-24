@@ -8,5 +8,6 @@
     {
       "file": "./copilot-commit-message-instructions.md"
     }
-  ]
+  ],
+  "prisma.pinToPrisma6": true
 }

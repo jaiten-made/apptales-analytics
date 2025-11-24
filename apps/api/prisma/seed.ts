@@ -6,9 +6,21 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Starting seed...");
 
-  // Seed customers (3 sample customers)
-  const primaryCustomer = await prisma.customer.create({ data: {} });
-  await prisma.customer.createMany({ data: [{}, {}] });
+  // Seed customers (3 sample customers) — provide explicit emails and make reseeding safe
+  const customersData = [
+    { email: "primary@example.com" },
+    { email: "user2@example.com" },
+    { email: "user3@example.com" },
+  ];
+  await prisma.customer.createMany({
+    data: customersData,
+    skipDuplicates: true,
+  });
+  const primaryCustomer = await prisma.customer.findUnique({
+    where: { email: "primary@example.com" },
+  });
+  if (!primaryCustomer)
+    throw new Error("Failed to create/find primary customer");
   console.log("✅ Customers seeded");
 
   // Create multiple session IDs to simulate different users

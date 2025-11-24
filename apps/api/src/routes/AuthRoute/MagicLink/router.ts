@@ -2,6 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import HttpError from "../../../errors/HttpError";
+import { prisma } from "../../../lib/prisma/client";
 import { sendEmail } from "../../../services/email";
 
 const router = express.Router();
@@ -32,11 +33,18 @@ router.get("/verify", async (req, res, next) => {
     if (!token) throw new HttpError(400, "Token missing");
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new HttpError(500, "Missing JWT secret");
-
     jwt.verify(token.toString(), secret);
     res.cookie("session", token, {
       httpOnly: process.env.NODE_ENV === "production",
       secure: true,
+    });
+    const decoded = jwt.verify(token.toString(), secret) as {
+      email: string;
+    };
+    await prisma.customer.create({
+      data: {
+        email: decoded.email,
+      },
     });
     res.redirect(process.env.APP_URL!);
   } catch (error) {

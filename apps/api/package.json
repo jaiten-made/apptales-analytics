@@ -7,9 +7,6 @@
     "postinstall": "prisma generate",
     "seed": "tsx prisma/seed.ts"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
     "@apptales/events-schema": "workspace:*",
     "@apptales/utils": "workspace:*",
