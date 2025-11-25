@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { useSendMagicLinkMutation } from "../../../lib/redux/api/auth/auth";
 
 /**
  * Mock SignIn screen for magic link authentication.
@@ -19,29 +20,25 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sendMagicLink] = useSendMagicLinkMutation();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSent(false);
-    if (!email.trim()) {
-      setError("Email is required");
-      return;
-    }
-    // Basic email pattern (not exhaustive)
-    const emailPattern = /.+@.+\..+/;
-    if (!emailPattern.test(email)) {
-      setError("Enter a valid email address");
-      return;
-    }
-    setLoading(true);
-    // Simulate async magic link sending
-    setTimeout(() => {
+    try {
+      if (!email.trim()) throw new Error("Email is required");
+      const emailPattern = /.+@.+\..+/;
+      if (!emailPattern.test(email)) throw new Error("Invalid email format");
+      sendMagicLink({ email });
+    } catch (error) {
+      if (error instanceof Error) {
+        return setError(error.message);
+      }
+      setError("Failed to send magic link");
+    } finally {
       setLoading(false);
-      setSent(true);
-      // In real implementation, call API and handle response.
-      // console.log("Magic link requested for", email);
-    }, 1000);
+    }
   }
 
   return (
@@ -61,6 +58,7 @@ export default function SignIn() {
           component="form"
           onSubmit={handleSubmit}
           className="flex flex-col gap-4 mt-8"
+          noValidate
         >
           <TextField
             label="Email"
