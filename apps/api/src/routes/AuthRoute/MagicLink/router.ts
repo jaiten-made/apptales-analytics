@@ -16,12 +16,17 @@ router.post("/", async (req, res, next) => {
     });
     const origin = `${req.protocol}://${req.get("host")}`;
     const link = `${origin}/auth/magic-link/verify?token=${token}`;
-    await sendEmail({
-      to: email,
-      subject: "Magic Link",
-      text: `You can log in using the following link: ${link}`,
+    if (process.env.NODE_ENV === "production") {
+      await sendEmail({
+        to: email,
+        subject: "Magic Link",
+        text: `You can log in using the following link: ${link}`,
+      });
+    }
+    res.json({
+      message:
+        process.env.NODE_ENV === "development" ? "Magic link sent" : token,
     });
-    res.json({ message: "Magic link sent" });
   } catch (error) {
     next(error);
   }
@@ -33,18 +38,17 @@ router.get("/verify", async (req, res, next) => {
     if (!token) throw new HttpError(400, "Token missing");
     const secret = process.env.JWT_SECRET;
     if (!secret) throw new HttpError(500, "Missing JWT secret");
-    jwt.verify(token.toString(), secret);
+    const decoded = jwt.verify(token.toString(), secret) as {
+      email: string;
+    };
     res.cookie("session", token, {
       httpOnly: process.env.NODE_ENV === "production",
       secure: true,
     });
-    const decoded = jwt.verify(token.toString(), secret) as {
-      email: string;
-    };
-    await prisma.customer.create({
-      data: {
-        email: decoded.email,
-      },
+    await prisma.customer.upsert({
+      create: { email: decoded.email },
+      update: {},
+      where: { email: decoded.email },
     });
     res.redirect(process.env.APP_URL!);
   } catch (error) {
