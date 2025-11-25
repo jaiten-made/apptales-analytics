@@ -29,6 +29,7 @@ app.use("/auth/session", authSessionRouter);
 
 // Centralized error handler for this router
 app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {
+  console.error(error);
   if (error instanceof ZodError)
     return res.status(400).json({ message: error.errors });
   if (error instanceof HttpError)
