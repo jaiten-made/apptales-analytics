@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import type { RouteObject } from "react-router";
+import ProtectedRoute from "../../components/ProtectedRoute";
 import { getStoryById } from "./service";
 import UserStoryDetail from "./user-journey/details/Details";
 
@@ -10,7 +11,11 @@ const JourneysTable = lazy(() => import("./components/DataTable/DataTable"));
 const storiesRoute: RouteObject = {
   path: "journeys",
   // element lazy-loads the feature's default export which includes the header and an Outlet
-  element: <Journeys />,
+  element: (
+    <ProtectedRoute>
+      <Journeys />
+    </ProtectedRoute>
+  ),
   children: [
     {
       index: true,

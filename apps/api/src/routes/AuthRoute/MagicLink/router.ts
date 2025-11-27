@@ -1,5 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import open from "open";
 import { z } from "zod";
 import HttpError from "../../../errors/HttpError";
 import { prisma } from "../../../lib/prisma/client";
@@ -16,16 +17,19 @@ router.post("/", async (req, res, next) => {
     });
     const origin = `${req.protocol}://${req.get("host")}`;
     const link = `${origin}/auth/magic-link/verify?token=${token}`;
-    if (process.env.NODE_ENV === "production") {
-      await sendEmail({
-        to: email,
-        subject: "Magic Link",
-        text: `You can log in using the following link: ${link}`,
+    if (process.env.NODE_ENV === "development") {
+      await open(link);
+      return res.json({
+        message: "Magic link generated (Development Mode)",
       });
     }
+    await sendEmail({
+      to: email,
+      subject: "Magic Link",
+      text: `You can log in using the following link: ${link}`,
+    });
     res.json({
-      message:
-        process.env.NODE_ENV === "development" ? "Magic link sent" : token,
+      message: "Magic link sent",
     });
   } catch (error) {
     next(error);
@@ -42,8 +46,8 @@ router.get("/verify", async (req, res, next) => {
       email: string;
     };
     res.cookie("session", token, {
-      httpOnly: process.env.NODE_ENV === "production",
-      secure: true,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
     });
     await prisma.customer.upsert({
       create: { email: decoded.email },

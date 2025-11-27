@@ -1,0 +1,13 @@
+import express from "express";
+
+const router = express.Router();
+
+// @route   GET /auth/signout
+// @desc    Sign out user
+// @access  Public
+router.post("/signout", async (_req, res, _next) => {
+  res.clearCookie("session");
+  res.redirect(`${process.env.APP_URL!}/auth/signin`);
+});
+
+export default router;

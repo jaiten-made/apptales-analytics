@@ -1,13 +1,24 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import dotenv from "dotenv";
 import express, { NextFunction, Request, Response } from "express";
 import { TokenExpiredError } from "jsonwebtoken";
+import path from "path";
 import { ZodError } from "zod";
 import HttpError from "./errors/HttpError";
-import magicLinkRouter from "./routes/AuthRoute/MagicLink/router";
+import authMagicLinkRouter from "./routes/AuthRoute/MagicLink/router";
+import authRouter from "./routes/AuthRoute/router";
 import authSessionRouter from "./routes/AuthRoute/Session/router";
 import eventsRouter from "./routes/EventsRoute/router";
 import projectRouter from "./routes/ProjectRoute/router";
+
+// Load the environment variables from the specific file
+dotenv.config({
+  path: path.resolve(
+    process.cwd(),
+    `.env.${process.env.NODE_ENV || "development"}`
+  ),
+});
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -24,8 +35,9 @@ app.use(cookieParser());
 
 app.use("/events", eventsRouter);
 app.use("/projects/:projectId", projectRouter);
-app.use("/auth/magic-link", magicLinkRouter);
+app.use("/auth/magic-link", authMagicLinkRouter);
 app.use("/auth/session", authSessionRouter);
+app.use("/auth", authRouter);
 
 // Centralized error handler for this router
 app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {
