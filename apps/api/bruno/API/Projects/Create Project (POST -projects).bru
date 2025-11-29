@@ -1,0 +1,26 @@
+meta {
+  name: Create Project (POST /projects)
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3001/projects
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "name": "My New Project"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

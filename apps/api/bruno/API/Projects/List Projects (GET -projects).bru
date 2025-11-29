@@ -1,0 +1,19 @@
+meta {
+  name: List Projects (GET /projects)
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3001/projects
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}
+
+settings {
+  encodeUrl: true
+}

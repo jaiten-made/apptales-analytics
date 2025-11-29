@@ -1,0 +1,21 @@
+meta {
+  name: Session
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3001/auth/session/verify
+  body: text
+  auth: inherit
+}
+
+body:text {
+  {
+      "email": "jaiten.thomas+1@gmail.com"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Get Project By ID (GET /projects/:projectId)
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3001/projects/:projectId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  projectId: cmik3757j0004t17umhfn7eg4
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}
+
+settings {
+  encodeUrl: true
+}

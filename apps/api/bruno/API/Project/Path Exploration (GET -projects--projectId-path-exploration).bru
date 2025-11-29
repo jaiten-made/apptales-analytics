@@ -1,0 +1,23 @@
+meta {
+  name: Path Exploration (GET /projects/:projectId/path-exploration)
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:3001/projects/:projectId/path-exploration
+  body: none
+  auth: inherit
+}
+
+params:path {
+  projectId: cmhkhr9ff0000t1b2d0xypb35
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}
+
+settings {
+  encodeUrl: true
+}

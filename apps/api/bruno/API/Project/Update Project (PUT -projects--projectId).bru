@@ -1,0 +1,30 @@
+meta {
+  name: Update Project (PUT /projects/:projectId)
+  type: http
+  seq: 3
+}
+
+put {
+  url: http://localhost:3001/projects/:projectId
+  body: json
+  auth: inherit
+}
+
+params:path {
+  projectId: cmhkhr9ff0000t1b2d0xypb35
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "name": "Updated Project Name"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
