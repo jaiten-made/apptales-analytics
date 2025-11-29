@@ -21,6 +21,7 @@ router.post("/", async (req, res, next) => {
       await open(link);
       return res.json({
         message: "Magic link generated (Development Mode)",
+        token
       });
     }
     await sendEmail({
