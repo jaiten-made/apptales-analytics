@@ -12,6 +12,7 @@ import authSessionRouter from "./routes/AuthRoute/Session/router";
 import eventsRouter from "./routes/EventsRoute/router";
 import projectRouter from "./routes/ProjectRoute/router";
 import projectsRouter from "./routes/ProjectsRoute/router";
+import sessionsRouter from "./routes/SessionsRoute/router";
 
 // Load the environment variables from the specific file
 dotenv.config({
@@ -35,6 +36,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/events", eventsRouter);
+app.use("/sessions", sessionsRouter);
 app.use("/projects", projectsRouter);
 app.use("/projects/:projectId", projectRouter);
 app.use("/auth/magic-link", authMagicLinkRouter);
