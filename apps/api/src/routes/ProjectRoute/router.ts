@@ -1,30 +1,19 @@
 import express from "express";
 import { z } from "zod";
-import HttpError from "../../errors/HttpError";
 import { prisma } from "../../lib/prisma/client";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
+import { requireProjectOwnership } from "../../middleware/project";
 
 const router = express.Router({
   mergeParams: true,
 });
 
 router.use(requireAuth);
+router.use(requireProjectOwnership);
 
 const projectSchema = z.object({
   name: z.string().min(1, "Name is required"),
 });
-
-// Helper to get project and verify ownership
-const getProject = async (projectId: string, userId: string) => {
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      customerId: userId,
-    },
-  });
-  if (!project) throw new HttpError(404, "Project not found");
-  return project;
-};
 
 // @route   GET /projects/:projectId
 // @desc    Get a specific project
@@ -34,7 +23,12 @@ router.get("/", async (req: AuthRequest, res, next) => {
     const { projectId } = req.params;
     const userId = req.user!.id;
 
-    const project = await getProject(projectId, userId);
+    const project = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        customerId: userId,
+      },
+    });
 
     res.json(project);
   } catch (error) {
@@ -48,10 +42,7 @@ router.get("/", async (req: AuthRequest, res, next) => {
 router.put("/", async (req: AuthRequest, res, next) => {
   try {
     const { projectId } = req.params;
-    const userId = req.user!.id;
     const { name } = projectSchema.parse(req.body);
-
-    await getProject(projectId, userId);
 
     const updatedProject = await prisma.project.update({
       where: {
@@ -74,9 +65,6 @@ router.put("/", async (req: AuthRequest, res, next) => {
 router.delete("/", async (req: AuthRequest, res, next) => {
   try {
     const { projectId } = req.params;
-    const userId = req.user!.id;
-
-    await getProject(projectId, userId);
 
     await prisma.project.delete({
       where: {
@@ -100,12 +88,8 @@ router.get(
     next: express.NextFunction
   ) => {
     const { projectId } = req.params;
-    const userId = req.user!.id;
 
     try {
-      // Verify project ownership
-      await getProject(projectId, userId);
-
       // Path exploration query using EventIdentity transitions
       const sql = `
       WITH ordered AS (
