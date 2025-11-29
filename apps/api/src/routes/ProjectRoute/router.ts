@@ -1,21 +1,111 @@
 import express from "express";
+import { z } from "zod";
+import HttpError from "../../errors/HttpError";
 import { prisma } from "../../lib/prisma/client";
+import { AuthRequest, requireAuth } from "../../middleware/auth";
 
 const router = express.Router({
   mergeParams: true,
 });
 
-// @route  GET /projects/:id/path-exploration
+router.use(requireAuth);
+
+const projectSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+});
+
+// Helper to get project and verify ownership
+const getProject = async (projectId: string, userId: string) => {
+  const project = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      customerId: userId,
+    },
+  });
+  if (!project) throw new HttpError(404, "Project not found");
+  return project;
+};
+
+// @route   GET /projects/:projectId
+// @desc    Get a specific project
+// @access  Private
+router.get("/", async (req: AuthRequest, res, next) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user!.id;
+
+    const project = await getProject(projectId, userId);
+
+    res.json(project);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @route   PUT /projects/:projectId
+// @desc    Update a project
+// @access  Private
+router.put("/", async (req: AuthRequest, res, next) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user!.id;
+    const { name } = projectSchema.parse(req.body);
+
+    await getProject(projectId, userId);
+
+    const updatedProject = await prisma.project.update({
+      where: {
+        id: projectId,
+      },
+      data: {
+        name,
+      },
+    });
+
+    res.json(updatedProject);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @route   DELETE /projects/:projectId
+// @desc    Delete a project
+// @access  Private
+router.delete("/", async (req: AuthRequest, res, next) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.user!.id;
+
+    await getProject(projectId, userId);
+
+    await prisma.project.delete({
+      where: {
+        id: projectId,
+      },
+    });
+
+    res.json({ message: "Project deleted" });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @route  GET /projects/:projectId/path-exploration
 // @desc   Get path exploration data for a project
 router.get(
   "/path-exploration",
   async (
-    req: express.Request<{ projectId: string }>,
-    res: express.Response
+    req: AuthRequest,
+    res: express.Response,
+    next: express.NextFunction
   ) => {
     const { projectId } = req.params;
+    const userId = req.user!.id;
 
     try {
+      // Verify project ownership
+      await getProject(projectId, userId);
+
       // Path exploration query using EventIdentity transitions
       const sql = `
       WITH ordered AS (
@@ -99,13 +189,7 @@ router.get(
 
       return res.status(200).json(serializedResults);
     } catch (error) {
-      let message = "";
-      if (error instanceof Error) {
-        message = error.message;
-      }
-      res.status(500).json({
-        message,
-      });
+      next(error);
     }
   }
 );
