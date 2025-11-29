@@ -1,0 +1,23 @@
+meta {
+  name: Get Session By ID (GET /sessions/:sessionId)
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3001/sessions/:sessionId
+  body: none
+  auth: inherit
+}
+
+params:path {
+  sessionId: {{sessionId}}
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,0 +1,23 @@
+meta {
+  name: List Sessions (GET /sessions)
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3001/sessions?projectId={{projectId}}
+  body: none
+  auth: inherit
+}
+
+params:query {
+  projectId: {{projectId}}
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}
+
+settings {
+  encodeUrl: true
+}
