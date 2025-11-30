@@ -10,6 +10,10 @@ export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:3001",
+    prepareHeaders: (headers) => {
+      return headers;
+    },
+    credentials: "include",
   }),
   tagTypes: [...Object.values(TAGS)],
   endpoints: () => ({}),

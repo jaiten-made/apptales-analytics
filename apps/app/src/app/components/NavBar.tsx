@@ -1,4 +1,5 @@
 import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
+import { Link } from "react-router-dom";
 import { useSignOutMutation } from "../../lib/redux/api/auth/api";
 
 const NavBar = () => {
@@ -24,22 +25,24 @@ const NavBar = () => {
           }}
         >
           <Box display="flex" alignItems="center" gap={1}>
-            <Box
-              component="img"
-              src="/logo.svg"
-              alt="AppTales Logo"
-              sx={{ height: 32, width: 32 }}
-            />
-            <Typography
-              variant="h6"
-              component="h1"
-              sx={{
-                fontWeight: 600,
-                letterSpacing: 0.5,
-              }}
-            >
-              Apptales
-            </Typography>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
+              <Box
+                component="img"
+                src="/logo.svg"
+                alt="AppTales Logo"
+                sx={{ height: 32, width: 32 }}
+              />
+              <Typography
+                variant="h6"
+                component="h1"
+                sx={{
+                  fontWeight: 600,
+                  letterSpacing: 0.5,
+                }}
+              >
+                Apptales
+              </Typography>
+            </Link>
           </Box>
           <Button onClick={() => signOut()} variant="contained">
             Sign Out

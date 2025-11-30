@@ -4,8 +4,9 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./app";
 import ProtectedRoute from "./app/components/ProtectedRoute";
 import SignIn from "./app/features/auth/SignIn";
-import FlowGraphHome from "./app/features/home/FlowGraphHome";
 import journeysRoute from "./app/features/journeys/route";
+import ProjectPage from "./app/features/projects/ProjectPage";
+import ProjectsList from "./app/features/projects/ProjectsList";
 import "./global.css";
 import StoreProvider from "./lib/redux/StoreProvider";
 
@@ -18,7 +19,23 @@ const router = createBrowserRouter([
         index: true,
         element: (
           <ProtectedRoute>
-            <FlowGraphHome />
+            <ProjectsList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "projects",
+        element: (
+          <ProtectedRoute>
+            <ProjectsList />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "projects/:projectId",
+        element: (
+          <ProtectedRoute>
+            <ProjectPage />
           </ProtectedRoute>
         ),
       },
