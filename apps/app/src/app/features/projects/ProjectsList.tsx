@@ -15,7 +15,7 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconCode, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -23,6 +23,7 @@ import {
     useDeleteProjectMutation,
     useGetProjectsQuery,
 } from "../../../lib/redux/api/projects/project/project";
+import ProjectIntegrationModal from "./components/ProjectIntegrationModal";
 
 const ProjectsList = () => {
   const navigate = useNavigate();
@@ -32,6 +33,10 @@ const ProjectsList = () => {
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
+  const [integrationProject, setIntegrationProject] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const handleCreate = async () => {
     if (!newProjectName.trim()) return;
@@ -53,6 +58,14 @@ const ProjectsList = () => {
         console.error("Failed to delete project", error);
       }
     }
+  };
+
+  const handleOpenIntegration = (
+    project: { id: string; name: string },
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    setIntegrationProject(project);
   };
 
   if (isLoading) {
@@ -86,6 +99,14 @@ const ProjectsList = () => {
               disablePadding
               secondaryAction={
                 <Box>
+                  <IconButton
+                    edge="end"
+                    aria-label="integration"
+                    onClick={(e) => handleOpenIntegration(project, e)}
+                    sx={{ mr: 1 }}
+                  >
+                    <IconCode />
+                  </IconButton>
                   <IconButton
                     edge="end"
                     aria-label="edit"
@@ -143,6 +164,16 @@ const ProjectsList = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Integration Modal */}
+      {integrationProject && (
+        <ProjectIntegrationModal
+          open={!!integrationProject}
+          onClose={() => setIntegrationProject(null)}
+          projectId={integrationProject.id}
+          projectName={integrationProject.name}
+        />
+      )}
     </Container>
   );
 };

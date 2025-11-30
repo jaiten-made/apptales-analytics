@@ -1,12 +1,15 @@
 import { Box, Button, CircularProgress, Typography } from "@mui/material";
-import { IconArrowLeft } from "@tabler/icons-react";
+import { IconArrowLeft, IconCode } from "@tabler/icons-react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetProjectQuery } from "../../../lib/redux/api/projects/project/project";
 import FlowGraph from "../journeys/components/FlowGraph/FlowGraph";
+import ProjectIntegrationModal from "./components/ProjectIntegrationModal";
 
 const ProjectPage = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const [isIntegrationModalOpen, setIsIntegrationModalOpen] = useState(false);
   const { data: project, isLoading } = useGetProjectQuery(projectId || "", {
     skip: !projectId,
   });
@@ -40,21 +43,39 @@ const ProjectPage = () => {
         borderColor="divider"
         display="flex"
         alignItems="center"
+        justifyContent="space-between"
         gap={2}
       >
+        <Box display="flex" alignItems="center" gap={2}>
+          <Button
+            startIcon={<IconArrowLeft />}
+            onClick={() => navigate("/projects")}
+          >
+            Back
+          </Button>
+          <Typography variant="h6" component="h1">
+            {project.name}
+          </Typography>
+        </Box>
         <Button
-          startIcon={<IconArrowLeft />}
-          onClick={() => navigate("/projects")}
+          variant="contained"
+          startIcon={<IconCode />}
+          onClick={() => setIsIntegrationModalOpen(true)}
         >
-          Back
+          Get Integration Code
         </Button>
-        <Typography variant="h6" component="h1">
-          {project.name}
-        </Typography>
       </Box>
       <Box flexGrow={1} overflow="hidden">
         <FlowGraph projectId={projectId} />
       </Box>
+
+      {/* Integration Modal */}
+      <ProjectIntegrationModal
+        open={isIntegrationModalOpen}
+        onClose={() => setIsIntegrationModalOpen(false)}
+        projectId={projectId}
+        projectName={project.name}
+      />
     </Box>
   );
 };
