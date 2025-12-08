@@ -90,19 +90,19 @@ async function main() {
 
   // Create Session records (Events now reference Session.id)
   const s1 = await prisma.session.create({
-    data: { projectId: project.id, sessionId: session1Id },
+    data: { id: session1Id, projectId: project.id },
   });
   const s2 = await prisma.session.create({
-    data: { projectId: project.id, sessionId: session2Id },
+    data: { id: session2Id, projectId: project.id },
   });
   const s3 = await prisma.session.create({
-    data: { projectId: project.id, sessionId: session3Id },
+    data: { id: session3Id, projectId: project.id },
   });
   const s4 = await prisma.session.create({
-    data: { projectId: project.id, sessionId: session4Id },
+    data: { id: session4Id, projectId: project.id },
   });
   const s5 = await prisma.session.create({
-    data: { projectId: project.id, sessionId: session5Id },
+    data: { id: session5Id, projectId: project.id },
   });
 
   // Create events across multiple sessions with realistic user journeys (removed projectId, sessionId now Session.id)

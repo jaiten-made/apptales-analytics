@@ -6,3 +6,8 @@ export interface Event {
 export interface EventData {
   name: string;
 }
+
+export type Session = {
+  id: string;
+  projectId: string;
+};

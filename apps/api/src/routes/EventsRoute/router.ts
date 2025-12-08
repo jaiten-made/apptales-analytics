@@ -18,7 +18,7 @@ router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
 
     if (!projectId || typeof projectId !== "string")
       throw new HttpError(400, "Project ID is required");
-    
+
     // Verify the user owns the project
     const project = await prisma.project.findFirst({
       where: {
@@ -27,7 +27,7 @@ router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
       },
     });
 
-    if (!project) 
+    if (!project)
       throw new HttpError(404, "Project not found or access denied");
 
     // Get all events for sessions belonging to this project
@@ -42,7 +42,6 @@ router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
         session: {
           select: {
             id: true,
-            sessionId: true,
             createdAt: true,
           },
         },
@@ -72,14 +71,13 @@ router.post(
         include: { project: true },
       });
 
-      if (!session) {
-        throw new HttpError(404, "Session not found");
-      }
+      if (!session) throw new HttpError(404, "Session not found");
 
       // Create or get EventIdentity based on event type and properties
-      const eventKey = req.body.type === "page_view" 
-        ? `${req.body.type}:${req.body.properties.location.pathname}`
-        : req.body.type;
+      const eventKey =
+        req.body.type === "page_view"
+          ? `${req.body.type}:${req.body.properties.location.pathname}`
+          : req.body.type;
 
       let eventIdentity = await prisma.eventIdentity.findFirst({
         where: { key: eventKey },
@@ -100,7 +98,7 @@ router.post(
           eventIdentityId: eventIdentity.id,
         },
       });
-      
+
       res.status(201).json(event);
     } catch (error) {
       next(error);

@@ -5,13 +5,46 @@ import { AuthRequest, requireAuth } from "../../middleware/auth";
 
 const router = express.Router();
 
-router.use(requireAuth);
+// @route   POST /sessions
+// @desc    Create a new session for a project
+// @access  Private
+// @body    projectId - Required project ID
+// TODO: Implement validation to prevent users from creating sessions for projects they do not own, while still allowing public tracking of sessions.
+router.post("/", async (req: AuthRequest, res, next) => {
+  try {
+    const { projectId, id } = req.body;
+
+    if (!projectId) throw new HttpError(400, "Project ID is required");
+
+    // Verify the user owns the project
+    const project = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+      },
+    });
+
+    if (!project)
+      throw new HttpError(404, "Project not found or access denied");
+
+    // Create a new session
+    const session = await prisma.session.create({
+      data: {
+        id,
+        projectId: projectId,
+      },
+    });
+
+    res.status(201).json(session);
+  } catch (error) {
+    next(error);
+  }
+});
 
 // @route   GET /sessions
 // @desc    Get all sessions for a specific project owned by the authenticated user
 // @access  Private
 // @query   projectId - Required project ID to fetch sessions for
-router.get("/", async (req: AuthRequest, res, next) => {
+router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
   try {
     const { projectId } = req.query;
     const userId = req.user!.id;
@@ -58,7 +91,7 @@ router.get("/", async (req: AuthRequest, res, next) => {
 // @route   GET /sessions/:sessionId
 // @desc    Get a specific session with its events
 // @access  Private
-router.get("/:sessionId", async (req: AuthRequest, res, next) => {
+router.get("/:sessionId", requireAuth, async (req: AuthRequest, res, next) => {
   try {
     const { sessionId } = req.params;
     const userId = req.user!.id;
@@ -89,9 +122,8 @@ router.get("/:sessionId", async (req: AuthRequest, res, next) => {
       },
     });
 
-    if (!session) {
+    if (!session)
       throw new HttpError(404, "Session not found or access denied");
-    }
 
     res.json(session);
   } catch (error) {
