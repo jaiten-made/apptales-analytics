@@ -10,7 +10,7 @@ const router = express.Router();
 // @access  Private
 // @body    projectId - Required project ID
 // TODO: Implement validation to prevent users from creating sessions for projects they do not own, while still allowing public tracking of sessions.
-router.post("/", async (req: AuthRequest, res, next) => {
+router.post("/", async (req, res, next) => {
   try {
     const { projectId, id } = req.body;
 
