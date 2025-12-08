@@ -80,11 +80,11 @@ function createEventTracker() {
     sendPageView();
     // clearSession();
 
-    // document.addEventListener("click", handleClick, true);
+    document.addEventListener("click", handleClick, true);
   }
 
   function destroy(): void {
-    // document.removeEventListener("click", handleClick, true);
+    document.removeEventListener("click", handleClick, true);
     isInitialized = false;
   }
 
