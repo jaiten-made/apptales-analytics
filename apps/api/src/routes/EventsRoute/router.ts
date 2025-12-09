@@ -3,7 +3,8 @@ import express, { NextFunction, Request, Response } from "express";
 import HttpError from "../../errors/HttpError";
 import { prisma } from "../../lib/prisma/client";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
-import { validateEvent } from "../../middleware/validation/validateEvent";
+import { validateEventPayload } from "../../middleware/validation/validateEvent";
+import { checkSessionExpiry } from "./middleware";
 
 const router = express.Router();
 
@@ -62,7 +63,8 @@ router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
 // It validates the projectId exists but doesn't require user authentication
 router.post(
   "/",
-  validateEvent,
+  checkSessionExpiry,
+  validateEventPayload,
   async (req: Request<{}, {}, Event>, res: Response, next: NextFunction) => {
     try {
       // Verify the session exists before creating the event

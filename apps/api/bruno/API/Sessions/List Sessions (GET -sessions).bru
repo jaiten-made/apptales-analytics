@@ -18,6 +18,11 @@ headers {
   Authorization: Bearer {{sessionToken}}
 }
 
+vars:pre-request {
+  projectId: {{}}
+}
+
 settings {
   encodeUrl: true
+  timeout: 0
 }

@@ -2,14 +2,14 @@ import express from "express";
 import HttpError from "../../errors/HttpError";
 import { prisma } from "../../lib/prisma/client";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
+import { signSessionToken } from "../../utils/session-jwt";
 
 const router = express.Router();
 
 // @route   POST /sessions
-// @desc    Create a new session for a project
+// @desc    Create a new session for a project and set HTTP-Only cookie with signed JWT
 // @access  Private
 // @body    projectId - Required project ID
-// TODO: Implement validation to prevent users from creating sessions for projects they do not own, while still allowing public tracking of sessions.
 router.post("/", async (req, res, next) => {
   try {
     const { projectId, id } = req.body;
@@ -32,6 +32,23 @@ router.post("/", async (req, res, next) => {
         id,
         projectId: projectId,
       },
+    });
+
+    // Generate signed JWT token with 30-minute expiration
+    const token = signSessionToken(
+      {
+        sessionId: session.id,
+        projectId: session.projectId,
+      },
+      process.env.JWT_SECRET!
+    );
+
+    // Set HTTP-Only cookie
+    res.cookie("sessionToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 60 * 1000, // 30 minutes in milliseconds
     });
 
     res.status(201).json(session);

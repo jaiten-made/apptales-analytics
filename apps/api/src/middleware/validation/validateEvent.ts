@@ -1,14 +1,12 @@
-import { safeParseEvent } from "@apptales/events-schema";
+import { safeParseEventPayload } from "@apptales/events-schema";
 import { NextFunction, Request, Response } from "express";
 
-export const validateEvent = (
+export const validateEventPayload = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const parsed = safeParseEvent(req.body);
+  const parsed = safeParseEventPayload(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
-  // Attach validated data to request for use in route handler
-  req.body = parsed.data;
   next();
 };

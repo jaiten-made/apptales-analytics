@@ -1,41 +1,21 @@
-import { Event } from "@apptales/events-schema";
-import { Session } from "./types";
+import { EventPayload } from "@apptales/events-schema";
 
 const API_URL = "http://localhost:3001";
 
-export const sendEvent = async (event: Event) => {
-  console.log("Sending event:", event);
+export const sendEvent = async (payload: EventPayload, projectId: string) => {
+  console.log("Sending event:", payload);
   try {
-    const response = await fetch(`${API_URL}/events`, {
+    const response = await fetch(`${API_URL}/events?projectId=${projectId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(event),
+      credentials: "include",
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) throw new Error("Network response was not ok");
     return await response.json();
-  } catch (error) {
-    console.error("Error sending event:", error);
-  }
-};
-
-export const createSession = async (session: Session) => {
-  console.log(`Creating session: session=${JSON.stringify(session)}`);
-  try {
-    const response = await fetch(`${API_URL}/sessions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(session),
-    });
-
-    if (!response.ok) throw new Error("Network response was not ok");
-    const data = await response.json();
-    console.log(`Created session: data=${JSON.stringify(data)}`);
-    return data;
   } catch (error) {
     console.error("Error sending event:", error);
   }

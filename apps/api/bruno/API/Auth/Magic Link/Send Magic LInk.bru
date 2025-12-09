@@ -12,10 +12,15 @@ post {
 
 body:json {
   {
-      "email": "jaiten.thomas+1@gmail.com"
+      "email": {{email}}
   }
+}
+
+vars:pre-request {
+  email: john.doe@gmail.com
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }

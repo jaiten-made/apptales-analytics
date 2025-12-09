@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: http://localhost:3001/events
+  url: http://localhost:3001/events?projectId={{projectId}}
   body: json
   auth: none
+}
+
+params:query {
+  projectId: {{projectId}}
 }
 
 headers {
@@ -16,7 +20,6 @@ headers {
 
 body:json {
   {
-    "sessionId": "{{sessionId}}",
     "type": "page_view",
     "properties": {
       "location": {
@@ -28,4 +31,5 @@ body:json {
 
 settings {
   encodeUrl: true
+  timeout: 0
 }
