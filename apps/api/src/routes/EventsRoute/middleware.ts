@@ -35,7 +35,6 @@ export const checkSessionExpiry = async (
 ) => {
   try {
     const token = req.cookies.sessionToken;
-
     if (!token) {
       const projectId = req.query.projectId as string | undefined;
       if (!projectId)
@@ -46,12 +45,10 @@ export const checkSessionExpiry = async (
       req.body.sessionId = await createAndSetSessionCookie(res, projectId);
       return next();
     }
-
     const decoded = jwt.decode(token) as {
       sessionId: string;
       projectId: string;
     };
-
     let sessionId = decoded.sessionId;
 
     try {
@@ -62,6 +59,24 @@ export const checkSessionExpiry = async (
       }
     }
 
+    // Look up the last event for this session
+    const lastEvent = await prisma.event.findFirst({
+      where: {
+        sessionId: sessionId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    // If there's a last event, check if 30 minutes have passed
+    if (lastEvent) {
+      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+      
+      if (lastEvent.createdAt < thirtyMinutesAgo) {
+        // Create a new session if 30 minutes have passed since the last event
+        sessionId = await createAndSetSessionCookie(res, decoded.projectId);
+      }
+    }
     req.body.sessionId = sessionId;
     next();
   } catch (error) {
