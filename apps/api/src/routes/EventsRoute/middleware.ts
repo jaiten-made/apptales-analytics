@@ -34,6 +34,8 @@ export const checkSessionExpiry = async (
   next: NextFunction
 ) => {
   try {
+    // Uncomment for testing purposes
+    // delete req.cookies.sessionToken;
     const token = req.cookies.sessionToken;
     if (!token) {
       const projectId = req.query.projectId as string | undefined;

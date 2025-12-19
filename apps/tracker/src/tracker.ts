@@ -13,13 +13,25 @@ function getProjectId(): string | null {
 
 function createEventTracker() {
   let isInitialized = false;
+  let lastTrackedPath = "";
 
-  // Create session only on first page view and send page_view
+  // Send page_view event - can be called multiple times for SPA navigation
   async function sendPageView(): Promise<void> {
     try {
-      console.log("Sending page view event");
+      const currentPath = location.pathname + location.search + location.hash;
+      
+      // Avoid duplicate tracking of the same path
+      if (currentPath === lastTrackedPath) {
+        console.log("Skipping duplicate page view for:", currentPath);
+        return;
+      }
+      
+      lastTrackedPath = currentPath;
+      console.log("Sending page view event for:", currentPath);
+      
       const projectId = getProjectId();
       if (!projectId) throw new Error("Project ID not found");
+      
       const pageViewEvent: EventPayload = {
         type: "page_view",
         properties: {
@@ -44,19 +56,51 @@ function createEventTracker() {
     sendEvent(clickEvent, projectId);
   }
 
+  // Intercept History API for SPA navigation tracking (industry standard approach)
+  function setupNavigationTracking(): void {
+    const originalPushState = history.pushState;
+    const originalReplaceState = history.replaceState;
+
+    history.pushState = function (...args) {
+      originalPushState.apply(this, args);
+      sendPageView();
+    };
+
+    history.replaceState = function (...args) {
+      originalReplaceState.apply(this, args);
+      sendPageView();
+    };
+
+    // Track popstate (back/forward button)
+    window.addEventListener("popstate", () => {
+      sendPageView();
+    });
+
+    // Track hash changes (for hash-based routing)
+    window.addEventListener("hashchange", () => {
+      sendPageView();
+    });
+  }
+
   function init(): void {
     if (isInitialized) return;
 
     isInitialized = true;
 
+    // Track initial page view
     sendPageView();
 
+    // Set up SPA navigation tracking
+    setupNavigationTracking();
+
+    // Track clicks
     document.addEventListener("click", handleClick, true);
   }
 
   function destroy(): void {
     document.removeEventListener("click", handleClick, true);
     isInitialized = false;
+    lastTrackedPath = "";
   }
 
   // Auto-initialize
@@ -64,6 +108,7 @@ function createEventTracker() {
 
   return {
     destroy,
+    trackPageView: sendPageView, // Expose for manual tracking if needed
   };
 }
 
