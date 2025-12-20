@@ -43,8 +43,24 @@ function buildGraph(data: FlowGraphType) {
   // Build nodes
   const nodes: Node[] = [];
   steps.forEach((events, step) => {
-    const gapX = 240;
-    const baseX = -((events.length - 1) * gapX) / 2; // center row around x=0
+    // Sort events by count descending
+    events.sort((a, b) => b.count - a.count);
+
+    const gapX = 400; // Horizontal spacing between steps
+    const gapY = 200; // Vertical spacing between events
+    const startY = 100; // Initial Y offset below header
+    
+    // Add Step Header
+    nodes.push({
+        id: `header_step_${step}`,
+        type: 'stepHeader',
+        data: { label: `Step ${step}` },
+        position: { x: (step - 1) * gapX, y: 0 },
+        draggable: false,
+        selectable: false,
+        style: { width: 200, background: 'transparent', border: 'none' } // Match card width
+    });
+
     events.forEach((event, idx) => {
       nodes.push({
         id: event.id,
@@ -56,9 +72,10 @@ function buildGraph(data: FlowGraphType) {
           count: event.count,
           exits: event.exits,
         },
-        position: { x: baseX + gapX * idx, y: 175 * (step - 1) },
-        sourcePosition: Position.Bottom,
-        targetPosition: Position.Top,
+        // Horizontal layout: X depends on step, Y depends on index
+        position: { x: (step - 1) * gapX, y: startY + idx * gapY },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
         style: {
           // let the custom node style dominate
           width: 200,
@@ -101,6 +118,15 @@ function buildGraph(data: FlowGraphType) {
   }
 
   return { nodes, edges };
+}
+
+// Custom Header Node
+const StepHeaderNode: React.FC<NodeProps<{ label: string }>> = ({ data }) => {
+    return (
+        <div className="flex items-center justify-center w-[200px] py-2 border-b-2 border-slate-200">
+            <span className="text-sm font-bold text-slate-500 uppercase tracking-widest">{data.label}</span>
+        </div>
+    );
 }
 
 // Custom Node that visually matches the screenshot using Tailwind
@@ -180,13 +206,13 @@ const StepNode: React.FC<
       </div>
       <Handle
         type="target"
-        position={Position.Top}
-        className="w-2 h-2 bg-emerald-700 border-2 border-white rounded-full"
+        position={Position.Left}
+        className="w-2 h-2 bg-emerald-700 border-2 border-white rounded-full !-left-1"
       />
       <Handle
         type="source"
-        position={Position.Bottom}
-        className="w-2 h-2 bg-emerald-700 border-2 border-white rounded-full"
+        position={Position.Right}
+        className="w-2 h-2 bg-emerald-700 border-2 border-white rounded-full !-right-1"
       />
     </div>
   );
@@ -227,7 +253,7 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
       data: {
         ...node.data,
         selected: node.id === selectedNodeId,
-        dimmed: selectedNodeId !== null && !connectedNodeIds.has(node.id),
+        dimmed: selectedNodeId !== null && !connectedNodeIds.has(node.id) && node.type !== 'stepHeader',
       },
     }));
   }, [initialEdges, initialNodes, selectedNodeId]);
@@ -251,11 +277,13 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
 
   // Handle node selection
   const onNodeClick: NodeMouseHandler = (_, node) => {
+    // Ignore header clicks
+    if (node.type === 'stepHeader') return;
     setSelectedNodeId((prev) => (prev === node.id ? null : node.id));
   };
 
   // register custom node
-  const nodeTypes = useMemo(() => ({ stepNode: StepNode }), []);
+  const nodeTypes = useMemo(() => ({ stepNode: StepNode, stepHeader: StepHeaderNode }), []);
 
   if (isLoading) {
     return (
@@ -282,6 +310,7 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
         .rfCustomCursor .react-flow__pane.dragging { cursor: grabbing !important; }
         /* optional: make nodes look clickable */
         .rfCustomCursor .react-flow__node { cursor: pointer; }
+        .rfCustomCursor .react-flow__node-stepHeader { cursor: default !important; }
       `}</style>
         <ReactFlow
           className="rfCustomCursor"
