@@ -44,7 +44,7 @@ const NavBar = () => {
               </Typography>
             </Link>
           </Box>
-          <Button onClick={() => signOut()} variant="contained">
+          <Button onClick={() => signOut()}>
             Sign Out
           </Button>
         </Box>

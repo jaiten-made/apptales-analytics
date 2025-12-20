@@ -77,7 +77,6 @@ export default function SignIn() {
             }}
           />
           <Button
-            variant="contained"
             type="submit"
             disabled={loading}
             fullWidth

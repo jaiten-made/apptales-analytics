@@ -15,6 +15,14 @@ const theme = createTheme({
       height: 64,
     },
   },
+  components: {
+    MuiButton: {
+      defaultProps: {
+        variant: "outlined",
+        disableElevation: true
+      },
+    },
+  },
 });
 
 export default theme;

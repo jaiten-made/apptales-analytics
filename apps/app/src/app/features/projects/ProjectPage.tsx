@@ -58,7 +58,6 @@ const ProjectPage = () => {
           </Typography>
         </Box>
         <Button
-          variant="contained"
           startIcon={<IconCode />}
           onClick={() => setIsIntegrationModalOpen(true)}
         >

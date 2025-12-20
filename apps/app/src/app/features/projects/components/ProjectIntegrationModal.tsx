@@ -1,23 +1,23 @@
 import {
-    Alert,
-    Box,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Divider,
-    IconButton,
-    Paper,
-    Stack,
-    Tooltip,
-    Typography,
+  Alert,
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  IconButton,
+  Paper,
+  Stack,
+  Tooltip,
+  Typography,
 } from "@mui/material";
 import {
-    IconCheck,
-    IconCode,
-    IconCopy,
-    IconX,
+  IconCheck,
+  IconCode,
+  IconCopy,
+  IconX,
 } from "@tabler/icons-react";
 import { useState } from "react";
 
@@ -208,7 +208,6 @@ const ProjectIntegrationModal = ({
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={onClose}>Close</Button>
         <Button
-          variant="contained"
           startIcon={copied ? <IconCheck /> : <IconCopy />}
           onClick={handleCopy}
           color={copied ? "success" : "primary"}

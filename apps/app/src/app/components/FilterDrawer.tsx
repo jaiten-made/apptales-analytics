@@ -130,7 +130,7 @@ const FilterDrawer = () => {
                         <Button size="small" disabled>
                           Back
                         </Button>
-                        <Button size="small" variant="contained">
+                        <Button size="small">
                           Next
                         </Button>
                       </Stack>
@@ -176,9 +176,7 @@ const FilterDrawer = () => {
                     <Box sx={{ mt: 2 }}>
                       <Stack direction="row" spacing={1}>
                         <Button size="small">Back</Button>
-                        <Button size="small" variant="contained">
-                          Done
-                        </Button>
+                        <Button size="small">Done</Button>
                       </Stack>
                     </Box>
                   </Box>

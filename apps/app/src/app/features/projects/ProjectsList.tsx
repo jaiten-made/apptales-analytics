@@ -1,27 +1,27 @@
 import {
-    Box,
-    Button,
-    Container,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    IconButton,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemText,
-    Paper,
-    TextField,
-    Typography,
+  Box,
+  Button,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Paper,
+  TextField,
+  Typography,
 } from "@mui/material";
 import { IconCode, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    useCreateProjectMutation,
-    useDeleteProjectMutation,
-    useGetProjectsQuery,
+  useCreateProjectMutation,
+  useDeleteProjectMutation,
+  useGetProjectsQuery,
 } from "../../../lib/redux/api/projects/project/project";
 import ProjectIntegrationModal from "./components/ProjectIntegrationModal";
 
@@ -83,7 +83,6 @@ const ProjectsList = () => {
           Projects
         </Typography>
         <Button
-          variant="contained"
           startIcon={<IconPlus />}
           onClick={() => setIsCreateOpen(true)}
         >
@@ -159,7 +158,7 @@ const ProjectsList = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreate} variant="contained">
+          <Button onClick={handleCreate} >
             Create
           </Button>
         </DialogActions>
