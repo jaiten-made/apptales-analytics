@@ -37,6 +37,27 @@ export function buildGraph(data: FlowGraphType) {
     const gapX = 400; // Horizontal spacing between steps
     const gapY = 200; // Vertical spacing between events
     const startY = 100; // Initial Y offset below header
+
+    // Add Column Box
+    const columnHeight = startY + Math.max(events.length, 1) * gapY - 50;
+
+    nodes.push({
+      id: `box_step_${step}`,
+      data: { label: null },
+      position: { x: (step - 1) * gapX - 25, y: -30 },
+      type: "group",
+      draggable: false,
+      selectable: false,
+      zIndex: -10,
+      style: {
+        width: 250,
+        height: columnHeight,
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        border: "1px dashed #cbd5e1",
+        borderRadius: "16px",
+        pointerEvents: "none",
+      },
+    });
     
     // Add Step Header
     nodes.push({
