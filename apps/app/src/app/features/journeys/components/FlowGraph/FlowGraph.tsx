@@ -178,7 +178,6 @@ const StepNode: React.FC<
           </>
         )}
       </div>
-
       <Handle
         type="target"
         position={Position.Top}

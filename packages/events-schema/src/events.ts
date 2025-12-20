@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const EventPayloadSchema = z.discriminatedUnion("type", [
+export const EventPayloadSchema = z.union([
   z.object({
     type: z.literal("page_view"),
     properties: z.object({
@@ -10,7 +10,15 @@ export const EventPayloadSchema = z.discriminatedUnion("type", [
     }),
   }),
   z.object({
-    type: z.literal("click"),
+    type: z.string().superRefine((val, ctx) => {
+      if (val === "page_view") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Use specific page_view schema for page_view events",
+        });
+      }
+    }),
+    properties: z.record(z.unknown()).optional(),
   }),
 ]);
 

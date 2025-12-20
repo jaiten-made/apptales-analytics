@@ -47,13 +47,45 @@ function createEventTracker() {
     }
   }
 
-  async function handleClick(_: MouseEvent): Promise<void> {
-    const clickEvent: EventPayload = {
-      type: "click",
-    };
-    const projectId = getProjectId();
-    if (!projectId) throw new Error("Project ID not found");
-    sendEvent(clickEvent, projectId);
+  async function handleClick(event: MouseEvent): Promise<void> {
+    try {
+      const target = event.target as Element;
+      // prioritize interactive elements
+      const element = target.closest('button, a, input, [role="button"]') || target;
+      
+      let identifier = 
+        element.getAttribute('data-track-id') || 
+        element.getAttribute('aria-label') || 
+        ('innerText' in element ? (element as HTMLElement).innerText : '') ||
+        (element instanceof HTMLInputElement ? element.value : '') ||
+        element.id ||
+        pluginFallbackIdentifier(element);
+
+      if (!identifier) return;
+      
+      identifier = identifier.trim();
+      if (identifier.length === 0) return;
+      if (identifier.length > 50) identifier = identifier.substring(0, 50) + "...";
+
+      const clickEvent: EventPayload = {
+        type: `click:${identifier}`,
+      };
+      
+      const projectId = getProjectId();
+      if (!projectId) return;
+      
+      sendEvent(clickEvent, projectId);
+    } catch (error) {
+      console.error("Error tracking click:", error);
+    }
+  }
+
+  function pluginFallbackIdentifier(el: Element): string {
+    // Basic fallback for images or special cases
+    if (el.tagName.toLowerCase() === 'img') {
+        return el.getAttribute('alt') || '';
+    }
+    return '';
   }
 
   // Intercept History API for SPA navigation tracking (industry standard approach)
