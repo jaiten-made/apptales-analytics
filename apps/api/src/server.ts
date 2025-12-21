@@ -2,7 +2,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { NextFunction, Request, Response } from "express";
-import { TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import path from "path";
 import { ZodError } from "zod";
 import HttpError from "./errors/HttpError";
@@ -13,6 +13,8 @@ import eventsRouter from "./routes/EventsRoute/router";
 import projectRouter from "./routes/ProjectRoute/router";
 import projectsRouter from "./routes/ProjectsRoute/router";
 import sessionsRouter from "./routes/SessionsRoute/router";
+
+const { TokenExpiredError } = jwt;
 
 // Load the environment variables from the specific file
 dotenv.config({

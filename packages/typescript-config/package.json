@@ -1,0 +1,16 @@
+{
+  "name": "@apptales/typescript-config",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "files": [
+    "base.json",
+    "node.json",
+    "react.json"
+  ],
+  "exports": {
+    "./base.json": "./base.json",
+    "./node.json": "./node.json",
+    "./react.json": "./react.json"
+  }
+}

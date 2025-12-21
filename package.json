@@ -2,14 +2,14 @@
   "name": "apptales",
   "private": true,
   "scripts": {
-    "build": "pnpm run build",
-    "dev": "pnpm run dev",
-    "lint": "pnpm run lint",
+    "dev": "pnpm --recursive run dev",
+    "build": "pnpm --recursive run build",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "pnpm run check-types"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
+    "tsup": "^8.5.1",
     "typescript": "5.9.2"
   },
   "packageManager": "pnpm@9.0.0",

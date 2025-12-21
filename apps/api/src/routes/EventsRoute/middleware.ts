@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import jwt, { TokenExpiredError } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { prisma } from "../../lib/prisma/client";
 import { signSessionToken, verifySessionToken } from "../../utils/session-jwt";
+
+const { TokenExpiredError } = jwt;
 
 const createAndSetSessionCookie = async (res: Response, projectId: string) => {
   const newSession = await prisma.session.create({
@@ -73,7 +75,7 @@ export const checkSessionExpiry = async (
     // If there's a last event, check if 30 minutes have passed
     if (lastEvent) {
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-      
+
       if (lastEvent.createdAt < thirtyMinutesAgo) {
         // Create a new session if 30 minutes have passed since the last event
         sessionId = await createAndSetSessionCookie(res, decoded.projectId);
