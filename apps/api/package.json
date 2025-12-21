@@ -6,7 +6,8 @@
     "dev": "tsx watch src/server.ts",
     "postinstall": "prisma generate",
     "seed": "tsx prisma/seed.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "@apptales/events-schema": "workspace:*",
