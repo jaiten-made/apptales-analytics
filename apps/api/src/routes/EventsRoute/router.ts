@@ -98,7 +98,7 @@ router.post(
       const event = await prisma.event.create({
         data: {
           type: req.body.type,
-          properties: req.body.type === "page_view" ? req.body.properties : {},
+          properties: (req.body.properties ?? {}) as any,
           sessionId: req.body.sessionId,
           eventIdentityId: eventIdentity.id,
         },
