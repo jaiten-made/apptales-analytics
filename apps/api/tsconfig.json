@@ -1,14 +1,30 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true,
+    /* Environment */
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    /* Monorepo Isolation */
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["node"],
     "skipLibCheck": true,
+
+    /* Path Mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    /* Build Workflow */
+    "outDir": "dist",
+    "rootDir": "src",
+
+    /* Interop & Safety */
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "types": ["node"]
+    "strict": true
   },
-  "include": ["./**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "../../node_modules", "dist"]
 }

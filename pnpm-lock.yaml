@@ -41,10 +41,10 @@ importers:
         version: link:../../packages/utils
       '@prisma/client':
         specifier: ^6.18.0
-        version: 6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@4.9.5))(typescript@4.9.5)
+        version: 6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
       '@prisma/extension-accelerate':
         specifier: ^2.0.2
-        version: 2.0.2(@prisma/client@6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@4.9.5))(typescript@4.9.5))
+        version: 2.0.2(@prisma/client@6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3))
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -90,13 +90,13 @@ importers:
         version: 7.0.3
       prisma:
         specifier: ^6.18.0
-        version: 6.18.0(magicast@0.3.5)(typescript@4.9.5)
+        version: 6.18.0(magicast@0.3.5)(typescript@5.9.3)
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
       typescript:
-        specifier: ^4.9.5
-        version: 4.9.5
+        specifier: ^5.9.3
+        version: 5.9.3
 
   apps/app:
     dependencies:
@@ -4465,11 +4465,6 @@ packages:
       eslint: ^8.57.0 || ^9.0.0
       typescript: '>=4.8.4 <6.0.0'
 
-  typescript@4.9.5:
-    resolution: {integrity: sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==}
-    engines: {node: '>=4.2.0'}
-    hasBin: true
-
   typescript@5.8.3:
     resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
     engines: {node: '>=14.17'}
@@ -6215,10 +6210,10 @@ snapshots:
 
   '@poppinss/exception@1.2.2': {}
 
-  '@prisma/client@6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@4.9.5))(typescript@4.9.5)':
+  '@prisma/client@6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)':
     optionalDependencies:
-      prisma: 6.18.0(magicast@0.3.5)(typescript@4.9.5)
-      typescript: 4.9.5
+      prisma: 6.18.0(magicast@0.3.5)(typescript@5.9.3)
+      typescript: 5.9.3
 
   '@prisma/config@6.18.0(magicast@0.3.5)':
     dependencies:
@@ -6240,9 +6235,9 @@ snapshots:
       '@prisma/fetch-engine': 6.18.0
       '@prisma/get-platform': 6.18.0
 
-  '@prisma/extension-accelerate@2.0.2(@prisma/client@6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@4.9.5))(typescript@4.9.5))':
+  '@prisma/extension-accelerate@2.0.2(@prisma/client@6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3))':
     dependencies:
-      '@prisma/client': 6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@4.9.5))(typescript@4.9.5)
+      '@prisma/client': 6.18.0(prisma@6.18.0(magicast@0.3.5)(typescript@5.9.3))(typescript@5.9.3)
 
   '@prisma/fetch-engine@6.18.0':
     dependencies:
@@ -9206,12 +9201,12 @@ snapshots:
 
   prettier@3.6.2: {}
 
-  prisma@6.18.0(magicast@0.3.5)(typescript@4.9.5):
+  prisma@6.18.0(magicast@0.3.5)(typescript@5.9.3):
     dependencies:
       '@prisma/config': 6.18.0(magicast@0.3.5)
       '@prisma/engines': 6.18.0
     optionalDependencies:
-      typescript: 4.9.5
+      typescript: 5.9.3
     transitivePeerDependencies:
       - magicast
 
@@ -9858,8 +9853,6 @@ snapshots:
       typescript: 5.8.3
     transitivePeerDependencies:
       - supports-color
-
-  typescript@4.9.5: {}
 
   typescript@5.8.3: {}
 

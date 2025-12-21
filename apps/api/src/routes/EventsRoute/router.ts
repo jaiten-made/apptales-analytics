@@ -78,7 +78,10 @@ router.post(
       // Create or get EventIdentity based on event type and properties
       const eventKey =
         req.body.type === "page_view"
-          ? `${req.body.type}:${req.body.properties.location.pathname}`
+          ? `${req.body.type}:${
+              (req.body.properties as { location: { pathname: string } })
+                .location.pathname
+            }`
           : req.body.type;
 
       let eventIdentity = await prisma.eventIdentity.findFirst({

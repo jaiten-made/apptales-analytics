@@ -38,11 +38,11 @@ const FilterDrawer = () => {
   const { data: events } = useGetEventsQuery(undefined);
 
   // Transform events data to match the expected format
-  const eventOptions =
+  const eventOptions: { id: string; label: string }[] =
     events?.map((event) => ({
-      id: event.id || event._id || String(event),
-      label: event.name || event.label || event.type || String(event),
-    })) || [];
+      id: String(event.id ?? event._id ?? event),
+      label: String(event.name ?? event.label ?? event.type ?? event),
+    })) ?? [];
 
   return (
     <Drawer
@@ -111,7 +111,7 @@ const FilterDrawer = () => {
                 <StepContent>
                   <Box sx={{ display: "flex", flexDirection: "column" }}>
                     <Divider sx={{ mb: 1 }} />
-                    <Autocomplete
+                    <Autocomplete<{ id: string; label: string }>
                       fullWidth
                       size="small"
                       options={eventOptions}
@@ -130,9 +130,7 @@ const FilterDrawer = () => {
                         <Button size="small" disabled>
                           Back
                         </Button>
-                        <Button size="small">
-                          Next
-                        </Button>
+                        <Button size="small">Next</Button>
                       </Stack>
                     </Box>
                   </Box>
@@ -159,7 +157,7 @@ const FilterDrawer = () => {
                 <StepContent>
                   <Box sx={{ display: "flex", flexDirection: "column" }}>
                     <Divider sx={{ mb: 1 }} />
-                    <Autocomplete
+                    <Autocomplete<{ id: string; label: string }>
                       fullWidth
                       size="small"
                       options={mockUsers}
