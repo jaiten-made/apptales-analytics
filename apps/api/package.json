@@ -5,6 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "dev": "tsup src/server.ts --watch",
+    "prebuild": "prisma generate",
     "build": "tsup src/server.ts",
     "start": "node dist/server.js"
   },
