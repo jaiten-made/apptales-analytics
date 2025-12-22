@@ -7,6 +7,7 @@
     "dev": "tsup src/server.ts --watch --onSuccess \"NODE_ENV=development node dist/server.js\"",
     "prebuild": "prisma generate",
     "build": "tsup src/server.ts",
+    "migrate": "prisma migrate deploy",
     "start": "NODE_ENV=production node --max-old-space-size=768 dist/server.js"
   },
   "dependencies": {
