@@ -7,7 +7,7 @@ const router = express.Router();
 // @access  Public
 router.post("/signout", async (_req, res, _next) => {
   res.clearCookie("session");
-  res.redirect(`${process.env.APP_URL!}/auth/signin`);
+  res.redirect(`${process.env.APP_BASE_URL!}/auth/signin`);
 });
 
 export default router;

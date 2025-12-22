@@ -21,7 +21,7 @@ router.post("/", async (req, res, next) => {
       await open(link);
       return res.json({
         message: "Magic link generated (Development Mode)",
-        token
+        token,
       });
     }
     await sendEmail({
@@ -55,7 +55,7 @@ router.get("/verify", async (req, res, next) => {
       update: {},
       where: { email: decoded.email },
     });
-    res.redirect(process.env.APP_URL!);
+    res.redirect(process.env.APP_BASE_URL!);
   } catch (error) {
     next(error);
   }

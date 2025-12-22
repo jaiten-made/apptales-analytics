@@ -42,7 +42,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(
   cors({
-    origin: [process.env.APP_URL!, process.env.TRACKER_URL!],
+    origin: [process.env.APP_BASE_URL!, process.env.TRACKER_BASE_URL!],
     credentials: true,
   })
 );
