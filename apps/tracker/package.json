@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc && vite build",
     "check-types": "tsc --noEmit",
-    "deploy": "wrangler deploy",
+    "worker:deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "preview": "vite preview",
     "serve": "npx http-server ./test --cors -p 3333",
