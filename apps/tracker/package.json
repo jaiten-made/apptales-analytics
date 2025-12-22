@@ -12,12 +12,13 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "test": "vite --open",
     "check-types": "tsc --noEmit",
-    "serve": "npx http-server ./test --cors -p 3333"
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "preview": "vite preview",
+    "serve": "npx http-server ./test --cors -p 3333",
+    "test": "vite --open"
   },
   "dependencies": {
     "@apptales/events-schema": "workspace:*",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "terser": "^5.36.0",
     "typescript": "~5.8.3",
-    "vite": "^7.1.6"
+    "vite": "^7.1.6",
+    "wrangler": "^4.42.2"
   }
 }

@@ -1,0 +1,7 @@
+{
+  "name": "apptales-cdn",
+  "compatibility_date": "2025-04-29",
+  "assets": {
+    "directory": "./dist"
+  }
+}
