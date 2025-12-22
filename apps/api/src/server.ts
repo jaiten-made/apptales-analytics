@@ -1,11 +1,24 @@
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
-import express, { NextFunction, Request, Response } from "express";
+import express, {
+  NextFunction,
+  Request,
+  RequestHandler,
+  Response,
+} from "express";
 import jwt from "jsonwebtoken";
 import path from "path";
 import { ZodError } from "zod";
 import HttpError from "./errors/HttpError";
+import {
+  authMagicLinkRateLimitMiddleware,
+  authRateLimitMiddleware,
+  authSessionRateLimitMiddleware,
+  botDetectionMiddleware,
+  dashboardRateLimitMiddleware,
+  trackingRateLimitMiddleware,
+} from "./middleware/security";
 import authMagicLinkRouter from "./routes/AuthRoute/MagicLink/router";
 import authRouter from "./routes/AuthRoute/router";
 import authSessionRouter from "./routes/AuthRoute/Session/router";
@@ -37,13 +50,46 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/events", eventsRouter);
-app.use("/sessions", sessionsRouter);
-app.use("/projects", projectsRouter);
-app.use("/projects/:projectId", projectRouter);
-app.use("/auth/magic-link", authMagicLinkRouter);
-app.use("/auth/session", authSessionRouter);
-app.use("/auth", authRouter);
+const mountWithRateLimit = (
+  route: string,
+  middleware: RequestHandler,
+  router: express.Router
+): void => {
+  if (process.env.NODE_ENV === "production") {
+    app.use(route, middleware, router);
+    return;
+  }
+  app.use(route, router);
+};
+
+if (process.env.NODE_ENV === "production") {
+  app.use(botDetectionMiddleware);
+}
+
+// Events and sessions routes - high limit to allow legitimate traffic while preventing abuse
+mountWithRateLimit("/events", trackingRateLimitMiddleware, eventsRouter);
+mountWithRateLimit("/sessions", trackingRateLimitMiddleware, sessionsRouter);
+
+// Dashboard routes with generous rate limiting for authenticated users
+mountWithRateLimit("/projects", dashboardRateLimitMiddleware, projectsRouter);
+mountWithRateLimit(
+  "/projects/:projectId",
+  dashboardRateLimitMiddleware,
+  projectRouter
+);
+
+// Auth routes with tiered rate limiting
+mountWithRateLimit(
+  "/auth/magic-link",
+  authMagicLinkRateLimitMiddleware,
+  authMagicLinkRouter
+);
+mountWithRateLimit(
+  "/auth/session",
+  authSessionRateLimitMiddleware,
+  authSessionRouter
+);
+mountWithRateLimit("/auth", authRateLimitMiddleware, authRouter);
 
 // Centralized error handler for this router
 app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {
