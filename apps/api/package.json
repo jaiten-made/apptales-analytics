@@ -4,7 +4,7 @@
   "type": "module",
   "main": "server.ts",
   "scripts": {
-    "dev": "tsup src/server.ts --watch",
+    "dev": "tsup src/server.ts --watch --onSuccess \"node dist/server.js\"",
     "prebuild": "prisma generate",
     "build": "tsup src/server.ts",
     "start": "node dist/server.js"

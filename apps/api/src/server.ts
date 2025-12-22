@@ -42,7 +42,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3002"], // app, tracker
+    origin: [process.env.APP_URL!, process.env.TRACKER_URL!],
     credentials: true,
   })
 );
