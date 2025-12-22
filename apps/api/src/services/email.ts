@@ -1,4 +1,16 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+let resend: Resend | null = null;
+
+const getResend = () => {
+  if (!resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("Missing RESEND_API_KEY environment variable");
+    }
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+};
 
 export const sendEmail = async ({
   to,
@@ -9,21 +21,15 @@ export const sendEmail = async ({
   subject: string;
   text: string;
 }) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.zoho.com.au", // for Zoho Mail
-    port: 465, // use 465 for SSL, 587 for TLS
-    secure: true, // true for 465, false for 587
-    pool: true, // IMPORTANT: Reuses the same connection
-    maxConnections: 1, // Good for 0.5 CPU to avoid overloading
-    auth: {
-      user: process.env.ZOHO_USER_EMAIL,
-      pass: process.env.ZOHO_APP_PASSWORD,
-    },
-  });
-  await transporter.sendMail({
-    from: process.env.ZOHO_USER_EMAIL,
+  const client = getResend();
+  const { data, error } = await client.emails.send({
+    from: process.env.RESEND_FROM_EMAIL!,
     to,
     subject,
-    text,
+    html: text,
   });
+
+  if (error) throw new Error(`Failed to send email: ${error.message}`);
+
+  return data;
 };

@@ -4,7 +4,7 @@
   "type": "module",
   "main": "server.ts",
   "scripts": {
-    "dev": "NODE_ENV=development tsup src/server.ts --watch --onSuccess \"node dist/server.js\"",
+    "dev": "tsup src/server.ts --watch --onSuccess \"NODE_ENV=development node dist/server.js\"",
     "prebuild": "prisma generate",
     "build": "tsup src/server.ts",
     "start": "NODE_ENV=production node --max-old-space-size=768 dist/server.js"
@@ -23,6 +23,7 @@
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^7.0.10",
     "open": "^11.0.0",
+    "resend": "^6.6.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
