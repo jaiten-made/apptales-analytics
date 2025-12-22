@@ -13,6 +13,8 @@ export const sendEmail = async ({
     host: "smtp.zoho.com.au", // for Zoho Mail
     port: 465, // use 465 for SSL, 587 for TLS
     secure: true, // true for 465, false for 587
+    pool: true, // IMPORTANT: Reuses the same connection
+    maxConnections: 1, // Good for 0.5 CPU to avoid overloading
     auth: {
       user: process.env.ZOHO_USER_EMAIL,
       pass: process.env.ZOHO_APP_PASSWORD,
