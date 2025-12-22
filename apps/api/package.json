@@ -7,7 +7,7 @@
     "dev": "NODE_ENV=development tsup src/server.ts --watch --onSuccess \"node dist/server.js\"",
     "prebuild": "prisma generate",
     "build": "tsup src/server.ts",
-    "start": "NODE_ENV=production node dist/server.js"
+    "start": "NODE_ENV=production node --max-old-space-size=768 dist/server.js"
   },
   "dependencies": {
     "@apptales/events-schema": "workspace:*",
