@@ -1,5 +1,5 @@
 {
-  "name": "apptales-tracker",
+  "name": "@apptales/tracker",
   "version": "1.0.0",
   "description": "A lightweight CDN script for tracking all events on websites",
   "type": "module",
