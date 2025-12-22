@@ -109,7 +109,8 @@ app.get("/", (_, res: Response) => {
   res.send("success");
 });
 
-const port = Number(process.env.PORT) || 3000;
+// Railway sets the port value automatically, don't put in env file
+const port = Number(process.env.PORT) || 3001;
 const host = "0.0.0.0";
 
 app.listen(port, host, () => {
