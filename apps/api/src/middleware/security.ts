@@ -11,8 +11,8 @@ export const botDetectionMiddleware = (
     | string
     | undefined;
 
-  // Skip bot detection for your own Next.js application
-  if (userAgent && userAgent.includes("Next.js")) {
+  // Skip bot detection for railway health check
+  if (userAgent && userAgent.includes("RailwayHealthCheck")) {
     next();
     return;
   }
