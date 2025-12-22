@@ -110,6 +110,9 @@ app.get("/", (_, res: Response) => {
   res.send("success");
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on ${process.env.BASE_URL!}:${PORT}`);
+const port = Number(process.env.PORT) || 3000;
+const host = "0.0.0.0";
+
+app.listen(port, host, () => {
+  console.log(`🚀 API ready at http://${host}:${port}`);
 });
