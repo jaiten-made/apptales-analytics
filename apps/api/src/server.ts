@@ -111,5 +111,5 @@ app.get("/", (_, res: Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on ${process.env.ORIGIN!}:${PORT}`);
+  console.log(`Server is running on ${process.env.BASE_URL!}:${PORT}`);
 });

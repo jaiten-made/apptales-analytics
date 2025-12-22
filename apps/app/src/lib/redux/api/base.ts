@@ -9,7 +9,7 @@ export enum TAGS {
 export const api = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3001",
+    baseUrl: process.env.API_BASE_URL,
     prepareHeaders: (headers) => {
       return headers;
     },

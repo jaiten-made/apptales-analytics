@@ -1,6 +1,6 @@
 import { EventPayload } from "@apptales/events-schema";
 
-const API_URL = "http://localhost:3001";
+const API_URL = process.env.API_BASE_URL || "http://localhost:3001";
 
 export const sendEvent = async (payload: EventPayload, projectId: string) => {
   console.log("Sending event:", payload);

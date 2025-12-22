@@ -13,12 +13,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import {
-  IconCheck,
-  IconCode,
-  IconCopy,
-  IconX,
-} from "@tabler/icons-react";
+import { IconCheck, IconCode, IconCopy, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 
 interface ProjectIntegrationModalProps {
@@ -39,7 +34,7 @@ const ProjectIntegrationModal = ({
   // Generate the script tag - using data-project-id attribute
   const scriptTag = `<script 
   async 
-  src="http://localhost:3001/tracker.js" 
+  src="${process.env.TRACKER_BASE_URL}/tracker.js" 
   data-project-id="${projectId}">
 </script>`;
 
@@ -54,15 +49,15 @@ const ProjectIntegrationModal = ({
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={onClose} 
-      maxWidth="md" 
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
       fullWidth
       PaperProps={{
         sx: {
           borderRadius: 2,
-        }
+        },
       }}
     >
       <DialogTitle>
@@ -105,8 +100,9 @@ const ProjectIntegrationModal = ({
               Installation
             </Typography>
             <Typography variant="body2" color="text.secondary" paragraph>
-              Copy the script below and paste it in the <code>&lt;head&gt;</code> section of your website, 
-              just before the closing <code>&lt;/head&gt;</code> tag.
+              Copy the script below and paste it in the{" "}
+              <code>&lt;head&gt;</code> section of your website, just before the
+              closing <code>&lt;/head&gt;</code> tag.
             </Typography>
           </Box>
 
@@ -189,16 +185,20 @@ const ProjectIntegrationModal = ({
             </Typography>
             <Stack spacing={1}>
               <Typography variant="body2" color="text.secondary">
-                • The script uses a <code>data-project-id</code> attribute with your unique project ID
+                • The script uses a <code>data-project-id</code> attribute with
+                your unique project ID
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                • The tracker script loads asynchronously and won't block your page load
+                • The tracker script loads asynchronously and won't block your
+                page load
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                • Data will appear in your dashboard within a few seconds of user activity
+                • Data will appear in your dashboard within a few seconds of
+                user activity
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                • Update the tracker URL to your production domain when deploying
+                • Update the tracker URL to your production domain when
+                deploying
               </Typography>
             </Stack>
           </Box>
