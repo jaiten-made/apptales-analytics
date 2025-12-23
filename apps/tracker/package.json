@@ -16,7 +16,7 @@
     "check-types": "tsc --noEmit",
     "worker:deploy": "wrangler deploy",
     "worker:dev": "wrangler dev",
-    "dev": "vite dev --open http://localhost:3002/test/index.html",
+    "dev": "vite dev",
     "preview": "vite preview"
   },
   "dependencies": {
