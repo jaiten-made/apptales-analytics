@@ -1,6 +1,16 @@
 import { EventPayload } from "@apptales/events-schema";
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+/**
+ * Declared global constant replaced at build-time by Vite's `define` plugin.
+ * This prevents the "import.meta" or "process.env" error in the browser.
+ */
+declare const __API_BASE_URL__: string;
+
+/**
+ * We use the constant injected by the bundler.
+ * If for some reason it's undefined during dev, it defaults to the local URL.
+ */
+const API_URL = __API_BASE_URL__;
 
 export const sendEvent = async (payload: EventPayload, projectId: string) => {
   console.log("Sending event:", payload);
