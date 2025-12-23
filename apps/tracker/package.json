@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc && vite build",
     "check-types": "tsc --noEmit",
-    "worker:deploy": "pnpm build & wrangler deploy",
+    "worker:deploy": "pnpm build && wrangler deploy",
     "worker:dev": "pnpm build && wrangler dev",
     "dev": "vite dev",
     "preview": "vite preview"
