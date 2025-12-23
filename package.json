@@ -2,7 +2,7 @@
   "name": "apptales",
   "private": true,
   "scripts": {
-    "dev": "pnpm --recursive run dev",
+    "dev": "pnpm --recursive --parallel run dev",
     "build": "pnpm --recursive run build",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "pnpm run check-types"
