@@ -7,7 +7,9 @@ export default defineConfig(({ mode }) => {
   return {
     define: {
       // Use the loaded env variable or a fallback
-      __API_BASE_URL__: env.VITE_API_BASE_URL || "https://api.apptal.es",
+      __API_BASE_URL__: JSON.stringify(
+        env.VITE_API_BASE_URL || "https://api.apptal.es"
+      ),
     },
     build: {
       lib: {
@@ -20,6 +22,9 @@ export default defineConfig(({ mode }) => {
       terserOptions: {
         compress: {
           drop_console: true,
+        },
+        format: {
+          comments: false,
         },
       },
     },
