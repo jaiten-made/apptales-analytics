@@ -221,11 +221,17 @@
         <h2>🧭 Navigation Tracking</h2>
         <p>Use these buttons to test SPA navigation tracking:</p>
         <div class="button-group">
-          <button class="btn-primary" id="nav-push">Push State (/new-page)</button>
+          <button class="btn-primary" id="nav-push">
+            Push State (/new-page)
+          </button>
           <button class="btn-secondary" id="nav-replace">
             Replace State (/replaced)
           </button>
-          <button class="btn-secondary" style="background-color: #2ecc71" id="nav-hash">
+          <button
+            class="btn-secondary"
+            style="background-color: #2ecc71"
+            id="nav-hash"
+          >
             Hash Change (#test)
           </button>
         </div>
@@ -235,43 +241,43 @@
         </div>
       </div>
 
-    <script>
-      // Add random timestamp to ensure unique paths/hashes for testing
-      document.getElementById("nav-push").addEventListener("click", () => {
-        const path = "/new-page-" + Date.now();
-        console.log("Testing pushState to:", path);
-        history.pushState({}, "", path);
-      });
+      <script>
+        // Add random timestamp to ensure unique paths/hashes for testing
+        document.getElementById("nav-push").addEventListener("click", () => {
+          const path = "/new-page-" + Date.now();
+          console.log("Testing pushState to:", path);
+          history.pushState({}, "", path);
+        });
 
-      document.getElementById("nav-replace").addEventListener("click", () => {
-        const path = "/replaced-" + Date.now();
-        console.log("Testing replaceState to:", path);
-        history.replaceState({}, "", path);
-      });
+        document.getElementById("nav-replace").addEventListener("click", () => {
+          const path = "/replaced-" + Date.now();
+          console.log("Testing replaceState to:", path);
+          history.replaceState({}, "", path);
+        });
 
-      document.getElementById("nav-hash").addEventListener("click", () => {
-        const hash = "#test-" + Date.now();
-        console.log("Testing hash change using location.hash =", hash);
-        window.location.hash = hash;
-      });
+        document.getElementById("nav-hash").addEventListener("click", () => {
+          const hash = "#test-" + Date.now();
+          console.log("Testing hash change using location.hash =", hash);
+          window.location.hash = hash;
+        });
 
-      document.getElementById("nav-back").addEventListener("click", () => {
-        console.log("Testing history.back()");
-        history.back();
-      });
+        document.getElementById("nav-back").addEventListener("click", () => {
+          console.log("Testing history.back()");
+          history.back();
+        });
 
-      document.getElementById("nav-forward").addEventListener("click", () => {
-        console.log("Testing history.forward()");
-        history.forward();
-      });
-    </script>
+        document.getElementById("nav-forward").addEventListener("click", () => {
+          console.log("Testing history.forward()");
+          history.forward();
+        });
+      </script>
     </div>
 
     <!-- Tracker Script -->
     <!-- Tracker Script for development -->
     <script
       type="module"
-      data-project-id="cmjco0tdu0002t1dl9hc64kg6"
+      data-project-id="cmjijjtsi0010t1mm5745mihs"
       src="./main.ts"
     ></script>
   </body>

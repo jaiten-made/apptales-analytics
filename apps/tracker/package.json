@@ -15,10 +15,9 @@
     "build": "tsc && vite build",
     "check-types": "tsc --noEmit",
     "worker:deploy": "wrangler deploy",
-    "dev": "wrangler dev",
-    "preview": "vite preview",
-    "serve": "npx http-server ./test --cors -p 3333",
-    "test": "vite --open"
+    "worker:dev": "wrangler dev",
+    "dev": "vite dev --open http://localhost:3002/test/index.html",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@apptales/events-schema": "workspace:*",
