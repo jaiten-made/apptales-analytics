@@ -153,11 +153,14 @@ const ProjectIntegrationModal = ({
       </DialogContent>
 
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose} variant="outlined">
+          Close
+        </Button>
         <Button
           startIcon={copied ? <IconCheck /> : <IconCopy />}
           onClick={handleCopy}
           color={copied ? "success" : "primary"}
+          variant="contained"
         >
           {copied ? "Copied!" : "Copy Script"}
         </Button>

@@ -12,6 +12,7 @@ import {
   ListItemButton,
   ListItemText,
   Paper,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
@@ -78,11 +79,17 @@ const ProjectsList = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
         <Typography variant="h4" component="h1">
           Projects
         </Typography>
         <Button
+          variant="contained"
           startIcon={<IconPlus />}
           onClick={() => setIsCreateOpen(true)}
         >
@@ -97,15 +104,7 @@ const ProjectsList = () => {
               key={project.id}
               disablePadding
               secondaryAction={
-                <Box>
-                  <IconButton
-                    edge="end"
-                    aria-label="integration"
-                    onClick={(e) => handleOpenIntegration(project, e)}
-                    sx={{ mr: 1 }}
-                  >
-                    <IconCode />
-                  </IconButton>
+                <Stack direction="row" spacing={0.5}>
                   <IconButton
                     edge="end"
                     aria-label="edit"
@@ -113,21 +112,30 @@ const ProjectsList = () => {
                       e.stopPropagation();
                       navigate(`/projects/${project.id}`);
                     }}
-                    sx={{ mr: 1 }}
                   >
                     <IconEdit />
                   </IconButton>
                   <IconButton
                     edge="end"
+                    aria-label="integration"
+                    onClick={(e) => handleOpenIntegration(project, e)}
+                  >
+                    <IconCode />
+                  </IconButton>
+                  <IconButton
+                    edge="end"
                     aria-label="delete"
                     onClick={(e) => handleDelete(project.id, e)}
+                    color="error"
                   >
                     <IconTrash />
                   </IconButton>
-                </Box>
+                </Stack>
               }
             >
-              <ListItemButton onClick={() => navigate(`/projects/${project.id}`)}>
+              <ListItemButton
+                onClick={() => navigate(`/projects/${project.id}`)}
+              >
                 <ListItemText
                   primary={project.name}
                   secondary={`Created: ${new Date(project.createdAt).toLocaleDateString()}`}
@@ -158,9 +166,7 @@ const ProjectsList = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreate} >
-            Create
-          </Button>
+          <Button onClick={handleCreate}>Create</Button>
         </DialogActions>
       </Dialog>
 

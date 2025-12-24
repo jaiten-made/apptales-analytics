@@ -48,6 +48,7 @@ const ProjectPage = () => {
       >
         <Box display="flex" alignItems="center" gap={2}>
           <Button
+            variant="outlined"
             startIcon={<IconArrowLeft />}
             onClick={() => navigate("/projects")}
           >
@@ -58,6 +59,7 @@ const ProjectPage = () => {
           </Typography>
         </Box>
         <Button
+          variant="outlined"
           startIcon={<IconCode />}
           onClick={() => setIsIntegrationModalOpen(true)}
         >

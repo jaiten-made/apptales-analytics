@@ -25,7 +25,16 @@ const NavBar = () => {
           }}
         >
           <Box display="flex" alignItems="center" gap={1}>
-            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
+            <Link
+              to="/"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                textDecoration: "none",
+                color: "inherit",
+              }}
+            >
               <Box
                 component="img"
                 src="/logo.svg"
@@ -44,7 +53,7 @@ const NavBar = () => {
               </Typography>
             </Link>
           </Box>
-          <Button onClick={() => signOut()}>
+          <Button onClick={() => signOut()} variant="contained">
             Sign Out
           </Button>
         </Box>
