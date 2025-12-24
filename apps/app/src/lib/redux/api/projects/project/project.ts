@@ -13,6 +13,14 @@ export interface PathTransition {
   count: number;
 }
 
+export interface EventIdentity {
+  id: string;
+  key: string;
+  type: string;
+  name: string;
+  eventCount: number;
+}
+
 const BASE_URL = (projectId: string) => `/projects/${projectId}`;
 
 export const projectApi = baseApi.injectEndpoints({
@@ -24,16 +32,17 @@ export const projectApi = baseApi.injectEndpoints({
       query: () => "/projects",
       providesTags: [TAGS.PROJECT],
     }),
-    createProject: builder.mutation<{ id: string; name: string }, { name: string }>(
-      {
-        query: (body) => ({
-          url: "/projects",
-          method: "POST",
-          body,
-        }),
-        invalidatesTags: [TAGS.PROJECT],
-      }
-    ),
+    createProject: builder.mutation<
+      { id: string; name: string },
+      { name: string }
+    >({
+      query: (body) => ({
+        url: "/projects",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [TAGS.PROJECT],
+    }),
     getProject: builder.query<{ id: string; name: string }, string>({
       query: (id) => `/projects/${id}`,
       providesTags: (_result, _error, id) => [{ type: TAGS.PROJECT, id }],
@@ -59,14 +68,24 @@ export const projectApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [TAGS.PROJECT],
     }),
-    getPathExploration: builder.query<FlowGraph, string>({
-      query: (projectId) => `${BASE_URL(projectId)}/path-exploration`,
+    getPathExploration: builder.query<
+      FlowGraph,
+      { projectId: string; startingEventKey?: string }
+    >({
+      query: ({ projectId, startingEventKey }) => ({
+        url: `${BASE_URL(projectId)}/path-exploration`,
+        params: startingEventKey ? { startingEventKey } : undefined,
+      }),
+    }),
+    getEventIdentities: builder.query<EventIdentity[], string>({
+      query: (projectId) => `${BASE_URL(projectId)}/event-identities`,
     }),
   }),
 });
 
 export const {
   useGetPathExplorationQuery,
+  useGetEventIdentitiesQuery,
   useGetProjectsQuery,
   useCreateProjectMutation,
   useGetProjectQuery,
