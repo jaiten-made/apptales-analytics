@@ -146,8 +146,4 @@ function createEventTracker() {
   };
 }
 
-if (typeof window !== "undefined") {
-  createEventTracker();
-}
-
 export default createEventTracker;
