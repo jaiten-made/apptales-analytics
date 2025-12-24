@@ -5,7 +5,8 @@ export const applyCorsAllowOrigin = (
   res: Response,
   next: NextFunction
 ) => {
-  const allowedOrigin = process.env.API_BASE_URL;
+  const allowedOrigin = process.env.TRACKER_BASE_URL;
+  console.log();
   if (allowedOrigin) {
     res.set("Access-Control-Allow-Origin", allowedOrigin);
   }
