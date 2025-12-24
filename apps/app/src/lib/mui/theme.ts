@@ -18,8 +18,8 @@ const theme = createTheme({
   components: {
     MuiButton: {
       defaultProps: {
-        variant: "outlined",
-        disableElevation: true
+        disableElevation: true,
+        style: { textTransform: "capitalize" },
       },
     },
   },
