@@ -1,5 +1,4 @@
 import cookieParser from "cookie-parser";
-import cors from "cors";
 import dotenv from "dotenv";
 import express, {
   NextFunction,
@@ -11,6 +10,7 @@ import jwt from "jsonwebtoken";
 import path from "path";
 import { ZodError } from "zod";
 import HttpError from "./errors/HttpError";
+import corsMiddleware from "./middleware/cors";
 import {
   authMagicLinkRateLimitMiddleware,
   authRateLimitMiddleware,
@@ -40,13 +40,7 @@ dotenv.config({
 const app = express();
 app.set("trust proxy", 1);
 
-app.use(
-  cors({
-    origin: [process.env.APP_BASE_URL!, process.env.TRACKER_BASE_URL!],
-    credentials: true,
-  })
-);
-
+app.use(corsMiddleware);
 app.use(express.json());
 app.use(cookieParser());
 
