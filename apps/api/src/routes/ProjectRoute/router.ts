@@ -89,18 +89,30 @@ router.get(
     next: express.NextFunction
   ) => {
     const { projectId } = req.params;
+    const { search, limit = "10" } = req.query;
 
     try {
-      const eventIdentities = await prisma.eventIdentity.findMany({
-        where: {
-          events: {
-            some: {
-              session: {
-                projectId,
-              },
+      // Build where clause with optional search
+      const whereClause: any = {
+        events: {
+          some: {
+            session: {
+              projectId,
             },
           },
         },
+      };
+
+      // Add search filter if provided
+      if (search && typeof search === "string") {
+        whereClause.key = {
+          contains: search,
+          mode: "insensitive",
+        };
+      }
+
+      const eventIdentities = await prisma.eventIdentity.findMany({
+        where: whereClause,
         select: {
           id: true,
           key: true,
@@ -115,6 +127,7 @@ router.get(
             _count: "desc",
           },
         },
+        take: Math.min(parseInt(limit as string) || 10, 50), // Max 50 results
       });
 
       // Parse event keys into type and name

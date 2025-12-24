@@ -77,8 +77,14 @@ export const projectApi = baseApi.injectEndpoints({
         params: startingEventKey ? { startingEventKey } : undefined,
       }),
     }),
-    getEventIdentities: builder.query<EventIdentity[], string>({
-      query: (projectId) => `${BASE_URL(projectId)}/event-identities`,
+    getEventIdentities: builder.query<
+      EventIdentity[],
+      { projectId: string; search?: string }
+    >({
+      query: ({ projectId, search }) => ({
+        url: `${BASE_URL(projectId)}/event-identities`,
+        params: search ? { search } : undefined,
+      }),
     }),
   }),
 });
