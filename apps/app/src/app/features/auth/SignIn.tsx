@@ -72,11 +72,11 @@ export default function SignIn() {
             }}
           />
           <Button
+            variant="contained"
             type="submit"
             disabled={isLoading}
             fullWidth
             size="large"
-            sx={{ textTransform: "none" }}
           >
             {isLoading ? <CircularProgress size={24} /> : "Sign in with email"}
           </Button>
