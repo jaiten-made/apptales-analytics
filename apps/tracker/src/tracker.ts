@@ -19,19 +19,19 @@ function createEventTracker() {
   async function sendPageView(): Promise<void> {
     try {
       const currentPath = location.pathname + location.search + location.hash;
-      
+
       // Avoid duplicate tracking of the same path
       if (currentPath === lastTrackedPath) {
         console.log("Skipping duplicate page view for:", currentPath);
         return;
       }
-      
+
       lastTrackedPath = currentPath;
       console.log("Sending page view event for:", currentPath);
-      
+
       const projectId = getProjectId();
       if (!projectId) throw new Error("Project ID not found");
-      
+
       const pageViewEvent: EventPayload = {
         type: "page_view",
         properties: {
@@ -51,29 +51,31 @@ function createEventTracker() {
     try {
       const target = event.target as Element;
       // prioritize interactive elements
-      const element = target.closest('button, a, input, [role="button"]') || target;
-      
-      let identifier = 
-        element.getAttribute('data-track-id') || 
-        element.getAttribute('aria-label') || 
-        ('innerText' in element ? (element as HTMLElement).innerText : '') ||
-        (element instanceof HTMLInputElement ? element.value : '') ||
+      const element =
+        target.closest('button, a, input, [role="button"]') || target;
+
+      let identifier =
+        element.getAttribute("data-track-id") ||
+        element.getAttribute("aria-label") ||
+        ("innerText" in element ? (element as HTMLElement).innerText : "") ||
+        (element instanceof HTMLInputElement ? element.value : "") ||
         element.id ||
         pluginFallbackIdentifier(element);
 
       if (!identifier) return;
-      
+
       identifier = identifier.trim();
       if (identifier.length === 0) return;
-      if (identifier.length > 50) identifier = identifier.substring(0, 50) + "...";
+      if (identifier.length > 50)
+        identifier = identifier.substring(0, 50) + "...";
 
       const clickEvent: EventPayload = {
         type: `click:${identifier}`,
       };
-      
+
       const projectId = getProjectId();
       if (!projectId) return;
-      
+
       sendEvent(clickEvent, projectId);
     } catch (error) {
       console.error("Error tracking click:", error);
@@ -82,10 +84,10 @@ function createEventTracker() {
 
   function pluginFallbackIdentifier(el: Element): string {
     // Basic fallback for images or special cases
-    if (el.tagName.toLowerCase() === 'img') {
-        return el.getAttribute('alt') || '';
+    if (el.tagName.toLowerCase() === "img") {
+      return el.getAttribute("alt") || "";
     }
-    return '';
+    return "";
   }
 
   // Intercept History API for SPA navigation tracking (industry standard approach)
@@ -142,6 +144,10 @@ function createEventTracker() {
     destroy,
     trackPageView: sendPageView, // Expose for manual tracking if needed
   };
+}
+
+if (typeof window !== "undefined") {
+  createEventTracker();
 }
 
 export default createEventTracker;
