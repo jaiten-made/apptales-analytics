@@ -6,17 +6,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   List,
   ListItem,
-  ListItemButton,
   ListItemText,
   Paper,
-  Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import { IconCode, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -25,6 +22,7 @@ import {
   useGetProjectsQuery,
 } from "../../../lib/redux/api/projects/project/project";
 import ProjectIntegrationModal from "./components/ProjectIntegrationModal";
+import ProjectListItem from "./components/ProjectListItem";
 
 const ProjectsList = () => {
   const navigate = useNavigate();
@@ -100,48 +98,14 @@ const ProjectsList = () => {
       <Paper elevation={1}>
         <List>
           {projects?.map((project) => (
-            <ListItem
+            <ProjectListItem
               key={project.id}
-              disablePadding
-              secondaryAction={
-                <Stack direction="row" spacing={0.5}>
-                  <IconButton
-                    edge="end"
-                    aria-label="edit"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/projects/${project.id}`);
-                    }}
-                  >
-                    <IconEdit />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    aria-label="integration"
-                    onClick={(e) => handleOpenIntegration(project, e)}
-                  >
-                    <IconCode />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    aria-label="delete"
-                    onClick={(e) => handleDelete(project.id, e)}
-                    color="error"
-                  >
-                    <IconTrash />
-                  </IconButton>
-                </Stack>
-              }
-            >
-              <ListItemButton
-                onClick={() => navigate(`/projects/${project.id}`)}
-              >
-                <ListItemText
-                  primary={project.name}
-                  secondary={`Created: ${new Date(project.createdAt).toLocaleDateString()}`}
-                />
-              </ListItemButton>
-            </ListItem>
+              project={project}
+              onEdit={(projectId) => navigate(`/projects/${projectId}`)}
+              onIntegration={handleOpenIntegration}
+              onDelete={handleDelete}
+              onClick={(projectId) => navigate(`/projects/${projectId}`)}
+            />
           ))}
           {projects?.length === 0 && (
             <ListItem>
