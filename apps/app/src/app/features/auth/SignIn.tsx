@@ -17,15 +17,12 @@ import { useSendMagicLinkMutation } from "../../../lib/redux/api/auth/auth";
  */
 export default function SignIn() {
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sendMagicLink] = useSendMagicLinkMutation();
+  const [sendMagicLink, { isSuccess, isLoading }] = useSendMagicLinkMutation();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setSent(false);
     try {
       if (!email.trim()) throw new Error("Email is required");
       const emailPattern = /.+@.+\..+/;
@@ -36,8 +33,6 @@ export default function SignIn() {
         return setError(error.message);
       }
       setError("Failed to send magic link");
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -68,7 +63,7 @@ export default function SignIn() {
             onChange={(e) => setEmail(e.target.value)}
             required
             fullWidth
-            disabled={loading}
+            disabled={isLoading}
             placeholder="name@example.com"
             slotProps={{
               inputLabel: {
@@ -78,15 +73,15 @@ export default function SignIn() {
           />
           <Button
             type="submit"
-            disabled={loading}
+            disabled={isLoading}
             fullWidth
             size="large"
             sx={{ textTransform: "none" }}
           >
-            {loading ? <CircularProgress size={24} /> : "Sign in with email"}
+            {isLoading ? <CircularProgress size={24} /> : "Sign in with email"}
           </Button>
           {error && <Alert severity="error">{error}</Alert>}
-          {sent && <Alert severity="success">Magic link sent</Alert>}
+          {isSuccess && <Alert severity="success">Magic link sent</Alert>}
         </Box>
       </Paper>
     </Box>
