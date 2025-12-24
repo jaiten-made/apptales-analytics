@@ -11,7 +11,6 @@ interface ProjectListItemProps {
   project: {
     id: string;
     name: string;
-    createdAt: string;
   };
   onEdit: (projectId: string) => void;
   onIntegration: (
@@ -64,10 +63,7 @@ const ProjectListItem = ({
       }
     >
       <ListItemButton onClick={() => onClick(project.id)}>
-        <ListItemText
-          primary={project.name}
-          secondary={`Created: ${new Date(project.createdAt).toLocaleDateString()}`}
-        />
+        <ListItemText primary={project.name} />
       </ListItemButton>
     </ListItem>
   );

@@ -6,6 +6,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   List,
   ListItem,
   ListItemText,
@@ -95,17 +96,19 @@ const ProjectsList = () => {
         </Button>
       </Box>
 
-      <Paper elevation={1}>
-        <List>
-          {projects?.map((project) => (
-            <ProjectListItem
-              key={project.id}
-              project={project}
-              onEdit={(projectId) => navigate(`/projects/${projectId}`)}
-              onIntegration={handleOpenIntegration}
-              onDelete={handleDelete}
-              onClick={(projectId) => navigate(`/projects/${projectId}`)}
-            />
+      <Paper variant="outlined">
+        <List disablePadding>
+          {projects?.map((project, index) => (
+            <Box key={project.id}>
+              <ProjectListItem
+                project={project}
+                onEdit={(projectId) => navigate(`/projects/${projectId}`)}
+                onIntegration={handleOpenIntegration}
+                onDelete={handleDelete}
+                onClick={(projectId) => navigate(`/projects/${projectId}`)}
+              />
+              {index < projects.length - 1 && <Divider />}
+            </Box>
           ))}
           {projects?.length === 0 && (
             <ListItem>
