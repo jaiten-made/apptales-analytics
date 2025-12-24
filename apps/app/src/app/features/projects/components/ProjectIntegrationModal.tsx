@@ -1,5 +1,4 @@
 import {
-  Alert,
   Box,
   Button,
   Dialog,
@@ -33,7 +32,7 @@ const ProjectIntegrationModal = ({
 
   // Generate the script tag - using data-project-id attribute
   const scriptTag = `<script 
-  async 
+  type="module" 
   src="${import.meta.env.VITE_TRACKER_BASE_URL}/tracker.js" 
   data-project-id="${projectId}">
 </script>`;
@@ -72,9 +71,6 @@ const ProjectIntegrationModal = ({
             <IconX />
           </IconButton>
         </Box>
-        <Typography variant="body2" color="text.secondary" mt={1}>
-          Add this script to your website to start tracking user journeys
-        </Typography>
       </DialogTitle>
 
       <DialogContent>
@@ -87,22 +83,14 @@ const ProjectIntegrationModal = ({
             <Typography variant="body1" fontWeight={500}>
               {projectName}
             </Typography>
-            <Typography variant="caption" color="text.secondary">
-              ID: {projectId}
-            </Typography>
           </Box>
 
           <Divider />
 
           {/* Installation Instructions */}
           <Box>
-            <Typography variant="h6" gutterBottom>
-              Installation
-            </Typography>
-            <Typography variant="body2" color="text.secondary" paragraph>
-              Copy the script below and paste it in the{" "}
-              <code>&lt;head&gt;</code> section of your website, just before the
-              closing <code>&lt;/head&gt;</code> tag.
+            <Typography variant="body2" color="text.secondary">
+              Add the below script to your <code>&lt;head&gt;</code> section:
             </Typography>
           </Box>
 
@@ -161,47 +149,6 @@ const ProjectIntegrationModal = ({
               <code>{scriptTag}</code>
             </Box>
           </Paper>
-
-          {/* What happens next */}
-          <Alert severity="info" icon={false}>
-            <Typography variant="subtitle2" gutterBottom>
-              What happens next?
-            </Typography>
-            <Typography variant="body2" component="div">
-              Once installed, AppTales will automatically:
-              <Box component="ul" sx={{ mt: 1, mb: 0, pl: 2 }}>
-                <li>Track page views and navigation</li>
-                <li>Record user interactions and events</li>
-                <li>Build user journey maps</li>
-                <li>Provide analytics on user behavior</li>
-              </Box>
-            </Typography>
-          </Alert>
-
-          {/* Additional Notes */}
-          <Box>
-            <Typography variant="subtitle2" gutterBottom>
-              Important Notes
-            </Typography>
-            <Stack spacing={1}>
-              <Typography variant="body2" color="text.secondary">
-                • The script uses a <code>data-project-id</code> attribute with
-                your unique project ID
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                • The tracker script loads asynchronously and won't block your
-                page load
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                • Data will appear in your dashboard within a few seconds of
-                user activity
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                • Update the tracker URL to your production domain when
-                deploying
-              </Typography>
-            </Stack>
-          </Box>
         </Stack>
       </DialogContent>
 
