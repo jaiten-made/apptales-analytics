@@ -3,6 +3,7 @@ import express, { NextFunction, Request, Response } from "express";
 import HttpError from "../../errors/HttpError";
 import { prisma } from "../../lib/prisma/client";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
+import { disableCors } from "../../middleware/cors";
 import { validateEventPayload } from "../../middleware/validation/validateEvent";
 import { checkSessionExpiry } from "./middleware";
 
@@ -63,6 +64,7 @@ router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
 // It validates the projectId exists but doesn't require user authentication
 router.post(
   "/",
+  disableCors,
   checkSessionExpiry,
   validateEventPayload,
   async (req: Request<{}, {}, Event>, res: Response, next: NextFunction) => {
