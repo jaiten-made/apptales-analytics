@@ -81,7 +81,11 @@ export default function SignIn() {
             {isLoading ? <CircularProgress size={24} /> : "Sign in with email"}
           </Button>
           {error && <Alert severity="error">{error}</Alert>}
-          {isSuccess && <Alert severity="success">Magic link sent</Alert>}
+          {isSuccess && (
+            <Alert severity="success">
+              Magic link sent! Please check your email.
+            </Alert>
+          )}
         </Box>
       </Paper>
     </Box>
