@@ -2,52 +2,34 @@ import {
   Box,
   Button,
   Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Divider,
   List,
   ListItem,
   ListItemText,
   Paper,
-  TextField,
   Typography,
 } from "@mui/material";
 import { IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  useCreateProjectMutation,
   useDeleteProjectMutation,
   useGetProjectsQuery,
 } from "../../../lib/redux/api/projects/project/project";
+import CreateProjectDialog from "./components/CreateProjectDialog";
 import ProjectIntegrationModal from "./components/ProjectIntegrationModal";
 import ProjectListItem from "./components/ProjectListItem";
 
 const ProjectsList = () => {
   const navigate = useNavigate();
   const { data: projects, isLoading } = useGetProjectsQuery();
-  const [createProject] = useCreateProjectMutation();
   const [deleteProject] = useDeleteProjectMutation();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
   const [integrationProject, setIntegrationProject] = useState<{
     id: string;
     name: string;
   } | null>(null);
-
-  const handleCreate = async () => {
-    if (!newProjectName.trim()) return;
-    try {
-      await createProject({ name: newProjectName }).unwrap();
-      setIsCreateOpen(false);
-      setNewProjectName("");
-    } catch (error) {
-      console.error("Failed to create project", error);
-    }
-  };
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -118,24 +100,10 @@ const ProjectsList = () => {
         </List>
       </Paper>
 
-      <Dialog open={isCreateOpen} onClose={() => setIsCreateOpen(false)}>
-        <DialogTitle>Create New Project</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Project Name"
-            fullWidth
-            variant="outlined"
-            value={newProjectName}
-            onChange={(e) => setNewProjectName(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsCreateOpen(false)}>Cancel</Button>
-          <Button onClick={handleCreate}>Create</Button>
-        </DialogActions>
-      </Dialog>
+      <CreateProjectDialog
+        open={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+      />
 
       {/* Integration Modal */}
       {integrationProject && (
