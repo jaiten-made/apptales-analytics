@@ -49,11 +49,9 @@ const FocusOnMount: React.FC<{ nodes: any[] }> = ({ nodes }) => {
 const FlowGraphContent: React.FC<{
   projectId: string;
   startingEventId: string;
-  startingEventKey: string;
   onEventSelect: (eventId: string, eventKey: string) => void;
 }> = ({ projectId, startingEventId, onEventSelect }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(true);
 
   const {
     data: graph,
@@ -131,68 +129,19 @@ const FlowGraphContent: React.FC<{
     []
   );
 
+  // Render content based on state
+  let content: React.ReactNode = null;
+
   if (isLoading) {
-    return (
-      <Box
-        display="flex"
-        height="100vh"
-        width="100%"
-        overflow="hidden"
-        position="relative"
-      >
-        <EventDiscoveryPanel
-          projectId={projectId}
-          selectedEventId={startingEventId}
-          onEventSelect={onEventSelect}
-          open={drawerOpen}
-        />
+    content = null; // Just show the drawer
+  } else if (error || !graph) {
+    content = (
+      <Box flex={1} display="flex" alignItems="center" justifyContent="center">
+        <Typography color="error">Error loading flow graph</Typography>
       </Box>
     );
-  }
-
-  if (error || !graph) {
-    return (
-      <Box
-        display="flex"
-        height="100%"
-        width="100%"
-        overflow="hidden"
-        position="relative"
-      >
-        <EventDiscoveryPanel
-          projectId={projectId}
-          selectedEventId={startingEventId}
-          onEventSelect={onEventSelect}
-          open={drawerOpen}
-        />
-        <Box
-          flex={1}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Typography color="error">Error loading flow graph</Typography>
-        </Box>
-      </Box>
-    );
-  }
-
-  return (
-    <Box
-      display="flex"
-      height="100%"
-      width="100%"
-      overflow="hidden"
-      position="relative"
-    >
-      <EventDiscoveryPanel
-        projectId={projectId}
-        selectedEventId={startingEventId}
-        onEventSelect={onEventSelect}
-        open={drawerOpen}
-      />
-
-      {/* Flow Graph */}
+  } else {
+    content = (
       <Box flex={1} bgcolor="gray.50" height="100%" position="relative">
         {/* cursor overrides */}
         <style>{`
@@ -226,22 +175,38 @@ const FlowGraphContent: React.FC<{
           </ReactFlow>
         </ReactFlowProvider>
       </Box>
+    );
+  }
+
+  // Common layout wrapper with EventDiscoveryPanel
+  return (
+    <Box
+      display="flex"
+      height="100%"
+      width="100%"
+      overflow="hidden"
+      position="relative"
+    >
+      <EventDiscoveryPanel
+        projectId={projectId}
+        selectedEventId={startingEventId}
+        onEventSelect={onEventSelect}
+        open
+      />
+      {content}
     </Box>
   );
 };
 
 const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
   const [startingEventId, setStartingEventId] = useState<string | null>(null);
-  const [startingEventKey, setStartingEventKey] = useState<string | null>(null);
-  const [drawerOpen, setDrawerOpen] = useState(true);
 
-  const handleEventSelect = (eventId: string, eventKey: string) => {
+  const handleEventSelect = (eventId: string, _eventKey: string) => {
     setStartingEventId(eventId);
-    setStartingEventKey(eventKey);
   };
 
   // Show empty state when no starting point is selected
-  if (!startingEventId || !startingEventKey) {
+  if (!startingEventId) {
     return (
       <Box
         display="flex"
@@ -254,7 +219,7 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
           projectId={projectId}
           selectedEventId={startingEventId}
           onEventSelect={handleEventSelect}
-          open={drawerOpen}
+          open
         />
 
         {/* Empty State */}
@@ -290,7 +255,6 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
     <FlowGraphContent
       projectId={projectId}
       startingEventId={startingEventId}
-      startingEventKey={startingEventKey}
       onEventSelect={handleEventSelect}
     />
   );
