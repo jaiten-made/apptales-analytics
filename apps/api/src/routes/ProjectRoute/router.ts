@@ -335,25 +335,34 @@ router.get(
       }
 
       // Convert node map to array and add counts
-      // Calculate count for each node (sum of incoming transitions)
-      const nodeCountMap = new Map<string, number>();
-      graph.edges.forEach((edge) => {
-        const current = nodeCountMap.get(edge.to) || 0;
-        nodeCountMap.set(edge.to, current + edge.count);
+      // Fetch actual event counts for each node from the database
+      const nodeIds = Array.from(nodeMap.keys()).filter(
+        (id) => !id.includes("-more-")
+      );
+
+      const eventCounts = await prisma.event.groupBy({
+        by: ["eventIdentityId"],
+        where: {
+          eventIdentityId: {
+            in: nodeIds,
+          },
+          session: {
+            projectId,
+          },
+        },
+        _count: {
+          id: true,
+        },
       });
 
-      // For anchor node (step 0), calculate count from outgoing transitions
-      // since it has no incoming edges
-      const anchorOutgoingCount = graph.edges
-        .filter((edge) => edge.from === anchorEventId)
-        .reduce((sum, edge) => sum + edge.count, 0);
-      if (anchorOutgoingCount > 0) {
-        nodeCountMap.set(anchorEventId, anchorOutgoingCount);
-      }
+      const nodeCountMap = new Map<string, number>();
+      eventCounts.forEach((result) => {
+        nodeCountMap.set(result.eventIdentityId, result._count.id);
+      });
 
       graph.nodes = Array.from(nodeMap.values()).map((node) => ({
         ...node,
-        count: nodeCountMap.get(node.id) || 0,
+        count: node.isAggregate ? 0 : nodeCountMap.get(node.id) || 0,
       }));
 
       return res.status(200).json(graph);
