@@ -9,9 +9,9 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className="flex flex-col w-full h-screen">
+      <Box className="flex flex-col w-full h-screen overflow-hidden">
         {!hideHeader && <NavBar />}
-        <Box className="flex justify-center grow">
+        <Box className="flex justify-center grow overflow-hidden">
           {/* <MainDrawer /> */}
           <main className="flex flex-col grow h-full">
             <Outlet />

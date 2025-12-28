@@ -176,7 +176,7 @@ const FlowGraphContent: React.FC<{
     return (
       <Box
         display="flex"
-        height="100vh"
+        height="100%"
         width="100%"
         overflow="hidden"
         position="relative"
@@ -216,7 +216,7 @@ const FlowGraphContent: React.FC<{
   return (
     <Box
       display="flex"
-      height="100vh"
+      height="100%"
       width="100%"
       overflow="hidden"
       position="relative"
@@ -295,7 +295,7 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
     return (
       <Box
         display="flex"
-        height="100vh"
+        height="100%"
         width="100%"
         overflow="hidden"
         position="relative"
