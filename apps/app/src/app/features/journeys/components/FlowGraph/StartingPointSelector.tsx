@@ -102,11 +102,11 @@ const StartingPointSelector: React.FC<StartingPointSelectorProps> = ({
             label="Starting Point"
             placeholder="Type to search events..."
             helperText={
-              inputValue.length >= 2 && eventOptions.length >= 10
-                ? "Showing top 10 results. Be more specific to narrow down."
-                : inputValue.length >= 2 && eventOptions.length > 0
+              inputValue.length < 2
+                ? "Type at least 2 characters"
+                : eventOptions.length > 0
                   ? `Found ${eventOptions.length} event${eventOptions.length !== 1 ? "s" : ""}`
-                  : "Type at least 2 characters"
+                  : "No events found"
             }
           />
         )}

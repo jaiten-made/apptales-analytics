@@ -51,7 +51,7 @@ const FlowGraphContent: React.FC<{
   startingEventId: string;
   startingEventKey: string;
   onEventSelect: (eventId: string, eventKey: string) => void;
-}> = ({ projectId, startingEventId, startingEventKey, onEventSelect }) => {
+}> = ({ projectId, startingEventId, onEventSelect }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   const {

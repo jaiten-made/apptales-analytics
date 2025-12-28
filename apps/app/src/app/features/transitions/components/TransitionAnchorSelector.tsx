@@ -11,20 +11,9 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import { useCallback, useState } from "react";
+import { skipToken } from "@reduxjs/toolkit/query";
+import { useEffect, useState } from "react";
 import { useGetEventIdentitiesQuery } from "../../../../lib/redux/api/projects/project/project";
-
-// Simple debounce implementation
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null;
-  return (...args: Parameters<T>) => {
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-}
 
 interface TransitionAnchorSelectorProps {
   projectId: string;
@@ -52,25 +41,24 @@ export function TransitionAnchorSelector({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  // Debounce search to avoid too many API calls
-  const debouncedSetSearch = useCallback(
-    debounce((value: string) => {
-      setDebouncedSearch(value);
-    }, 300),
-    []
-  );
+  // Debounce search input to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
-    if (value.length >= 2 || value.length === 0) {
-      debouncedSetSearch(value);
-    }
   };
 
-  const { data: eventIdentities = [], isLoading } = useGetEventIdentitiesQuery({
-    projectId,
-    search: debouncedSearch,
-  });
+  // Only fetch if user has typed at least 2 characters
+  const shouldFetch = debouncedSearch.length >= 2;
+
+  const { data: eventIdentities = [], isLoading } = useGetEventIdentitiesQuery(
+    shouldFetch ? { projectId, search: debouncedSearch } : skipToken
+  );
 
   const selectedEvent = eventIdentities.find((e) => e.id === anchorEventId);
 

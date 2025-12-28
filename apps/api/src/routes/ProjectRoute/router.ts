@@ -94,7 +94,7 @@ router.get(
     next: express.NextFunction
   ) => {
     const { projectId } = req.params;
-    const { category, limit = "50" } = req.query;
+    const { category, limit = "50", search } = req.query;
 
     try {
       // Build where clause with required category filter
@@ -111,6 +111,14 @@ router.get(
       // Add category filter if provided
       if (category && typeof category === "string") {
         whereClause.category = category;
+      }
+
+      // Add search filter if provided
+      if (search && typeof search === "string" && search.length >= 2) {
+        whereClause.key = {
+          contains: search,
+          mode: "insensitive",
+        };
       }
 
       const eventIdentities = await prisma.eventIdentity.findMany({

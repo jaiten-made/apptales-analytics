@@ -96,11 +96,14 @@ export const projectApi = baseApi.injectEndpoints({
     }),
     getEventIdentities: builder.query<
       EventIdentity[],
-      { projectId: string; category?: string }
+      { projectId: string; category?: string; search?: string }
     >({
-      query: ({ projectId, category }) => ({
+      query: ({ projectId, category, search }) => ({
         url: `${BASE_URL(projectId)}/event-identities`,
-        params: category ? { category } : undefined,
+        params: {
+          ...(category && { category }),
+          ...(search && { search }),
+        },
       }),
     }),
     getTransitions: builder.query<

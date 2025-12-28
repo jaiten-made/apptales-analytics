@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       lib: {
-        entry: resolve(__dirname, "src/index.ts"),
+        entry: resolve(__dirname, "src/main.ts"),
         name: "AppTalesTracker",
         formats: ["iife"],
         fileName: () => "tracker.js",
