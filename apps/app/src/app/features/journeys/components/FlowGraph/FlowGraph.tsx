@@ -11,12 +11,9 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import theme from "../../../../../lib/mui/theme";
-import {
-  useGetEventIdentitiesQuery,
-  useGetTransitionsQuery,
-} from "../../../../../lib/redux/api/projects/project/project";
+import { useGetTransitionsQuery } from "../../../../../lib/redux/api/projects/project/project";
+import { EventDiscoveryPanel } from "../../../shared/components/EventDiscoveryPanel";
 import { buildTransitionGraph } from "./buildTransitionGraph";
-import StartingPointSelector from "./StartingPointSelector";
 import { StepHeaderNode } from "./StepHeaderNode";
 import { StepNode } from "./StepNode";
 
@@ -51,39 +48,23 @@ const FocusOnMount: React.FC<{ nodes: any[] }> = ({ nodes }) => {
 
 const FlowGraphContent: React.FC<{
   projectId: string;
+  startingEventId: string;
   startingEventKey: string;
-  onEventKeyChange: (key: string | null) => void;
-}> = ({ projectId, startingEventKey, onEventKeyChange }) => {
+  onEventSelect: (eventId: string, eventKey: string) => void;
+}> = ({ projectId, startingEventId, startingEventKey, onEventSelect }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-
-  // Get the event identity ID from the key
-  const { data: eventIdentities } = useGetEventIdentitiesQuery({
-    projectId,
-    search: startingEventKey || "",
-  });
-
-  const startingEventId = eventIdentities?.find(
-    (e) => e.key === startingEventKey
-  )?.id;
 
   const {
     data: graph,
     isLoading,
     error,
-  } = useGetTransitionsQuery(
-    startingEventId
-      ? {
-          projectId,
-          anchorEventId: startingEventId,
-          direction: "forward",
-          topN: 5,
-          depth: 3,
-        }
-      : ({ projectId: "", anchorEventId: "" } as any),
-    {
-      skip: !startingEventId,
-    }
-  );
+  } = useGetTransitionsQuery({
+    projectId,
+    anchorEventId: startingEventId,
+    direction: "forward",
+    topN: 5,
+    depth: 3,
+  });
 
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
     () => (graph ? buildTransitionGraph(graph) : { nodes: [], edges: [] }),
@@ -151,19 +132,12 @@ const FlowGraphContent: React.FC<{
 
   if (isLoading) {
     return (
-      <Box display="flex" flexDirection="column" height="100%" width="100%">
-        <Box
-          p={2}
-          borderBottom={1}
-          borderColor="divider"
-          bgcolor="background.paper"
-        >
-          <StartingPointSelector
-            projectId={projectId}
-            selectedEventKey={startingEventKey}
-            onEventKeyChange={onEventKeyChange}
-          />
-        </Box>
+      <Box display="flex" height="100%" width="100%">
+        <EventDiscoveryPanel
+          projectId={projectId}
+          selectedEventId={startingEventId}
+          onEventSelect={onEventSelect}
+        />
         <Box
           flex={1}
           display="flex"
@@ -178,19 +152,12 @@ const FlowGraphContent: React.FC<{
 
   if (error || !graph) {
     return (
-      <Box display="flex" flexDirection="column" height="100%" width="100%">
-        <Box
-          p={2}
-          borderBottom={1}
-          borderColor="divider"
-          bgcolor="background.paper"
-        >
-          <StartingPointSelector
-            projectId={projectId}
-            selectedEventKey={startingEventKey}
-            onEventKeyChange={onEventKeyChange}
-          />
-        </Box>
+      <Box display="flex" height="100%" width="100%">
+        <EventDiscoveryPanel
+          projectId={projectId}
+          selectedEventId={startingEventId}
+          onEventSelect={onEventSelect}
+        />
         <Box
           flex={1}
           display="flex"
@@ -204,20 +171,12 @@ const FlowGraphContent: React.FC<{
   }
 
   return (
-    <Box display="flex" flexDirection="column" height="100%" width="100%">
-      {/* Filter Controls */}
-      <Box
-        p={2}
-        borderBottom={1}
-        borderColor="divider"
-        bgcolor="background.paper"
-      >
-        <StartingPointSelector
-          projectId={projectId}
-          selectedEventKey={startingEventKey}
-          onEventKeyChange={onEventKeyChange}
-        />
-      </Box>
+    <Box display="flex" height="100%" width="100%">
+      <EventDiscoveryPanel
+        projectId={projectId}
+        selectedEventId={startingEventId}
+        onEventSelect={onEventSelect}
+      />
 
       {/* Flow Graph */}
       <Box flex={1} bgcolor="gray.50">
@@ -258,25 +217,23 @@ const FlowGraphContent: React.FC<{
 };
 
 const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
+  const [startingEventId, setStartingEventId] = useState<string | null>(null);
   const [startingEventKey, setStartingEventKey] = useState<string | null>(null);
 
+  const handleEventSelect = (eventId: string, eventKey: string) => {
+    setStartingEventId(eventId);
+    setStartingEventKey(eventKey);
+  };
+
   // Show empty state when no starting point is selected
-  if (!startingEventKey) {
+  if (!startingEventId || !startingEventKey) {
     return (
-      <Box display="flex" flexDirection="column" height="100%" width="100%">
-        {/* Filter Controls */}
-        <Box
-          p={2}
-          borderBottom={1}
-          borderColor="divider"
-          bgcolor="background.paper"
-        >
-          <StartingPointSelector
-            projectId={projectId}
-            selectedEventKey={startingEventKey}
-            onEventKeyChange={setStartingEventKey}
-          />
-        </Box>
+      <Box display="flex" height="100%" width="100%">
+        <EventDiscoveryPanel
+          projectId={projectId}
+          selectedEventId={startingEventId}
+          onEventSelect={handleEventSelect}
+        />
 
         {/* Empty State */}
         <Box
@@ -290,7 +247,7 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
         >
           <IconFilter size={64} stroke={1.5} color="#9ca3af" />
           <Typography variant="h6" color="text.secondary">
-            Select a Starting Point
+            Select an Anchor Event
           </Typography>
           <Typography
             variant="body2"
@@ -298,8 +255,8 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
             textAlign="center"
             maxWidth={400}
           >
-            Choose an anchor event to explore the most common user transitions
-            using Markov chain probabilities.
+            Pick an event from the left panel to visualize user journey flows
+            and discover the most common paths users take through your product.
           </Typography>
         </Box>
       </Box>
@@ -309,8 +266,9 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
   return (
     <FlowGraphContent
       projectId={projectId}
+      startingEventId={startingEventId}
       startingEventKey={startingEventKey}
-      onEventKeyChange={setStartingEventKey}
+      onEventSelect={handleEventSelect}
     />
   );
 };

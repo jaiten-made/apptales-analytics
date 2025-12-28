@@ -1,5 +1,5 @@
 import { generateCuid } from "@apptales/utils";
-import { PrismaClient } from "@prisma/client";
+import { EventCategory, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -40,52 +40,52 @@ async function main() {
 
   // EventIdentity now has no projectId relation
   const pageViewHome = await prisma.eventIdentity.create({
-    data: { key: "page_view:/home" },
+    data: { key: "page_view:/home", category: EventCategory.PAGE_VIEW },
   });
   const pageViewAbout = await prisma.eventIdentity.create({
-    data: { key: "page_view:/about" },
+    data: { key: "page_view:/about", category: EventCategory.PAGE_VIEW },
   });
   const pageViewContact = await prisma.eventIdentity.create({
-    data: { key: "page_view:/contact" },
+    data: { key: "page_view:/contact", category: EventCategory.PAGE_VIEW },
   });
   const pageViewServices = await prisma.eventIdentity.create({
-    data: { key: "page_view:/services" },
+    data: { key: "page_view:/services", category: EventCategory.PAGE_VIEW },
   });
   const pageViewProducts = await prisma.eventIdentity.create({
-    data: { key: "page_view:/products" },
+    data: { key: "page_view:/products", category: EventCategory.PAGE_VIEW },
   });
   const pageViewBlog = await prisma.eventIdentity.create({
-    data: { key: "page_view:/blog" },
+    data: { key: "page_view:/blog", category: EventCategory.PAGE_VIEW },
   });
   const pageViewPricing = await prisma.eventIdentity.create({
-    data: { key: "page_view:/pricing" },
+    data: { key: "page_view:/pricing", category: EventCategory.PAGE_VIEW },
   });
   const pageViewCheckout = await prisma.eventIdentity.create({
-    data: { key: "page_view:/checkout" },
+    data: { key: "page_view:/checkout", category: EventCategory.PAGE_VIEW },
   });
   const pageViewThankYou = await prisma.eventIdentity.create({
-    data: { key: "page_view:/thank-you" },
+    data: { key: "page_view:/thank-you", category: EventCategory.PAGE_VIEW },
   });
   const clickSubmitButton = await prisma.eventIdentity.create({
-    data: { key: "click:submit_button" },
+    data: { key: "click:submit_button", category: EventCategory.CLICK },
   });
   const clickLearnMoreButton = await prisma.eventIdentity.create({
-    data: { key: "click:learn_more_button" },
+    data: { key: "click:learn_more_button", category: EventCategory.CLICK },
   });
   const clickViewProductButton = await prisma.eventIdentity.create({
-    data: { key: "click:view_product_button" },
+    data: { key: "click:view_product_button", category: EventCategory.CLICK },
   });
   const clickReadMoreButton = await prisma.eventIdentity.create({
-    data: { key: "click:read_more_button" },
+    data: { key: "click:read_more_button", category: EventCategory.CLICK },
   });
   const clickSignupButton = await prisma.eventIdentity.create({
-    data: { key: "click:signup_button" },
+    data: { key: "click:signup_button", category: EventCategory.CLICK },
   });
   const clickBuyNowButton = await prisma.eventIdentity.create({
-    data: { key: "click:buy_now_button" },
+    data: { key: "click:buy_now_button", category: EventCategory.CLICK },
   });
   const clickGeneric = await prisma.eventIdentity.create({
-    data: { key: "click:generic" },
+    data: { key: "click:generic", category: EventCategory.CLICK },
   });
 
   // Create Session records (Events now reference Session.id)

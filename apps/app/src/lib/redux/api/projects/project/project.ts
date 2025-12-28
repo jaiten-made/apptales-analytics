@@ -17,6 +17,7 @@ export interface EventIdentity {
   key: string;
   type: string;
   name: string;
+  category: string;
   eventCount: number;
 }
 
@@ -95,11 +96,11 @@ export const projectApi = baseApi.injectEndpoints({
     }),
     getEventIdentities: builder.query<
       EventIdentity[],
-      { projectId: string; search?: string }
+      { projectId: string; category?: string }
     >({
-      query: ({ projectId, search }) => ({
+      query: ({ projectId, category }) => ({
         url: `${BASE_URL(projectId)}/event-identities`,
-        params: search ? { search } : undefined,
+        params: category ? { category } : undefined,
       }),
     }),
     getTransitions: builder.query<

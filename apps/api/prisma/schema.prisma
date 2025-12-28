@@ -13,6 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum EventCategory {
+  PAGE_VIEW
+  CLICK
+}
+
 model Project {
   id          String       @id @default(cuid())
   name        String
@@ -24,14 +29,16 @@ model Project {
 }
 
 model EventIdentity {
-  id                  String       @id @default(cuid())
+  id                  String        @id @default(cuid())
   key                 String
-  createdAt           DateTime     @default(now())
+  category            EventCategory
+  createdAt           DateTime      @default(now())
   events              Event[]
-  transitionsFrom     Transition[] @relation("TransitionFrom")
-  transitionsTo       Transition[] @relation("TransitionTo")
+  transitionsFrom     Transition[]  @relation("TransitionFrom")
+  transitionsTo       Transition[]  @relation("TransitionTo")
 
   @@index([key])
+  @@index([category])
 }
 
 model Customer {

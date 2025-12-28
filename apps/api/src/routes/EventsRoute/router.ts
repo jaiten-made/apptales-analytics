@@ -1,4 +1,5 @@
 import { Event } from "@apptales/events-schema";
+import { EventCategory } from "@prisma/client";
 import express, { NextFunction, Request, Response } from "express";
 import HttpError from "../../errors/HttpError";
 import { prisma } from "../../lib/prisma/client";
@@ -84,13 +85,19 @@ router.post(
             }`
           : req.body.type;
 
+      // Determine category based on event type
+      const category: EventCategory =
+        req.body.type === "page_view"
+          ? EventCategory.PAGE_VIEW
+          : EventCategory.CLICK;
+
       let eventIdentity = await prisma.eventIdentity.findFirst({
         where: { key: eventKey },
       });
 
       if (!eventIdentity) {
         eventIdentity = await prisma.eventIdentity.create({
-          data: { key: eventKey },
+          data: { key: eventKey, category },
         });
       }
 

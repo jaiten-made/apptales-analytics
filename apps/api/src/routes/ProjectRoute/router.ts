@@ -84,7 +84,7 @@ router.delete("/", async (req: AuthRequest, res, next) => {
 });
 
 // @route  GET /projects/:projectId/event-identities
-// @desc   Get unique event identities for a project (for filtering)
+// @desc   Get unique event identities for a project filtered by category
 // @access  Private
 router.get(
   "/event-identities",
@@ -94,10 +94,10 @@ router.get(
     next: express.NextFunction
   ) => {
     const { projectId } = req.params;
-    const { search, limit = "10" } = req.query;
+    const { category, limit = "50" } = req.query;
 
     try {
-      // Build where clause with optional search
+      // Build where clause with required category filter
       const whereClause: any = {
         events: {
           some: {
@@ -108,12 +108,9 @@ router.get(
         },
       };
 
-      // Add search filter if provided
-      if (search && typeof search === "string") {
-        whereClause.key = {
-          contains: search,
-          mode: "insensitive",
-        };
+      // Add category filter if provided
+      if (category && typeof category === "string") {
+        whereClause.category = category;
       }
 
       const eventIdentities = await prisma.eventIdentity.findMany({
@@ -121,6 +118,7 @@ router.get(
         select: {
           id: true,
           key: true,
+          category: true,
           _count: {
             select: {
               events: true,
@@ -132,7 +130,7 @@ router.get(
             _count: "desc",
           },
         },
-        take: Math.min(parseInt(limit as string) || 10, 50), // Max 50 results
+        take: Math.min(parseInt(limit as string) || 50, 100),
       });
 
       // Parse event keys into type and name
@@ -143,6 +141,7 @@ router.get(
           key: identity.key,
           type,
           name,
+          category: identity.category,
           eventCount: identity._count.events,
         };
       });
