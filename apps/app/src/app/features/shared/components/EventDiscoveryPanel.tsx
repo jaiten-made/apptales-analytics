@@ -7,12 +7,13 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
-  Paper,
+  Stack,
   TextField,
   Typography,
+  useTheme
 } from "@mui/material";
 import { IconSearch } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { useGetEventIdentitiesQuery } from "../../../../lib/redux/api/projects/project/project";
 
 interface EventDiscoveryPanelProps {
@@ -31,22 +32,76 @@ interface EventIdentity {
   eventCount: number;
 }
 
+const EventListItem = memo(
+  ({
+    event,
+    isSelected,
+    onSelect,
+  }: {
+    event: EventIdentity;
+    isSelected: boolean;
+    onSelect: (id: string, key: string) => void;
+  }) => (
+    <ListItem disablePadding>
+      <ListItemButton
+        selected={isSelected}
+        onClick={() => onSelect(event.id, event.key)}
+        sx={{
+          py: 1.5,
+          px: 2,
+          borderRadius: 1,
+          mb: 0.5,
+          transition: "all 0.2s",
+          "&.Mui-selected": {
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
+            "&:hover": {
+              bgcolor: "primary.dark",
+            },
+            "& .MuiTypography-root": {
+              color: "inherit",
+            },
+            "& .MuiListItemText-secondary": {
+              color: "inherit",
+              opacity: 0.8,
+            },
+          },
+        }}
+      >
+        <ListItemText
+          primary={
+            <Typography variant="body2" fontWeight={isSelected ? 600 : 500} noWrap>
+              {event.name}
+            </Typography>
+          }
+          secondary={
+            <Typography variant="caption" color="text.secondary" noWrap>
+              {event.type}
+            </Typography>
+          }
+        />
+      </ListItemButton>
+    </ListItem>
+  )
+);
+
+EventListItem.displayName = "EventListItem";
+
 export function EventDiscoveryPanel({
   projectId,
   selectedEventId,
   onEventSelect,
   open = true,
 }: EventDiscoveryPanelProps) {
+  const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: eventIdentities, isFetching } = useGetEventIdentitiesQuery({
     projectId,
   });
 
-  // Client-side filtering for search
   const filteredEvents = useMemo(() => {
     if (!eventIdentities) return [];
-
     if (!searchTerm) return eventIdentities;
 
     const lowerSearch = searchTerm.toLowerCase();
@@ -63,136 +118,88 @@ export function EventDiscoveryPanel({
       anchor="left"
       open={open}
       sx={{
-        "& .MuiDrawer-paper": {
-          position: "relative",
-          height: "100%",
-          border: "none",
-        },
+        padding: 2,
+      }}
+      slotProps={{
+        paper: {
+          sx: {
+            position: "relative",
+            height: "100%",
+            width: 340,
+            display: "flex",
+            flexDirection: "column",
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            border: `1px solid ${theme.palette.divider}`,
+            overflow: "hidden",
+          }
+        }
       }}
     >
-      <Paper
-        elevation={0}
-        sx={{
-          width: 340,
-          height: "100%",
-          borderRight: 1,
-          borderColor: "divider",
-          display: "flex",
-          flexDirection: "column",
-          bgcolor: "background.default",
-        }}
-      >
-        {/* Header */}
-        <Box sx={{ p: 3, pb: 2 }}>
-          <Typography variant="h6" fontWeight={600}>
+      <Stack spacing={2} sx={{ p: 2, pb: 0, flexShrink: 0 }}>
+        <Box>
+          <Typography variant="h6" fontWeight={700} gutterBottom>
             Select Anchor Event
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Select an event to visualize user journeys and discover the most
-            common paths through your product
+          <Typography variant="body2" color="text.secondary">
+            Select an event to visualize user journeys and discover common paths.
           </Typography>
         </Box>
 
-        {/* Search Box */}
-        <Box sx={{ p: 2, pt: 1 }}>
-          <TextField
-            size="small"
-            fullWidth
-            placeholder="Search events..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <IconSearch size={18} />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Box>
-
-        {/* Event List */}
-        <Box sx={{ flex: 1, overflow: "auto" }}>
-          {isFetching ? (
-            <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              height="200px"
-            >
-              <CircularProgress size={32} />
-            </Box>
-          ) : filteredEvents.length === 0 ? (
-            <Box sx={{ p: 3, textAlign: "center" }}>
-              <Typography variant="body2" color="text.secondary">
-                {searchTerm
-                  ? "No matching events found"
-                  : "No events recorded yet"}
-              </Typography>
-            </Box>
-          ) : (
-            <List disablePadding>
-              {filteredEvents.map((event: EventIdentity) => (
-                <ListItem key={event.id} disablePadding>
-                  <ListItemButton
-                    selected={selectedEventId === event.id}
-                    onClick={() => onEventSelect(event.id, event.key)}
-                    sx={{
-                      py: 1.5,
-                      px: 2,
-                      "&.Mui-selected": {
-                        bgcolor: "primary.main",
-                        color: "primary.contrastText",
-                        "&:hover": {
-                          bgcolor: "primary.dark",
-                        },
-                        "& .MuiChip-root": {
-                          bgcolor: "primary.dark",
-                          color: "primary.contrastText",
-                          borderColor: "primary.contrastText",
-                        },
-                        "& .MuiTypography-root": {
-                          color: "primary.contrastText",
-                        },
-                      },
-                    }}
-                  >
-                    <ListItemText
-                      primary={
-                        <Typography
-                          variant="body2"
-                          fontWeight={selectedEventId === event.id ? 600 : 500}
-                          sx={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {event.name}
-                        </Typography>
-                      }
-                      secondary={
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            color:
-                              selectedEventId === event.id
-                                ? "inherit"
-                                : "text.secondary",
-                            opacity: selectedEventId === event.id ? 0.9 : 1,
-                          }}
-                        >
-                          {event.type}
-                        </Typography>
-                      }
-                    />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          )}
-        </Box>
-      </Paper>
+        <TextField
+          size="small"
+          fullWidth
+          placeholder="Search events..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <IconSearch size={18} color={theme.palette.text.secondary} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              bgcolor: "background.default",
+            },
+          }}
+        />
+      </Stack>
+      <Box sx={{ flex: 1, overflow: "auto", p: 2 }}>
+        {isFetching ? (
+          <Stack
+            alignItems="center"
+            justifyContent="center"
+            sx={{ height: 200 }}
+          >
+            <CircularProgress size={24} />
+          </Stack>
+        ) : filteredEvents.length === 0 ? (
+          <Stack
+            alignItems="center"
+            justifyContent="center"
+            sx={{ height: 200, textAlign: "center", opacity: 0.7 }}
+            spacing={1}
+          >
+            <IconSearch size={32} color={theme.palette.text.secondary} />
+            <Typography variant="body2" color="text.secondary">
+              {searchTerm ? "No events found" : "No events recorded"}
+            </Typography>
+          </Stack>
+        ) : (
+          <List disablePadding>
+            {filteredEvents.map((event: EventIdentity) => (
+              <EventListItem
+                key={event.id}
+                event={event}
+                isSelected={selectedEventId === event.id}
+                onSelect={onEventSelect}
+              />
+            ))}
+          </List>
+        )}
+      </Box>
     </Drawer>
   );
 }
