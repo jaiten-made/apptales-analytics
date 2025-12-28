@@ -13,7 +13,7 @@ router.post("/", async (req, res, next) => {
     const { email } = req.body;
     z.string().email().parse(email);
     const token = jwt.sign({ email }, process.env.JWT_SECRET!, {
-      expiresIn: "15m",
+      expiresIn: "14d",
     });
     const origin = `${req.protocol}://${req.get("host")}`;
     const link = `${origin}/auth/magic-link/verify?token=${token}`;
