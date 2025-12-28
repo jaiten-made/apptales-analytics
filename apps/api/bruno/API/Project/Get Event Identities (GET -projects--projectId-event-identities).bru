@@ -1,0 +1,46 @@
+meta {
+  name: Get Event Identities (GET /projects/:projectId/event-identities)
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:3001/projects/:projectId/event-identities?search=&limit=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: ~
+  limit: 10
+}
+
+params:path {
+  projectId: {{projectId}}
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Get unique event identities for a project (useful for finding anchorEventId)
+  
+  Query Parameters:
+  - search (optional): Case-insensitive search on event key
+  - limit (optional): Max results (default: 10, max: 50)
+  
+  Returns array of:
+  {
+    "id": "event-identity-id",
+    "key": "page_view:/home",
+    "type": "page_view",
+    "name": "/home",
+    "eventCount": 150
+  }
+}

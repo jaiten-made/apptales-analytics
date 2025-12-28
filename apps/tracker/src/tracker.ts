@@ -14,6 +14,7 @@ function getProjectId(): string | null {
 function createEventTracker() {
   let isInitialized = false;
   let lastTrackedPath = "";
+  let lastSentEvent = ""; // Track last sent event to prevent consecutive duplicates
 
   // Send page_view event - can be called multiple times for SPA navigation
   async function sendPageView(): Promise<void> {
@@ -27,6 +28,16 @@ function createEventTracker() {
       }
 
       lastTrackedPath = currentPath;
+
+      const eventType = "page_view";
+      const eventKey = `${eventType}:${location.pathname}`;
+
+      // Check if this is a consecutive duplicate
+      if (eventKey === lastSentEvent) {
+        console.log("Skipping consecutive duplicate event:", eventKey);
+        return;
+      }
+
       console.log("Sending page view event for:", currentPath);
 
       const projectId = getProjectId();
@@ -42,6 +53,9 @@ function createEventTracker() {
       };
       console.log("Page view event:", pageViewEvent);
       sendEvent(pageViewEvent, projectId);
+
+      // Update last sent event
+      lastSentEvent = eventKey;
     } catch (error) {
       console.error("Failed to send page view event:", error);
     }
@@ -69,14 +83,25 @@ function createEventTracker() {
       if (identifier.length > 50)
         identifier = identifier.substring(0, 50) + "...";
 
+      const eventType = `click:${identifier}`;
+
+      // Check if this is a consecutive duplicate
+      if (eventType === lastSentEvent) {
+        console.log("Skipping consecutive duplicate click:", eventType);
+        return;
+      }
+
       const clickEvent: EventPayload = {
-        type: `click:${identifier}`,
+        type: eventType,
       };
 
       const projectId = getProjectId();
       if (!projectId) return;
 
       sendEvent(clickEvent, projectId);
+
+      // Update last sent event
+      lastSentEvent = eventType;
     } catch (error) {
       console.error("Error tracking click:", error);
     }
@@ -135,6 +160,7 @@ function createEventTracker() {
     document.removeEventListener("click", handleClick, true);
     isInitialized = false;
     lastTrackedPath = "";
+    lastSentEvent = "";
   }
 
   // Auto-initialize

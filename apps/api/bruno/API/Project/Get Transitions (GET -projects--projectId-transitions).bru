@@ -1,0 +1,46 @@
+meta {
+  name: Get Transitions (GET /projects/:projectId/transitions)
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:3001/projects/:projectId/transitions?anchorEventId={{anchorEventId}}&direction=forward&topN=5&depth=2
+  body: none
+  auth: inherit
+}
+
+params:query {
+  anchorEventId: {{anchorEventId}}
+  direction: forward
+  topN: 5
+  depth: 2
+}
+
+params:path {
+  projectId: {{projectId}}
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Get weighted transitions from or to an anchor event (auto-computes if needed)
+  
+  Query Parameters:
+  - anchorEventId (required): EventIdentity ID to start from
+  - direction (optional): 'forward' (default) or 'backward'
+  - topN (optional): Number of top transitions to return (default: 5, max: 20)
+  - depth (optional): How many levels deep to explore (default: 1, max: 5)
+  
+  Returns a graph with:
+  - anchor: The starting event details
+  - nodes: Array of event nodes with level information
+  - edges: Array of transitions with count, percentage, and avg duration
+}

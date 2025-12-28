@@ -14,19 +14,24 @@ datasource db {
 }
 
 model Project {
-  id         String          @id @default(cuid())
-  name       String
-  createdAt  DateTime        @default(now())
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  sessions   Session[]
+  id          String       @id @default(cuid())
+  name        String
+  createdAt   DateTime     @default(now())
+  customerId  String
+  customer    Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  sessions    Session[]
+  transitions Transition[]
 }
 
 model EventIdentity {
-  id        String   @id @default(cuid())
-  key       String
-  createdAt DateTime @default(now())
-  events    Event[]
+  id                  String       @id @default(cuid())
+  key                 String
+  createdAt           DateTime     @default(now())
+  events              Event[]
+  transitionsFrom     Transition[] @relation("TransitionFrom")
+  transitionsTo       Transition[] @relation("TransitionTo")
+
+  @@index([key])
 }
 
 model Customer {
@@ -45,6 +50,10 @@ model Event {
   eventIdentity   EventIdentity @relation(fields: [eventIdentityId], references: [id])
   sessionId       String
   session         Session       @relation("SessionEvents", fields: [sessionId], references: [id], onDelete: Cascade) // Updated to reflect the relationship
+
+  @@index([sessionId, createdAt])
+  @@index([eventIdentityId])
+  @@index([createdAt])
 }
 
 model Session {
@@ -53,4 +62,24 @@ model Session {
   projectId String
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   events    Event[]  @relation("SessionEvents")
+
+  @@index([projectId])
+}
+
+model Transition {
+  id                   String        @id @default(cuid())
+  fromEventIdentityId  String
+  toEventIdentityId    String
+  projectId            String
+  count                Int           @default(1)
+  percentage           Float         @default(0)
+  avgDurationMs        Int?
+  updatedAt            DateTime      @default(now()) @updatedAt
+  fromEventIdentity    EventIdentity @relation("TransitionFrom", fields: [fromEventIdentityId], references: [id], onDelete: Cascade)
+  toEventIdentity      EventIdentity @relation("TransitionTo", fields: [toEventIdentityId], references: [id], onDelete: Cascade)
+  project              Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([fromEventIdentityId, toEventIdentityId, projectId])
+  @@index([projectId, fromEventIdentityId])
+  @@index([projectId, toEventIdentityId])
 }

@@ -3,6 +3,11 @@ import { z } from "zod";
 import { prisma } from "../../lib/prisma/client";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
 import { requireProjectOwnership } from "../../middleware/project";
+import {
+  computeTransitionsForProject,
+  getTopTransitionsFromEvent,
+  getTopTransitionsToEvent,
+} from "../../services/transition";
 
 const router = express.Router({
   mergeParams: true,
@@ -149,154 +154,227 @@ router.get(
   }
 );
 
-// @route  GET /projects/:projectId/path-exploration
-// @desc   Get path exploration data for a project
-// @query  startingEventKey (optional) - Filter paths that start with this event
+// @route  GET /projects/:projectId/transitions
+// @desc   Get weighted transitions from or to an anchor event (auto-computes if needed)
+// @query  anchorEventId - The event identity ID to start from
+// @query  direction - 'forward' (default) or 'backward'
+// @query  topN - Number of top transitions to return (default: 5)
+// @query  depth - How many levels deep to explore (default: 1)
+// @access Private
 router.get(
-  "/path-exploration",
+  "/transitions",
   async (
     req: AuthRequest,
     res: express.Response,
     next: express.NextFunction
   ) => {
     const { projectId } = req.params;
-    const { startingEventKey } = req.query;
+    const {
+      anchorEventId,
+      direction = "forward",
+      topN = "5",
+      depth = "1",
+    } = req.query;
 
     try {
-      // Validate starting event key format if provided
-      if (startingEventKey && typeof startingEventKey !== "string") {
+      if (!anchorEventId || typeof anchorEventId !== "string") {
         return res
           .status(400)
-          .json({ error: "Invalid startingEventKey parameter" });
+          .json({ error: "anchorEventId parameter is required" });
       }
 
-      // Path exploration query using EventIdentity transitions
-      const sql = `
-      WITH ordered AS (
-        SELECT
-          e."sessionId",
-          e."eventIdentityId",
-          ei."key" as event_key,
-          ROW_NUMBER() OVER (
-            PARTITION BY e."sessionId"
-            ORDER BY e."createdAt"
-          ) AS step
-        FROM "Event" e
-        JOIN "Session" s ON s.id = e."sessionId"
-        JOIN "EventIdentity" ei ON ei.id = e."eventIdentityId"
-        WHERE e."eventIdentityId" IS NOT NULL
-          AND s."projectId" = $1
-          ${
-            startingEventKey
-              ? `AND EXISTS (
-            SELECT 1 FROM "Event" e_first
-            JOIN "EventIdentity" ei_first ON ei_first.id = e_first."eventIdentityId"
-            WHERE e_first."sessionId" = e."sessionId"
-              AND ei_first."key" = $2
-            ORDER BY e_first."createdAt"
-            LIMIT 1
-          )`
-              : ""
-          }
-      ),
-      ${
-        startingEventKey
-          ? `
-      first_occurrence AS (
-        SELECT 
-          o."sessionId",
-          MIN(o.step) as first_step
-        FROM ordered o
-        WHERE o.event_key = $2
-        GROUP BY o."sessionId"
-      ),
-      filtered_ordered AS (
-        SELECT 
-          o."sessionId",
-          o."eventIdentityId",
-          o.event_key,
-          ROW_NUMBER() OVER (
-            PARTITION BY o."sessionId"
-            ORDER BY o.step
-          ) AS step
-        FROM ordered o
-        JOIN first_occurrence fo ON fo."sessionId" = o."sessionId"
-        WHERE o.step >= fo.first_step
-      ),
-      `
-          : ""
+      if (direction !== "forward" && direction !== "backward") {
+        return res
+          .status(400)
+          .json({ error: "direction must be 'forward' or 'backward'" });
       }
-      max_steps AS (
-        SELECT
-          "sessionId",
-          MAX(step) AS max_step
-        FROM ${startingEventKey ? "filtered_ordered" : "ordered"}
-        GROUP BY "sessionId"
-      ),
-      event_counts AS (
-        SELECT
-          o.step,
-          ${startingEventKey ? "o.event_key" : 'ei."key"'} AS event_key,
-          COUNT(*) AS count
-        FROM ${startingEventKey ? "filtered_ordered" : "ordered"} o
-        ${!startingEventKey ? 'JOIN "EventIdentity" ei ON ei.id = o."eventIdentityId"' : ""}
-        GROUP BY o.step, ${startingEventKey ? "o.event_key" : 'ei."key"'}
-      ),
-      exit_counts AS (
-        SELECT
-          o.step,
-          ${startingEventKey ? "o.event_key" : 'ei."key"'} AS event_key,
-          COUNT(*) AS exits
-        FROM ${startingEventKey ? "filtered_ordered" : "ordered"} o
-        ${!startingEventKey ? 'JOIN "EventIdentity" ei ON ei.id = o."eventIdentityId"' : ""}
-        JOIN max_steps ms ON ms."sessionId" = o."sessionId" AND ms.max_step = o.step
-        GROUP BY o.step, ${startingEventKey ? "o.event_key" : 'ei."key"'}
-      )
-      SELECT
-        ec.step,
-        ec.event_key,
-        ec.count,
-        COALESCE(ex.exits, 0) AS exits
-      FROM event_counts ec
-      LEFT JOIN exit_counts ex ON ex.step = ec.step AND ex.event_key = ec.event_key
-      ORDER BY ec.step, ec.count DESC;
-    `;
 
-      // Execute the query safely with parameters
-      const results = (await prisma.$queryRawUnsafe(
-        sql,
-        projectId,
-        ...(startingEventKey ? [startingEventKey] : [])
-      )) as Array<{
-        step: bigint;
-        event_key: string;
-        count: bigint;
-        exits: bigint;
-      }>;
+      const topNNum = Math.min(parseInt(topN as string) || 5, 20);
+      const depthNum = Math.min(parseInt(depth as string) || 1, 5);
 
-      // Convert BigInt to string for JSON serialization
-      const serializedResults = results.map((row) => {
-        const [type, name] = row.event_key.split(":");
-        const result: any = {
-          step: Number(row.step),
-          event: {
-            key: row.event_key,
-            type,
-            name,
-          },
-          count: Number(row.count),
-        };
-
-        // Only include exits if greater than 0
-        const exits = Number(row.exits);
-        if (exits > 0) {
-          result.exits = exits;
-        }
-
-        return result;
+      // Check if transitions exist for this project
+      const transitionCount = await prisma.transition.count({
+        where: { projectId },
       });
 
-      return res.status(200).json(serializedResults);
+      // Auto-compute if no transitions exist
+      if (transitionCount === 0) {
+        console.log(
+          `[Transitions] No data found for project ${projectId}, computing...`
+        );
+        await computeTransitionsForProject(projectId);
+      }
+
+      // Build the transition graph level by level
+      const graph: any = {
+        anchor: {
+          id: anchorEventId,
+        },
+        nodes: [],
+        edges: [],
+      };
+
+      // Get anchor event details
+      const anchorEvent = await prisma.eventIdentity.findUnique({
+        where: { id: anchorEventId },
+        select: { id: true, key: true },
+      });
+
+      if (!anchorEvent) {
+        return res.status(404).json({ error: "Anchor event not found" });
+      }
+
+      graph.anchor.key = anchorEvent.key;
+
+      // Track visited nodes to avoid cycles
+      const visitedNodes = new Set<string>([anchorEventId]);
+      const nodeMap = new Map<string, any>();
+
+      // Add anchor node
+      nodeMap.set(anchorEventId, {
+        id: anchorEventId,
+        key: anchorEvent.key,
+        level: 0,
+      });
+
+      // BFS to explore transitions
+      let currentLevel = [anchorEventId];
+
+      for (let level = 1; level <= depthNum; level++) {
+        const nextLevel: string[] = [];
+
+        for (const nodeId of currentLevel) {
+          const transitions =
+            direction === "forward"
+              ? await getTopTransitionsFromEvent(projectId, nodeId, topNNum)
+              : await getTopTransitionsToEvent(projectId, nodeId, topNNum);
+
+          for (const transition of transitions) {
+            const targetNode =
+              direction === "forward"
+                ? (transition as { toEvent: { id: string; key: string } })
+                    .toEvent
+                : (transition as { fromEvent: { id: string; key: string } })
+                    .fromEvent;
+
+            // Skip edges that point back to earlier steps
+            const existingNode = nodeMap.get(targetNode.id);
+            if (existingNode && existingNode.level < level) {
+              continue; // Skip this transition - it goes backward
+            }
+
+            // Add edge
+            graph.edges.push({
+              from: direction === "forward" ? nodeId : targetNode.id,
+              to: direction === "forward" ? targetNode.id : nodeId,
+              count: transition.count,
+              percentage: transition.percentage,
+              avgDurationMs: transition.avgDurationMs,
+            });
+
+            // Add node if not visited
+            if (!visitedNodes.has(targetNode.id)) {
+              visitedNodes.add(targetNode.id);
+              nextLevel.push(targetNode.id);
+              nodeMap.set(targetNode.id, {
+                id: targetNode.id,
+                key: targetNode.key,
+                level,
+              });
+            }
+          }
+
+          // Calculate if there are more transitions beyond topN
+          const totalTransitions =
+            direction === "forward"
+              ? await prisma.transition.count({
+                  where: {
+                    projectId,
+                    fromEventIdentityId: nodeId,
+                  },
+                })
+              : await prisma.transition.count({
+                  where: {
+                    projectId,
+                    toEventIdentityId: nodeId,
+                  },
+                });
+
+          if (totalTransitions > topNNum) {
+            const moreCount = totalTransitions - topNNum;
+            const moreNodeId = `${nodeId}-more-${level}`;
+
+            // Add "+ More" node
+            nodeMap.set(moreNodeId, {
+              id: moreNodeId,
+              key: `+ ${moreCount} more`,
+              level,
+              isAggregate: true,
+            });
+
+            // Add edge to "+ More"
+            graph.edges.push({
+              from: direction === "forward" ? nodeId : moreNodeId,
+              to: direction === "forward" ? moreNodeId : nodeId,
+              count: moreCount,
+              percentage: 0, // Could calculate this
+              avgDurationMs: null,
+              isAggregate: true,
+            });
+          }
+        }
+
+        currentLevel = nextLevel;
+      }
+
+      // Convert node map to array and add counts
+      // Calculate count for each node (sum of incoming transitions)
+      const nodeCountMap = new Map<string, number>();
+      graph.edges.forEach((edge) => {
+        const current = nodeCountMap.get(edge.to) || 0;
+        nodeCountMap.set(edge.to, current + edge.count);
+      });
+
+      // For anchor node (step 0), calculate count from outgoing transitions
+      // since it has no incoming edges
+      const anchorOutgoingCount = graph.edges
+        .filter((edge) => edge.from === anchorEventId)
+        .reduce((sum, edge) => sum + edge.count, 0);
+      if (anchorOutgoingCount > 0) {
+        nodeCountMap.set(anchorEventId, anchorOutgoingCount);
+      }
+
+      graph.nodes = Array.from(nodeMap.values()).map((node) => ({
+        ...node,
+        count: nodeCountMap.get(node.id) || 0,
+      }));
+
+      return res.status(200).json(graph);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// @route  POST /projects/:projectId/transitions/compute
+// @desc   Trigger computation of transitions for a project
+// @access Private
+router.post(
+  "/transitions/compute",
+  async (
+    req: AuthRequest,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    const { projectId } = req.params;
+
+    try {
+      // This could be moved to a background job for large projects
+      await computeTransitionsForProject(projectId);
+
+      return res
+        .status(200)
+        .json({ message: "Transitions computed successfully" });
     } catch (error) {
       next(error);
     }

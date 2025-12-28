@@ -11,8 +11,11 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import theme from "../../../../../lib/mui/theme";
-import { useGetPathExplorationQuery } from "../../../../../lib/redux/api/projects/project/project";
-import { buildGraph } from "./buildGraph";
+import {
+  useGetEventIdentitiesQuery,
+  useGetTransitionsQuery,
+} from "../../../../../lib/redux/api/projects/project/project";
+import { buildTransitionGraph } from "./buildTransitionGraph";
 import StartingPointSelector from "./StartingPointSelector";
 import { StepHeaderNode } from "./StepHeaderNode";
 import { StepNode } from "./StepNode";
@@ -23,16 +26,16 @@ const FocusOnMount: React.FC<{ nodes: any[] }> = ({ nodes }) => {
 
   useEffect(() => {
     if (nodes.length > 0) {
-      // Find step 1 nodes (excluding header and group nodes)
-      const step1Nodes = nodes.filter(
-        (node) => node.id.startsWith("step1_") && node.type === "stepNode"
+      // Find level 0 nodes (anchor/starting nodes)
+      const level0Nodes = nodes.filter(
+        (node) => node.data?.isStart && node.type === "stepNode"
       );
 
-      if (step1Nodes.length > 0) {
+      if (level0Nodes.length > 0) {
         // Small delay to ensure layout is complete
         setTimeout(() => {
           fitView({
-            nodes: step1Nodes,
+            nodes: level0Nodes,
             padding: 0.5,
             duration: 800,
             minZoom: 0.8,
@@ -53,17 +56,37 @@ const FlowGraphContent: React.FC<{
 }> = ({ projectId, startingEventKey, onEventKeyChange }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
+  // Get the event identity ID from the key
+  const { data: eventIdentities } = useGetEventIdentitiesQuery({
+    projectId,
+    search: startingEventKey || "",
+  });
+
+  const startingEventId = eventIdentities?.find(
+    (e) => e.key === startingEventKey
+  )?.id;
+
   const {
     data: graph,
     isLoading,
     error,
-  } = useGetPathExplorationQuery({
-    projectId,
-    startingEventKey: startingEventKey || undefined,
-  });
+  } = useGetTransitionsQuery(
+    startingEventId
+      ? {
+          projectId,
+          anchorEventId: startingEventId,
+          direction: "forward",
+          topN: 5,
+          depth: 3,
+        }
+      : ({ projectId: "", anchorEventId: "" } as any),
+    {
+      skip: !startingEventId,
+    }
+  );
 
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
-    () => (graph ? buildGraph(graph) : { nodes: [], edges: [] }),
+    () => (graph ? buildTransitionGraph(graph) : { nodes: [], edges: [] }),
     [graph]
   );
 
@@ -275,8 +298,8 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
             textAlign="center"
             maxWidth={400}
           >
-            Choose an event from the dropdown above to see the user journey
-            paths that begin with that event.
+            Choose an anchor event to explore the most common user transitions
+            using Markov chain probabilities.
           </Typography>
         </Box>
       </Box>

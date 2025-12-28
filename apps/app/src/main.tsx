@@ -7,6 +7,7 @@ import SignIn from "./app/features/auth/SignIn";
 import journeysRoute from "./app/features/journeys/route";
 import ProjectPage from "./app/features/projects/ProjectPage";
 import ProjectsList from "./app/features/projects/ProjectsList";
+import { TransitionFlow } from "./app/features/transitions/TransitionFlow";
 import "./global.css";
 import StoreProvider from "./lib/redux/StoreProvider";
 
@@ -42,6 +43,14 @@ const router = createBrowserRouter([
       {
         path: "auth/signin",
         element: <SignIn />,
+      },
+      {
+        path: "transitions/:projectId",
+        element: (
+          <ProtectedRoute>
+            <TransitionFlow />
+          </ProtectedRoute>
+        ),
       },
       journeysRoute,
     ],

@@ -1,0 +1,42 @@
+meta {
+  name: Compute Transitions (POST /projects/:projectId/transitions/compute)
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:3001/projects/:projectId/transitions/compute
+  body: none
+  auth: inherit
+}
+
+params:path {
+  projectId: {{projectId}}
+}
+
+headers {
+  Authorization: Bearer {{sessionToken}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
+docs {
+  Trigger computation/recomputation of transitions for a project
+  
+  This endpoint:
+  - Processes all sessions for the project
+  - Collapses consecutive duplicate events
+  - Calculates transition counts and percentages
+  - Updates the Transition table
+  
+  Note: This is automatically called by GET /transitions if no data exists,
+  but can be used to manually refresh transition data.
+  
+  Returns:
+  {
+    "message": "Transitions computed successfully"
+  }
+}

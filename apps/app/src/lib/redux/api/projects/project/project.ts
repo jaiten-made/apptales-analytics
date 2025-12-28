@@ -1,4 +1,3 @@
-import type { FlowGraph } from "@apptales/events-schema";
 import baseApi, { TAGS } from "../../base";
 
 export interface PathTransition {
@@ -19,6 +18,32 @@ export interface EventIdentity {
   type: string;
   name: string;
   eventCount: number;
+}
+
+export interface TransitionNode {
+  id: string;
+  key: string;
+  level: number;
+  count: number;
+  isAggregate?: boolean;
+}
+
+export interface TransitionEdge {
+  from: string;
+  to: string;
+  count: number;
+  percentage: number;
+  avgDurationMs: number | null;
+  isAggregate?: boolean;
+}
+
+export interface TransitionGraph {
+  anchor: {
+    id: string;
+    key: string;
+  };
+  nodes: TransitionNode[];
+  edges: TransitionEdge[];
 }
 
 const BASE_URL = (projectId: string) => `/projects/${projectId}`;
@@ -68,15 +93,6 @@ export const projectApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [TAGS.PROJECT],
     }),
-    getPathExploration: builder.query<
-      FlowGraph,
-      { projectId: string; startingEventKey?: string }
-    >({
-      query: ({ projectId, startingEventKey }) => ({
-        url: `${BASE_URL(projectId)}/path-exploration`,
-        params: startingEventKey ? { startingEventKey } : undefined,
-      }),
-    }),
     getEventIdentities: builder.query<
       EventIdentity[],
       { projectId: string; search?: string }
@@ -86,12 +102,42 @@ export const projectApi = baseApi.injectEndpoints({
         params: search ? { search } : undefined,
       }),
     }),
+    getTransitions: builder.query<
+      TransitionGraph,
+      {
+        projectId: string;
+        anchorEventId: string;
+        direction?: "forward" | "backward";
+        topN?: number;
+        depth?: number;
+      }
+    >({
+      query: ({ projectId, anchorEventId, direction, topN, depth }) => ({
+        url: `${BASE_URL(projectId)}/transitions`,
+        params: {
+          anchorEventId,
+          direction: direction || "forward",
+          topN: topN || 5,
+          depth: depth || 1,
+        },
+      }),
+    }),
+    computeTransitions: builder.mutation<
+      { message: string },
+      { projectId: string }
+    >({
+      query: ({ projectId }) => ({
+        url: `${BASE_URL(projectId)}/transitions/compute`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
 export const {
-  useGetPathExplorationQuery,
   useGetEventIdentitiesQuery,
+  useGetTransitionsQuery,
+  useComputeTransitionsMutation,
   useGetProjectsQuery,
   useCreateProjectMutation,
   useGetProjectQuery,
