@@ -32,7 +32,7 @@ const ProjectIntegrationModal = ({
 
   // Generate the script tag - using data-project-id attribute
   const scriptTag = `<script 
-  type="module" 
+  async
   src="${import.meta.env.VITE_TRACKER_BASE_URL}/tracker.js" 
   data-project-id="${projectId}">
 </script>`;
