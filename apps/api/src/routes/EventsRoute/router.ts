@@ -5,6 +5,7 @@ import HttpError from "../../errors/HttpError";
 import { prisma } from "../../lib/prisma/client";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
 import { validateEventPayload } from "../../middleware/validation/validateEvent";
+import { updateTransitionsForSession } from "../../services/transition";
 import { checkSessionExpiry } from "./middleware";
 
 const router = express.Router();
@@ -110,6 +111,17 @@ router.post(
           eventIdentityId: eventIdentity.id,
         },
       });
+
+      // Update transitions incrementally for this session
+      try {
+        await updateTransitionsForSession(req.body.sessionId);
+      } catch (error) {
+        // Log but don't fail the event creation if transition update fails
+        console.error(
+          `[Events] Failed to update transitions for session ${req.body.sessionId}:`,
+          error
+        );
+      }
 
       res.status(201).json(event);
     } catch (error) {
