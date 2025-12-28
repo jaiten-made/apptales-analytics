@@ -177,24 +177,6 @@ export function EventDiscoveryPanel({
           </List>
         )}
       </Box>
-
-      {/* Footer Info */}
-      {!isFetching && filteredEvents.length > 0 && (
-        <Box
-          sx={{
-            p: 2,
-            borderTop: 1,
-            borderColor: "divider",
-            bgcolor: "background.paper",
-          }}
-        >
-          <Typography variant="caption" color="text.secondary" fontWeight={500}>
-            {filteredEvents.length} event
-            {filteredEvents.length !== 1 ? "s" : ""}
-            {searchTerm && " found"}
-          </Typography>
-        </Box>
-      )}
     </Paper>
   );
 }
