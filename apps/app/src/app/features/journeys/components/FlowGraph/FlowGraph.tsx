@@ -1,5 +1,5 @@
-import { Box, colors, IconButton, Typography } from "@mui/material";
-import { IconFilter, IconMenu2 } from "@tabler/icons-react";
+import { Box, colors, Typography } from "@mui/material";
+import { IconFilter } from "@tabler/icons-react";
 import React, { useEffect, useMemo, useState } from "react";
 import type { NodeMouseHandler } from "reactflow";
 import ReactFlow, {
@@ -146,28 +146,6 @@ const FlowGraphContent: React.FC<{
           onEventSelect={onEventSelect}
           open={drawerOpen}
         />
-        <Box
-          flex={1}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <IconButton
-            onClick={() => setDrawerOpen(!drawerOpen)}
-            sx={{
-              position: "absolute",
-              top: 16,
-              left: 16,
-              zIndex: 1000,
-              bgcolor: "background.paper",
-              boxShadow: 1,
-              "&:hover": { bgcolor: "background.paper" },
-            }}
-          >
-            <IconMenu2 />
-          </IconButton>
-          <Typography>Loading...</Typography>
-        </Box>
       </Box>
     );
   }
@@ -193,20 +171,6 @@ const FlowGraphContent: React.FC<{
           alignItems="center"
           justifyContent="center"
         >
-          <IconButton
-            onClick={() => setDrawerOpen(!drawerOpen)}
-            sx={{
-              position: "absolute",
-              top: 16,
-              left: 16,
-              zIndex: 1000,
-              bgcolor: "background.paper",
-              boxShadow: 1,
-              "&:hover": { bgcolor: "background.paper" },
-            }}
-          >
-            <IconMenu2 />
-          </IconButton>
           <Typography color="error">Error loading flow graph</Typography>
         </Box>
       </Box>
@@ -230,20 +194,6 @@ const FlowGraphContent: React.FC<{
 
       {/* Flow Graph */}
       <Box flex={1} bgcolor="gray.50" height="100%" position="relative">
-        <IconButton
-          onClick={() => setDrawerOpen(!drawerOpen)}
-          sx={{
-            position: "absolute",
-            top: 16,
-            left: 16,
-            zIndex: 1000,
-            bgcolor: "background.paper",
-            boxShadow: 1,
-            "&:hover": { bgcolor: "background.paper" },
-          }}
-        >
-          <IconMenu2 />
-        </IconButton>
         {/* cursor overrides */}
         <style>{`
         .rfCustomCursor .react-flow__pane { cursor: default !important; }
@@ -318,20 +268,6 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
           bgcolor="gray.50"
           position="relative"
         >
-          <IconButton
-            onClick={() => setDrawerOpen(!drawerOpen)}
-            sx={{
-              position: "absolute",
-              top: 16,
-              left: 16,
-              zIndex: 1000,
-              bgcolor: "background.paper",
-              boxShadow: 1,
-              "&:hover": { bgcolor: "background.paper" },
-            }}
-          >
-            <IconMenu2 />
-          </IconButton>
           <IconFilter size={64} stroke={1.5} color="#9ca3af" />
           <Typography variant="h6" color="text.secondary">
             Select an Anchor Event
