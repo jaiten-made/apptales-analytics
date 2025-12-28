@@ -54,10 +54,10 @@ export function buildTransitionGraph(data: TransitionGraph) {
 
     // Add step header
     nodes.push({
-      id: `header_step_${step}`,
+      id: `header-${step}`,
       type: "stepHeader",
       position: { x, y: 0 },
-      data: { label: `Step ${step}` },
+      data: { label: `Step ${step + 1}` }, // Changed from level to level + 1
       draggable: false,
       selectable: false,
       style: { width: 200, background: "transparent", border: "none" },
