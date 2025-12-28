@@ -15,11 +15,14 @@ const theme = createTheme({
       height: 64,
     },
   },
+  shape: {
+    borderRadius: 8,
+  },
   components: {
     MuiButton: {
       defaultProps: {
         disableElevation: true,
-        style: { textTransform: "capitalize" },
+        style: { textTransform: "capitalize", borderRadius: 25 },
       },
     },
   },
