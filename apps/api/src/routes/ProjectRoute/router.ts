@@ -360,9 +360,36 @@ router.get(
         nodeCountMap.set(result.eventIdentityId, result._count.id);
       });
 
+      // Calculate exits for each node (sessions where this event is the last event)
+      const exitCounts = await prisma.$queryRaw<
+        Array<{ eventIdentityId: string; exitCount: bigint }>
+      >`
+        WITH last_session_events AS (
+          SELECT DISTINCT ON (e."sessionId")
+            e."sessionId",
+            e."eventIdentityId"
+          FROM "Event" e
+          INNER JOIN "Session" s ON e."sessionId" = s.id
+          WHERE s."projectId" = ${projectId}
+          ORDER BY e."sessionId", e."createdAt" DESC
+        )
+        SELECT 
+          "eventIdentityId",
+          COUNT(*)::bigint as "exitCount"
+        FROM last_session_events
+        WHERE "eventIdentityId" = ANY(${nodeIds}::text[])
+        GROUP BY "eventIdentityId"
+      `;
+
+      const nodeExitMap = new Map<string, number>();
+      exitCounts.forEach((result) => {
+        nodeExitMap.set(result.eventIdentityId, Number(result.exitCount));
+      });
+
       graph.nodes = Array.from(nodeMap.values()).map((node) => ({
         ...node,
         count: node.isAggregate ? 0 : nodeCountMap.get(node.id) || 0,
+        exits: node.isAggregate ? undefined : nodeExitMap.get(node.id) || 0,
       }));
 
       return res.status(200).json(graph);

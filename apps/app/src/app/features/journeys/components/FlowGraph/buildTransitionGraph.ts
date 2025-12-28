@@ -37,6 +37,7 @@ export function buildTransitionGraph(data: TransitionGraph) {
         data: {
           label: node.key,
           count: node.count,
+          exits: node.exits,
           isAggregate: node.isAggregate,
           isStart: step === 0,
           event_type: node.key.split(":")[0],
