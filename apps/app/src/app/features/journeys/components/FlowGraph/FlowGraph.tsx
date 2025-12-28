@@ -1,5 +1,5 @@
-import { Box, colors, Typography } from "@mui/material";
-import { IconFilter } from "@tabler/icons-react";
+import { Box, colors, IconButton, Typography } from "@mui/material";
+import { IconFilter, IconMenu2 } from "@tabler/icons-react";
 import React, { useEffect, useMemo, useState } from "react";
 import type { NodeMouseHandler } from "reactflow";
 import ReactFlow, {
@@ -53,6 +53,7 @@ const FlowGraphContent: React.FC<{
   onEventSelect: (eventId: string, eventKey: string) => void;
 }> = ({ projectId, startingEventId, onEventSelect }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(true);
 
   const {
     data: graph,
@@ -132,11 +133,18 @@ const FlowGraphContent: React.FC<{
 
   if (isLoading) {
     return (
-      <Box display="flex" height="100%" width="100%">
+      <Box
+        display="flex"
+        height="100vh"
+        width="100%"
+        overflow="hidden"
+        position="relative"
+      >
         <EventDiscoveryPanel
           projectId={projectId}
           selectedEventId={startingEventId}
           onEventSelect={onEventSelect}
+          open={drawerOpen}
         />
         <Box
           flex={1}
@@ -144,6 +152,20 @@ const FlowGraphContent: React.FC<{
           alignItems="center"
           justifyContent="center"
         >
+          <IconButton
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            sx={{
+              position: "absolute",
+              top: 16,
+              left: 16,
+              zIndex: 1000,
+              bgcolor: "background.paper",
+              boxShadow: 1,
+              "&:hover": { bgcolor: "background.paper" },
+            }}
+          >
+            <IconMenu2 />
+          </IconButton>
           <Typography>Loading...</Typography>
         </Box>
       </Box>
@@ -152,11 +174,18 @@ const FlowGraphContent: React.FC<{
 
   if (error || !graph) {
     return (
-      <Box display="flex" height="100%" width="100%">
+      <Box
+        display="flex"
+        height="100vh"
+        width="100%"
+        overflow="hidden"
+        position="relative"
+      >
         <EventDiscoveryPanel
           projectId={projectId}
           selectedEventId={startingEventId}
           onEventSelect={onEventSelect}
+          open={drawerOpen}
         />
         <Box
           flex={1}
@@ -164,6 +193,20 @@ const FlowGraphContent: React.FC<{
           alignItems="center"
           justifyContent="center"
         >
+          <IconButton
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            sx={{
+              position: "absolute",
+              top: 16,
+              left: 16,
+              zIndex: 1000,
+              bgcolor: "background.paper",
+              boxShadow: 1,
+              "&:hover": { bgcolor: "background.paper" },
+            }}
+          >
+            <IconMenu2 />
+          </IconButton>
           <Typography color="error">Error loading flow graph</Typography>
         </Box>
       </Box>
@@ -171,15 +214,36 @@ const FlowGraphContent: React.FC<{
   }
 
   return (
-    <Box display="flex" height="100%" width="100%">
+    <Box
+      display="flex"
+      height="100vh"
+      width="100%"
+      overflow="hidden"
+      position="relative"
+    >
       <EventDiscoveryPanel
         projectId={projectId}
         selectedEventId={startingEventId}
         onEventSelect={onEventSelect}
+        open={drawerOpen}
       />
 
       {/* Flow Graph */}
-      <Box flex={1} bgcolor="gray.50">
+      <Box flex={1} bgcolor="gray.50" height="100%" position="relative">
+        <IconButton
+          onClick={() => setDrawerOpen(!drawerOpen)}
+          sx={{
+            position: "absolute",
+            top: 16,
+            left: 16,
+            zIndex: 1000,
+            bgcolor: "background.paper",
+            boxShadow: 1,
+            "&:hover": { bgcolor: "background.paper" },
+          }}
+        >
+          <IconMenu2 />
+        </IconButton>
         {/* cursor overrides */}
         <style>{`
         .rfCustomCursor .react-flow__pane { cursor: default !important; }
@@ -219,6 +283,7 @@ const FlowGraphContent: React.FC<{
 const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
   const [startingEventId, setStartingEventId] = useState<string | null>(null);
   const [startingEventKey, setStartingEventKey] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(true);
 
   const handleEventSelect = (eventId: string, eventKey: string) => {
     setStartingEventId(eventId);
@@ -228,11 +293,18 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
   // Show empty state when no starting point is selected
   if (!startingEventId || !startingEventKey) {
     return (
-      <Box display="flex" height="100%" width="100%">
+      <Box
+        display="flex"
+        height="100vh"
+        width="100%"
+        overflow="hidden"
+        position="relative"
+      >
         <EventDiscoveryPanel
           projectId={projectId}
           selectedEventId={startingEventId}
           onEventSelect={handleEventSelect}
+          open={drawerOpen}
         />
 
         {/* Empty State */}
@@ -244,7 +316,22 @@ const FlowGraph: React.FC<{ projectId: string }> = ({ projectId }) => {
           justifyContent="center"
           gap={2}
           bgcolor="gray.50"
+          position="relative"
         >
+          <IconButton
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            sx={{
+              position: "absolute",
+              top: 16,
+              left: 16,
+              zIndex: 1000,
+              bgcolor: "background.paper",
+              boxShadow: 1,
+              "&:hover": { bgcolor: "background.paper" },
+            }}
+          >
+            <IconMenu2 />
+          </IconButton>
           <IconFilter size={64} stroke={1.5} color="#9ca3af" />
           <Typography variant="h6" color="text.secondary">
             Select an Anchor Event
