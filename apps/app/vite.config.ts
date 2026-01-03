@@ -11,4 +11,12 @@ export default defineConfig({
   ssr: {
     noExternal: ["posthog-js", "@posthog/react"],
   },
+  build: {
+    minify: "terser",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+      },
+    },
+  },
 });

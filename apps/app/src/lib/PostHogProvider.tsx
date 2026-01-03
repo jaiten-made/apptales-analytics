@@ -5,8 +5,6 @@ import type { PropsWithChildren } from "react";
 export function PostHogProvider({ children }: PropsWithChildren) {
   if (import.meta.env.MODE !== "production") return children;
 
-  console.log("production mode - enabling PostHog tracking");
-
   posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY, {
     api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
     defaults: "2025-11-30",
