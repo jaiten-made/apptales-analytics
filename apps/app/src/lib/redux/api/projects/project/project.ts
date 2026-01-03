@@ -26,6 +26,7 @@ export interface TransitionNode {
   key: string;
   level: number;
   count: number;
+  exits: number;
   isAggregate?: boolean;
 }
 
