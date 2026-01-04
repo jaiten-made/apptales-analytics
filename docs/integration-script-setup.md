@@ -5,11 +5,11 @@
 The script tag uses a `data-project-id` attribute to specify your project:
 
 ```html
-<script 
-  async 
-  src="http://localhost:3001/tracker.js" 
-  data-project-id="abc123xyz">
-</script>
+<script
+  async
+  src="http://localhost:3001/tracker.js"
+  data-project-id="abc123xyz"
+></script>
 ```
 
 ## Benefits
@@ -34,17 +34,17 @@ Add this script to the `<head>` section of your website:
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <title>My Website</title>
-  <script 
-    async 
-    src="http://localhost:3001/tracker.js" 
-    data-project-id="abc123xyz">
-  </script>
-</head>
-<body>
-  <!-- Your content here -->
-</body>
+  <head>
+    <title>My Website</title>
+    <script
+      async
+      src="http://localhost:3001/tracker.js"
+      data-project-id="abc123xyz"
+    ></script>
+  </head>
+  <body>
+    <!-- Your content here -->
+  </body>
 </html>
 ```
 
