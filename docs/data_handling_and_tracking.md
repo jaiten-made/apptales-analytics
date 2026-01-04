@@ -14,11 +14,12 @@ In this document, we address the safety concerns regarding data handling and tra
 
 ## Tracking Mechanisms
 
-1. **Product Interaction Tracking**: We monitor aggregated product interactions to understand how product features perform and where users encounter friction. Our tracking focuses on product signals such as:
-   - Page views
-   - Element clicks
-   - Feature usage
-     These metrics are analyzed to evaluate user flows, conversion funnels, and feature adoption, guiding product improvements rather than profiling individuals. Data is collected and processed as anonymized, event-level metrics; no personal identifiers are captured or retained.
+1. **Product-Driven Analytics**: AppTales focuses exclusively on product-driven analytics, not user-driven analytics. We track product interactions to understand how features perform and where friction occurs in your product experience. Our tracking captures product signals such as:
+   - Page views (which pages/features are accessed)
+   - Element clicks (how UI elements are used)
+   - Feature usage patterns (adoption and flow sequences)
+
+   These metrics are analyzed to evaluate product flows, conversion funnels, and feature performance—not to profile or identify individual users. Data is collected and processed as anonymized, event-level metrics with no personal identifiers captured or retained. The focus is entirely on understanding product behavior, not user identity.
 
 ## Conclusion
 
