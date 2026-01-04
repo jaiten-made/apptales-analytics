@@ -6,15 +6,11 @@ In this document, we address the safety concerns regarding data handling and tra
 
 ## Data Handling
 
-1. **Data Collection**: We collect data only when necessary and with user consent. The types of data collected include:
-   - Page views
-   - Element clicks
+1. **Data Storage**: We store customer emails for authentication and communication purposes. Users can opt out of communication at any time. Since we do not retain personal data beyond emails, encryption is not required.
 
-2. **Data Storage**: We store customer emails for authentication and communication purposes. Users can opt out of communication at any time. Since we do not retain personal data beyond emails, encryption is not required.
+2. **Data Processing**: Data is processed in compliance with relevant regulations (e.g., GDPR). We ensure that data is anonymized where possible to protect user identities.
 
-3. **Data Processing**: Data is processed in compliance with relevant regulations (e.g., GDPR). We ensure that data is anonymized where possible to protect user identities.
-
-4. **Data Retention**: We retain data only for as long as necessary to fulfill its purpose. Users can request data deletion at any time.
+3. **Data Retention**: We retain data only for as long as necessary to fulfill its purpose. Users can request data deletion at any time.
 
 ## Tracking Mechanisms
 
