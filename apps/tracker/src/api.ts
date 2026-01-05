@@ -1,4 +1,5 @@
 import { EventPayload } from "@apptales/events-schema";
+import { isLocalhostHostname } from "./utils";
 
 /**
  * Declared global constant replaced at build-time by Vite's `define` plugin.
@@ -13,6 +14,10 @@ declare const __API_BASE_URL__: string;
 const API_URL = __API_BASE_URL__;
 
 export const sendEvent = async (payload: EventPayload, projectId: string) => {
+  if (isLocalhostHostname()) {
+    console.log("Skipping sending event on localhost");
+    return;
+  }
   console.log("Sending event:", payload);
   try {
     const response = await fetch(`${API_URL}/events?projectId=${projectId}`, {
