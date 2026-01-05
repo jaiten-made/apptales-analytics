@@ -14,7 +14,7 @@ declare const __API_BASE_URL__: string;
 const API_URL = __API_BASE_URL__;
 
 export const sendEvent = async (payload: EventPayload, projectId: string) => {
-  if (isLocalhostHostname()) {
+  if (isLocalhostHostname() && import.meta.env.PROD) {
     console.log("Skipping sending event on localhost");
     return;
   }
