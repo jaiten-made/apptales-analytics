@@ -19,7 +19,11 @@ async function main() {
 
   // Create demo project
   const project = await prisma.project.create({
-    data: { name: "Demo SaaS App", customerId: demoCustomer.id },
+    data: {
+      id: "cmjpghj9v0004t1h6ch0hwqzs", // fixed to match aps/tracker/test
+      name: "Demo SaaS App",
+      customerId: demoCustomer.id,
+    },
   });
 
   // Generate session IDs for realistic user journey over 2 weeks
