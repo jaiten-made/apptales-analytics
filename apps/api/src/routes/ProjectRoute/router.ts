@@ -250,83 +250,138 @@ router.get(
       for (let level = 1; level <= depthNum; level++) {
         const nextLevel: string[] = [];
 
-        for (const nodeId of currentLevel) {
-          const transitions =
-            direction === "forward"
-              ? await getTopTransitionsFromEvent(projectId, nodeId, topNNum)
-              : await getTopTransitionsToEvent(projectId, nodeId, topNNum);
+        // Collect transitions from all parents, group by target id
+        const aggregatedTargets = new Map<
+          string,
+          {
+            id: string;
+            key: string;
+            totalCount: number;
+            byParent: Array<{
+              parentId: string;
+              count: number;
+              percentage: number | null;
+              avgDurationMs: number | null;
+            }>;
+          }
+        >();
 
-          for (const transition of transitions) {
-            const targetNode =
+        // Keep per-parent totals to still render "+ More" nodes
+        await Promise.all(
+          currentLevel.map(async (parentId) => {
+            const transitions =
               direction === "forward"
-                ? (transition as { toEvent: { id: string; key: string } })
-                    .toEvent
-                : (transition as { fromEvent: { id: string; key: string } })
-                    .fromEvent;
+                ? await getTopTransitionsFromEvent(projectId, parentId, topNNum)
+                : await getTopTransitionsToEvent(projectId, parentId, topNNum);
 
-            // Skip edges that point back to earlier steps
-            const existingNode = nodeMap.get(targetNode.id);
-            if (existingNode && existingNode.level < level) {
-              continue; // Skip this transition - it goes backward
+            for (const transition of transitions) {
+              const target =
+                direction === "forward"
+                  ? (transition as { toEvent: { id: string; key: string } })
+                      .toEvent
+                  : (transition as { fromEvent: { id: string; key: string } })
+                      .fromEvent;
+
+              const existing = aggregatedTargets.get(target.id);
+              const transitionCount = Number(transition.count || 0);
+
+              if (existing) {
+                existing.totalCount += transitionCount;
+                existing.byParent.push({
+                  parentId,
+                  count: transitionCount,
+                  percentage: transition.percentage ?? null,
+                  avgDurationMs: transition.avgDurationMs ?? null,
+                });
+              } else {
+                aggregatedTargets.set(target.id, {
+                  id: target.id,
+                  key: target.key,
+                  totalCount: transitionCount,
+                  byParent: [
+                    {
+                      parentId,
+                      count: transitionCount,
+                      percentage: transition.percentage ?? null,
+                      avgDurationMs: transition.avgDurationMs ?? null,
+                    },
+                  ],
+                });
+              }
             }
 
-            // Add edge
-            graph.edges.push({
-              from: direction === "forward" ? nodeId : targetNode.id,
-              to: direction === "forward" ? targetNode.id : nodeId,
-              count: transition.count,
-              percentage: transition.percentage,
-              avgDurationMs: transition.avgDurationMs,
-            });
+            // still add "+ More" per parent if they have more than topN transitions
+            const totalTransitions =
+              direction === "forward"
+                ? await prisma.transition.count({
+                    where: {
+                      projectId,
+                      fromEventIdentityId: parentId,
+                    },
+                  })
+                : await prisma.transition.count({
+                    where: {
+                      projectId,
+                      toEventIdentityId: parentId,
+                    },
+                  });
 
-            // Add node if not visited
-            if (!visitedNodes.has(targetNode.id)) {
-              visitedNodes.add(targetNode.id);
-              nextLevel.push(targetNode.id);
-              nodeMap.set(targetNode.id, {
-                id: targetNode.id,
-                key: targetNode.key,
+            if (totalTransitions > topNNum) {
+              const moreCount = Number(totalTransitions) - topNNum;
+              const moreNodeId = `${parentId}-more-${level}`;
+
+              nodeMap.set(moreNodeId, {
+                id: moreNodeId,
+                key: `+ ${moreCount} more`,
                 level,
+                isAggregate: true,
+              });
+
+              graph.edges.push({
+                from: direction === "forward" ? parentId : moreNodeId,
+                to: direction === "forward" ? moreNodeId : parentId,
+                count: moreCount,
+                percentage: 0,
+                avgDurationMs: null,
+                isAggregate: true,
               });
             }
+          })
+        );
+
+        // Choose topN targets for this level by aggregated totalCount
+        const topTargets = Array.from(aggregatedTargets.values())
+          .sort((a, b) => b.totalCount - a.totalCount)
+          .slice(0, topNNum);
+
+        // Add chosen targets and edges from parents to them
+        for (const target of topTargets) {
+          const existingNode = nodeMap.get(target.id);
+          if (existingNode && existingNode.level < level) {
+            continue; // don't re-add nodes that belong to earlier levels
           }
 
-          // Calculate if there are more transitions beyond topN
-          const totalTransitions =
-            direction === "forward"
-              ? await prisma.transition.count({
-                  where: {
-                    projectId,
-                    fromEventIdentityId: nodeId,
-                  },
-                })
-              : await prisma.transition.count({
-                  where: {
-                    projectId,
-                    toEventIdentityId: nodeId,
-                  },
-                });
-
-          if (totalTransitions > topNNum) {
-            const moreCount = totalTransitions - topNNum;
-            const moreNodeId = `${nodeId}-more-${level}`;
-
-            // Add "+ More" node
-            nodeMap.set(moreNodeId, {
-              id: moreNodeId,
-              key: `+ ${moreCount} more`,
+          if (!visitedNodes.has(target.id)) {
+            visitedNodes.add(target.id);
+            nextLevel.push(target.id);
+            nodeMap.set(target.id, {
+              id: target.id,
+              key: target.key,
               level,
-              isAggregate: true,
             });
+          } else if (existingNode) {
+            // update level if needed
+            existingNode.level = Math.min(existingNode.level, level);
+          }
 
-            // Add edge to "+ More"
+          // Add edges for each parent->target pair that was returned
+          for (const byParent of target.byParent) {
             graph.edges.push({
-              from: direction === "forward" ? nodeId : moreNodeId,
-              to: direction === "forward" ? moreNodeId : nodeId,
-              count: moreCount,
-              percentage: 0, // Could calculate this
-              avgDurationMs: null,
-              isAggregate: true,
+              from: direction === "forward" ? byParent.parentId : target.id,
+              to: direction === "forward" ? target.id : byParent.parentId,
+              count: byParent.count,
+              percentage: byParent.percentage,
+              avgDurationMs: byParent.avgDurationMs,
             });
           }
         }
