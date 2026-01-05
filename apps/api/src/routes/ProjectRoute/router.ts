@@ -21,7 +21,7 @@ const projectSchema = z.object({
 });
 
 // @route   GET /projects/:projectId
-// @desc    Get a specific project
+// @desc    Fetch a project owned by the authenticated customer
 // @access  Private
 router.get("/", async (req: AuthRequest, res, next) => {
   try {
@@ -42,7 +42,7 @@ router.get("/", async (req: AuthRequest, res, next) => {
 });
 
 // @route   PUT /projects/:projectId
-// @desc    Update a project
+// @desc    Update a project's name after validating input
 // @access  Private
 router.put("/", async (req: AuthRequest, res, next) => {
   try {
@@ -65,7 +65,7 @@ router.put("/", async (req: AuthRequest, res, next) => {
 });
 
 // @route   DELETE /projects/:projectId
-// @desc    Delete a project
+// @desc    Delete a project owned by the authenticated customer
 // @access  Private
 router.delete("/", async (req: AuthRequest, res, next) => {
   try {
@@ -84,7 +84,7 @@ router.delete("/", async (req: AuthRequest, res, next) => {
 });
 
 // @route  GET /projects/:projectId/event-identities
-// @desc   Get unique event identities for a project filtered by category
+// @desc   List event identities for the project with optional category/search filters and counts
 // @access  Private
 router.get(
   "/event-identities",
@@ -162,11 +162,11 @@ router.get(
 );
 
 // @route  GET /projects/:projectId/transitions
-// @desc   Get weighted transitions from or to an anchor event (auto-computes if needed)
+// @desc   Build a weighted transition graph around an anchor event (auto-computes if missing data)
 // @query  anchorEventId - The event identity ID to start from
-// @query  direction - 'forward' (default) or 'backward'
-// @query  topN - Number of top transitions to return (default: 5)
-// @query  depth - How many levels deep to explore (default: 1)
+// @query  direction - 'forward' (default) or 'backward')
+// @query  topN - Number of top transitions to return per step (default: 5, max: 20)
+// @query  depth - How many steps from the anchor (default: 1, max: 5)
 // @access Private
 router.get(
   "/transitions",
@@ -400,7 +400,7 @@ router.get(
 );
 
 // @route  POST /projects/:projectId/transitions/compute
-// @desc   Trigger computation of transitions for a project
+// @desc   Trigger computation of transition aggregates for the project
 // @access Private
 router.post(
   "/transitions/compute",
