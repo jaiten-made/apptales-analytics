@@ -1,6 +1,17 @@
 import { EventPayload } from "@apptales/events-schema";
 import { sendEvent } from "./api";
 
+const isLocalhostHostname = (): boolean => {
+  const { hostname } = window.location;
+  const isLocalhost =
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "[::1]" ||
+    hostname.endsWith(".localhost");
+  console.log("Is localhost hostname:", isLocalhost);
+  return isLocalhost;
+};
+
 function getProjectId(): string | null {
   console.log("Getting project ID ");
   const script = document.querySelector(
@@ -18,6 +29,7 @@ function createEventTracker() {
 
   // Send page_view event - can be called multiple times for SPA navigation
   async function sendPageView(): Promise<void> {
+    if (isLocalhostHostname()) return;
     try {
       const currentPath = location.pathname + location.search + location.hash;
 
@@ -63,6 +75,10 @@ function createEventTracker() {
 
   async function handleClick(event: MouseEvent): Promise<void> {
     try {
+      if (isLocalhostHostname()) {
+        console.log("Skipping tracking on localhost");
+        return;
+      }
       const target = event.target as Element;
       // prioritize interactive elements
       const element =
