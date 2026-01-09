@@ -241,6 +241,25 @@
         </div>
       </div>
 
+      <!-- Sensitive Input Testing Section -->
+      <div class="section">
+        <h2>🔒 Sensitive Input Testing</h2>
+        <p>Test email and password inputs to verify values aren't tracked:</p>
+        <input
+          type="email"
+          id="email-input"
+          placeholder="Enter your email"
+          required
+        />
+        <input
+          type="password"
+          id="password-input"
+          placeholder="Enter your password"
+          required
+        />
+        <button type="submit" class="btn-primary">Submit Form</button>
+      </div>
+
       <script>
         // Add random timestamp to ensure unique paths/hashes for testing
         document.getElementById("nav-push").addEventListener("click", () => {

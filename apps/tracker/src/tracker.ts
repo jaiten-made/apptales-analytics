@@ -70,6 +70,14 @@ function createEventTracker() {
       const eventType =
         elementText || pluginFallbackIdentifier(clickedElement) || "click";
 
+      if (!elementText) {
+        console.log(
+          "Click event has no trackable text, skipping:",
+          clickedElement
+        );
+        return;
+      }
+
       // Check if this is a consecutive duplicate
       if (eventType === lastSentEvent) {
         console.log("Skipping consecutive duplicate click:", eventType);
