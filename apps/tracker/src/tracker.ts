@@ -69,7 +69,6 @@ function createEventTracker() {
         target.closest('button, a, input, [role="button"]') || target;
 
       let identifier =
-        element.getAttribute("data-track-id") ||
         element.getAttribute("aria-label") ||
         ("innerText" in element ? (element as HTMLElement).innerText : "") ||
         (element instanceof HTMLInputElement ? element.value : "") ||
