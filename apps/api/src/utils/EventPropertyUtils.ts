@@ -16,7 +16,6 @@ export const sanitizeProperties = (
     return { sanitized: properties };
   }
 
-  let hasPII = false;
   const sanitized = JSON.parse(JSON.stringify(properties));
 
   const recursiveSanitize = (obj: any): void => {
@@ -27,7 +26,6 @@ export const sanitizeProperties = (
 
       if (typeof value === "string") {
         if (containsPII(value)) {
-          hasPII = true;
           obj[key] = "[REDACTED]";
         }
       } else if (typeof value === "object" && value !== null) {
@@ -37,5 +35,5 @@ export const sanitizeProperties = (
   };
 
   recursiveSanitize(sanitized);
-  return { sanitized, hasPII };
+  return { sanitized };
 };

@@ -18,7 +18,6 @@ const sanitizeProperties = (properties) => {
   if (!properties || typeof properties !== "object")
     return { sanitized: properties };
 
-  let hasPII = false;
   const sanitized = JSON.parse(JSON.stringify(properties));
 
   const recursiveSanitize = (obj) => {
@@ -43,7 +42,7 @@ const sanitizeProperties = (properties) => {
 
 describe("sanitizeProperties PII handling", () => {
   test("redacts emails", () => {
-    const { sanitized, hasPII } = sanitizeProperties({
+    const { sanitized } = sanitizeProperties({
       email: "user@example.com",
     });
     assert.equal(sanitized.email, "[REDACTED]");
