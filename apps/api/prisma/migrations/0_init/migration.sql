@@ -1,3 +1,4 @@
+[dotenv@17.2.3] injecting env (7) from .env.development -- tip: ⚙️  enable debug logging with { debug: true }
 -- CreateEnum
 CREATE TYPE "EventCategory" AS ENUM ('PAGE_VIEW', 'CLICK');
 
@@ -115,3 +116,4 @@ ALTER TABLE "Transition" ADD CONSTRAINT "Transition_toEventIdentityId_fkey" FORE
 
 -- AddForeignKey
 ALTER TABLE "Transition" ADD CONSTRAINT "Transition_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
