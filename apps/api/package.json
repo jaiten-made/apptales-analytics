@@ -8,7 +8,8 @@
     "prebuild": "prisma generate",
     "build": "tsup src/server.ts",
     "migrate": "prisma migrate deploy",
-    "start": "NODE_ENV=production node --max-old-space-size=768 dist/server.js"
+    "start": "NODE_ENV=production node --max-old-space-size=768 dist/server.js",
+    "test": "node --test 'src/**/*.test.js'"
   },
   "dependencies": {
     "@apptales/events-schema": "workspace:*",

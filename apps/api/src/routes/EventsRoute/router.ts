@@ -6,55 +6,11 @@ import { prisma } from "../../lib/prisma/client";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
 import { validateEventPayload } from "../../middleware/validation/validateEvent";
 import { updateTransitionsForSession } from "../../services/transition";
+import { sanitizeProperties } from "../../utils/EventPropertyUtils";
+import { getEventCategory } from "../../utils/EventUtils";
 import { checkSessionExpiry } from "./middleware";
 
 const router = express.Router();
-
-// PII detection utilities
-function containsPII(text: string): boolean {
-  const patterns = [
-    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/i, // Email
-    /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/, // Phone
-    /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/, // Credit card
-    /\b\d{3}-\d{2}-\d{4}\b/, // SSN
-  ];
-
-  return patterns.some((pattern) => pattern.test(text));
-}
-
-function sanitizeProperties(properties: any): {
-  sanitized: any;
-  hasPII: boolean;
-} {
-  if (!properties || typeof properties !== "object") {
-    return { sanitized: properties, hasPII: false };
-  }
-
-  let hasPII = false;
-  const sanitized = JSON.parse(JSON.stringify(properties));
-
-  function recursiveSanitize(obj: any): void {
-    if (!obj || typeof obj !== "object") return;
-
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        const value = obj[key];
-
-        if (typeof value === "string") {
-          if (containsPII(value)) {
-            hasPII = true;
-            obj[key] = "[REDACTED]";
-          }
-        } else if (typeof value === "object" && value !== null) {
-          recursiveSanitize(value);
-        }
-      }
-    }
-  }
-
-  recursiveSanitize(sanitized);
-  return { sanitized, hasPII };
-}
 
 // @route  GET /events
 // @desc   Get events for a specific project owned by the authenticated user
@@ -124,15 +80,9 @@ router.post(
       if (!session) throw new HttpError(404, "Session not found");
 
       // Sanitize properties and check for PII
-      const { sanitized: sanitizedProperties, hasPII } = sanitizeProperties(
+      const { sanitized: sanitizedProperties } = sanitizeProperties(
         req.body.properties
       );
-
-      if (hasPII) {
-        console.warn(
-          `[Events] PII detected in event properties for session ${req.body.sessionId}. Properties sanitized.`
-        );
-      }
 
       // Create or get EventIdentity based on event type and properties
       const eventKey =
@@ -144,10 +94,7 @@ router.post(
           : req.body.type;
 
       // Determine category based on event type
-      const category: EventCategory =
-        req.body.type === "page_view"
-          ? EventCategory.PAGE_VIEW
-          : EventCategory.CLICK;
+      const category: EventCategory = getEventCategory(req.body.type);
 
       let eventIdentity = await prisma.eventIdentity.findFirst({
         where: { key: eventKey },
