@@ -63,26 +63,12 @@ function createEventTracker() {
 
   async function handleClick(event: MouseEvent): Promise<void> {
     try {
-      const target = event.target as Element;
-      // prioritize interactive elements
-      const element =
-        target.closest('button, a, input, [role="button"]') || target;
+      const clickedElement = event.target as Element;
 
-      let identifier =
-        element.getAttribute("aria-label") ||
-        ("innerText" in element ? (element as HTMLElement).innerText : "") ||
-        (element instanceof HTMLInputElement ? element.value : "") ||
-        element.id ||
-        pluginFallbackIdentifier(element);
-
-      if (!identifier) return;
-
-      identifier = identifier.trim();
-      if (identifier.length === 0) return;
-      if (identifier.length > 50)
-        identifier = identifier.substring(0, 50) + "...";
-
-      const eventType = `click:${identifier}`;
+      // Extract text content from the element
+      const elementText = getElementText(clickedElement);
+      const eventType =
+        elementText || pluginFallbackIdentifier(clickedElement) || "click";
 
       // Check if this is a consecutive duplicate
       if (eventType === lastSentEvent) {
@@ -104,6 +90,63 @@ function createEventTracker() {
     } catch (error) {
       console.error("Error tracking click:", error);
     }
+  }
+
+  function getElementText(element: Element): string {
+    const SENSITIVE_INPUT_TYPES = ["password", "email", "tel", "hidden"];
+    const MAX_LENGTH = 100;
+
+    // Handle input elements
+    if (
+      element instanceof HTMLInputElement ||
+      element instanceof HTMLTextAreaElement
+    ) {
+      if (
+        element instanceof HTMLInputElement &&
+        SENSITIVE_INPUT_TYPES.includes(element.type.toLowerCase())
+      ) {
+        return "";
+      }
+
+      const inputText = element.placeholder || element.name || "";
+      return sanitizeText(inputText, MAX_LENGTH);
+    }
+
+    // Priority order for other elements
+    const sources = [
+      element.getAttribute("data-track-label"),
+      element.getAttribute("aria-label"),
+      element.getAttribute("title"),
+      (element as HTMLElement).innerText,
+      element.textContent,
+    ];
+
+    for (const source of sources) {
+      if (source) {
+        const sanitized = sanitizeText(source, MAX_LENGTH);
+        if (sanitized) return sanitized;
+      }
+    }
+
+    return "";
+  }
+
+  function sanitizeText(text: string, maxLength: number): string {
+    const trimmed = text.trim().substring(0, maxLength);
+    if (!trimmed || containsPII(trimmed)) {
+      return "";
+    }
+    return trimmed;
+  }
+
+  function containsPII(text: string): boolean {
+    const patterns = [
+      /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/i, // Email
+      /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/, // Phone
+      /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/, // Credit card
+    ];
+
+    return patterns.some((pattern) => pattern.test(text));
   }
 
   function pluginFallbackIdentifier(el: Element): string {

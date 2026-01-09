@@ -10,6 +10,52 @@ import { checkSessionExpiry } from "./middleware";
 
 const router = express.Router();
 
+// PII detection utilities
+function containsPII(text: string): boolean {
+  const patterns = [
+    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/i, // Email
+    /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/, // Phone
+    /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/, // Credit card
+    /\b\d{3}-\d{2}-\d{4}\b/, // SSN
+  ];
+
+  return patterns.some((pattern) => pattern.test(text));
+}
+
+function sanitizeProperties(properties: any): {
+  sanitized: any;
+  hasPII: boolean;
+} {
+  if (!properties || typeof properties !== "object") {
+    return { sanitized: properties, hasPII: false };
+  }
+
+  let hasPII = false;
+  const sanitized = JSON.parse(JSON.stringify(properties));
+
+  function recursiveSanitize(obj: any): void {
+    if (!obj || typeof obj !== "object") return;
+
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const value = obj[key];
+
+        if (typeof value === "string") {
+          if (containsPII(value)) {
+            hasPII = true;
+            obj[key] = "[REDACTED]";
+          }
+        } else if (typeof value === "object" && value !== null) {
+          recursiveSanitize(value);
+        }
+      }
+    }
+  }
+
+  recursiveSanitize(sanitized);
+  return { sanitized, hasPII };
+}
+
 // @route  GET /events
 // @desc   Get events for a specific project owned by the authenticated user
 // @access Private
@@ -77,11 +123,22 @@ router.post(
 
       if (!session) throw new HttpError(404, "Session not found");
 
+      // Sanitize properties and check for PII
+      const { sanitized: sanitizedProperties, hasPII } = sanitizeProperties(
+        req.body.properties
+      );
+
+      if (hasPII) {
+        console.warn(
+          `[Events] PII detected in event properties for session ${req.body.sessionId}. Properties sanitized.`
+        );
+      }
+
       // Create or get EventIdentity based on event type and properties
       const eventKey =
         req.body.type === "page_view"
           ? `${req.body.type}:${
-              (req.body.properties as { location: { pathname: string } })
+              (sanitizedProperties as { location: { pathname: string } })
                 .location.pathname
             }`
           : req.body.type;
@@ -102,11 +159,11 @@ router.post(
         });
       }
 
-      // Save to Prisma DB
+      // Save to Prisma DB with sanitized properties
       const event = await prisma.event.create({
         data: {
           type: req.body.type,
-          properties: (req.body.properties ?? {}) as any,
+          properties: (sanitizedProperties ?? {}) as any,
           sessionId: req.body.sessionId,
           eventIdentityId: eventIdentity.id,
         },
