@@ -37,7 +37,7 @@ const sanitizeProperties = (properties) => {
   };
 
   recursiveSanitize(sanitized);
-  return { sanitized, hasPII };
+  return { sanitized };
 };
 
 describe("sanitizeProperties PII handling", () => {
@@ -49,24 +49,24 @@ describe("sanitizeProperties PII handling", () => {
   });
 
   test("redacts phone numbers", () => {
-    const { sanitized, hasPII } = sanitizeProperties({ phone: "123-456-7890" });
+    const { sanitized } = sanitizeProperties({ phone: "123-456-7890" });
     assert.equal(sanitized.phone, "[REDACTED]");
   });
 
   test("redacts credit cards", () => {
-    const { sanitized, hasPII } = sanitizeProperties({
+    const { sanitized } = sanitizeProperties({
       card: "1234-5678-9012-3456",
     });
     assert.equal(sanitized.card, "[REDACTED]");
   });
 
   test("redacts SSN", () => {
-    const { sanitized, hasPII } = sanitizeProperties({ ssn: "123-45-6789" });
+    const { sanitized } = sanitizeProperties({ ssn: "123-45-6789" });
     assert.equal(sanitized.ssn, "[REDACTED]");
   });
 
   test("redacts nested PII", () => {
-    const { sanitized, hasPII } = sanitizeProperties({
+    const { sanitized } = sanitizeProperties({
       user: { profile: { email: "user@example.com", phone: "123.456.7890" } },
     });
     assert.equal(sanitized.user.profile.email, "[REDACTED]");
@@ -75,9 +75,8 @@ describe("sanitizeProperties PII handling", () => {
 
   test("leaves clean data untouched", () => {
     const input = { page: "/home", userAgent: "Mozilla/5.0", count: 3 };
-    const { sanitized, hasPII } = sanitizeProperties(input);
+    const { sanitized } = sanitizeProperties(input);
     assert.deepEqual(sanitized, input);
-    assert.equal(hasPII, false);
   });
 
   test("handles null/undefined/primitive gracefully", () => {
