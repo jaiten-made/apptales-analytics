@@ -18,6 +18,11 @@ enum EventCategory {
   CLICK
 }
 
+enum CustomerStatus {
+  ACTIVE
+  PROVISIONED
+}
+
 model Project {
   id          String       @id @default(cuid())
   name        String
@@ -44,6 +49,7 @@ model EventIdentity {
 model Customer {
   id        String   @id @default(cuid())
   email     String   @unique 
+  status    CustomerStatus @default(ACTIVE)
   createdAt DateTime @default(now())
   projects  Project[]
 }

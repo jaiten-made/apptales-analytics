@@ -1,5 +1,5 @@
 import { generateCuid } from "@apptales/utils";
-import { EventCategory, PrismaClient } from "@prisma/client";
+import { CustomerStatus, EventCategory, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -8,7 +8,7 @@ async function main() {
 
   // Seed demo customer
   await prisma.customer.createMany({
-    data: [{ email: "john.doe@domain.com" }],
+    data: [{ email: "john.doe@domain.com", status: CustomerStatus.ACTIVE }],
     skipDuplicates: true,
   });
   const demoCustomer = await prisma.customer.findUnique({

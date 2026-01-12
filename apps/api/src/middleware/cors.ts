@@ -18,9 +18,10 @@ const getCorsOptions = (req: Request): cors.CorsOptions => {
     return { origin: true, credentials: true };
   }
   const allowedOrigins = [
-    process.env.APP_BASE_URL!,
-    process.env.TRACKER_BASE_URL!,
-  ];
+    process.env.APP_BASE_URL,
+    process.env.TRACKER_BASE_URL,
+    process.env.PROVISIONING_PORTAL_BASE_URL,
+  ].filter(Boolean);
   return {
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin)) {

@@ -25,6 +25,7 @@ import authSessionRouter from "./routes/AuthRoute/Session/router";
 import eventsRouter from "./routes/EventsRoute/router";
 import projectRouter from "./routes/ProjectRoute/router";
 import projectsRouter from "./routes/ProjectsRoute/router";
+import provisioningRouter from "./routes/ProvisioningRoute/router";
 import sessionsRouter from "./routes/SessionsRoute/router";
 
 const { TokenExpiredError } = jwt;
@@ -70,6 +71,11 @@ mountWithRateLimit(
   "/projects/:projectId",
   dashboardRateLimitMiddleware,
   projectRouter
+);
+mountWithRateLimit(
+  "/admin/provision",
+  dashboardRateLimitMiddleware,
+  provisioningRouter
 );
 
 // Auth routes with tiered rate limiting

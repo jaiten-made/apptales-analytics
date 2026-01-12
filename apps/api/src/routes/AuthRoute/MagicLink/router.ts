@@ -1,3 +1,4 @@
+import { CustomerStatus } from "@prisma/client";
 import express from "express";
 import jwt from "jsonwebtoken";
 import open from "open";
@@ -51,8 +52,8 @@ router.get("/verify", async (req, res, next) => {
       secure: process.env.NODE_ENV === "production",
     });
     await prisma.customer.upsert({
-      create: { email: decoded.email },
-      update: {},
+      create: { email: decoded.email, status: CustomerStatus.ACTIVE },
+      update: { status: CustomerStatus.ACTIVE },
       where: { email: decoded.email },
     });
     res.redirect(process.env.APP_BASE_URL!);
