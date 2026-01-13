@@ -1,4 +1,5 @@
-import { prisma } from "../lib/prisma/client";
+import { db } from "../db/index";
+import { project } from "../db/schema";
 import { computeTransitionsForProject } from "./transition";
 
 /**
@@ -12,28 +13,28 @@ export async function computeAllProjectTransitions(): Promise<void> {
 
   try {
     // Get all projects
-    const projects = await prisma.project.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+    const projects = await db
+      .select({
+        id: project.id,
+        name: project.name,
+      })
+      .from(project);
 
     console.log(`[TransitionJob] Found ${projects.length} projects to process`);
 
     // Process each project
-    for (const project of projects) {
+    for (const proj of projects) {
       try {
         console.log(
-          `[TransitionJob] Computing transitions for project: ${project.name} (${project.id})`
+          `[TransitionJob] Computing transitions for project: ${proj.name} (${proj.id})`
         );
-        await computeTransitionsForProject(project.id);
+        await computeTransitionsForProject(proj.id);
         console.log(
-          `[TransitionJob] Completed transitions for project: ${project.name}`
+          `[TransitionJob] Completed transitions for project: ${proj.name}`
         );
       } catch (error) {
         console.error(
-          `[TransitionJob] Failed to compute transitions for project ${project.id}:`,
+          `[TransitionJob] Failed to compute transitions for project ${proj.id}:`,
           error
         );
         // Continue with next project even if one fails

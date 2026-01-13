@@ -1,4 +1,6 @@
-import { prisma } from "../lib/prisma/client";
+import { and, asc, desc, eq } from "drizzle-orm";
+import { db } from "../db/index";
+import { event, eventIdentity, session, transition } from "../db/schema";
 
 /**
  * Represents a single event in a session sequence
@@ -108,38 +110,37 @@ async function calculateTransitionPercentages(
   projectId: string
 ): Promise<void> {
   // Get all transitions for the project
-  const transitions = await prisma.transition.findMany({
-    where: { projectId },
-    select: {
-      id: true,
-      fromEventIdentityId: true,
-      count: true,
-    },
-  });
+  const transitions = await db
+    .select({
+      id: transition.id,
+      fromEventIdentityId: transition.fromEventIdentityId,
+      count: transition.count,
+    })
+    .from(transition)
+    .where(eq(transition.projectId, projectId));
 
   // Group by source event and calculate totals
   const sourceEventTotals = new Map<string, number>();
-  for (const transition of transitions) {
-    const currentTotal =
-      sourceEventTotals.get(transition.fromEventIdentityId) || 0;
+  for (const trans of transitions) {
+    const currentTotal = sourceEventTotals.get(trans.fromEventIdentityId) || 0;
     sourceEventTotals.set(
-      transition.fromEventIdentityId,
-      currentTotal + transition.count
+      trans.fromEventIdentityId,
+      currentTotal + trans.count
     );
   }
 
   // Update percentages
-  const updates = transitions.map((transition) => {
-    const total = sourceEventTotals.get(transition.fromEventIdentityId) || 1;
-    const percentage = (transition.count / total) * 100;
+  const updates = transitions.map(async (trans) => {
+    const total = sourceEventTotals.get(trans.fromEventIdentityId) || 1;
+    const percentage = (trans.count / total) * 100;
 
-    return prisma.transition.update({
-      where: { id: transition.id },
-      data: { percentage },
-    });
+    return db
+      .update(transition)
+      .set({ percentage })
+      .where(eq(transition.id, trans.id));
   });
 
-  await prisma.$transaction(updates);
+  await Promise.all(updates);
 }
 
 /**
@@ -150,22 +151,22 @@ export async function computeTransitionsForProject(
   projectId: string
 ): Promise<void> {
   // Fetch all sessions with their events, ordered by timestamp
-  const sessions = await prisma.session.findMany({
-    where: { projectId },
-    include: {
+  const sessions = await db.query.session.findMany({
+    where: eq(session.projectId, projectId),
+    with: {
       events: {
-        select: {
+        columns: {
           eventIdentityId: true,
           createdAt: true,
+        },
+        with: {
           eventIdentity: {
-            select: {
+            columns: {
               key: true,
             },
           },
         },
-        orderBy: {
-          createdAt: "asc",
-        },
+        orderBy: [asc(event.createdAt)],
       },
     },
   });
@@ -173,13 +174,13 @@ export async function computeTransitionsForProject(
   // Process each session to extract transition pairs
   const allTransitionPairs: TransitionPair[] = [];
 
-  for (const session of sessions) {
-    if (session.events.length < 2) continue; // Need at least 2 events for a transition
+  for (const sess of sessions) {
+    if (sess.events.length < 2) continue; // Need at least 2 events for a transition
 
-    const eventSequence: EventSequence[] = session.events.map((event) => ({
-      eventIdentityId: event.eventIdentityId,
-      eventIdentityKey: event.eventIdentity.key,
-      createdAt: event.createdAt,
+    const eventSequence: EventSequence[] = sess.events.map((ev) => ({
+      eventIdentityId: ev.eventIdentityId,
+      eventIdentityKey: ev.eventIdentity.key,
+      createdAt: ev.createdAt,
     }));
 
     // Step 1: Collapse consecutive duplicates
@@ -194,33 +195,45 @@ export async function computeTransitionsForProject(
   const aggregated = aggregateTransitions(allTransitionPairs);
 
   // Step 4: Upsert transitions to database
-  const upsertPromises = Array.from(aggregated.values()).map((agg) => {
+  const upsertPromises = Array.from(aggregated.values()).map(async (agg) => {
     const avgDurationMs = Math.round(agg.totalDurationMs / agg.count);
 
-    return prisma.transition.upsert({
-      where: {
-        fromEventIdentityId_toEventIdentityId_projectId: {
-          fromEventIdentityId: agg.fromId,
-          toEventIdentityId: agg.toId,
-          projectId,
-        },
-      },
-      create: {
+    // Check if transition exists
+    const existing = await db
+      .select()
+      .from(transition)
+      .where(
+        and(
+          eq(transition.fromEventIdentityId, agg.fromId),
+          eq(transition.toEventIdentityId, agg.toId),
+          eq(transition.projectId, projectId)
+        )
+      )
+      .limit(1);
+
+    if (existing.length > 0) {
+      // Update existing
+      await db
+        .update(transition)
+        .set({
+          count: agg.count,
+          avgDurationMs,
+          updatedAt: new Date(),
+        })
+        .where(eq(transition.id, existing[0].id));
+    } else {
+      // Create new
+      await db.insert(transition).values({
         fromEventIdentityId: agg.fromId,
         toEventIdentityId: agg.toId,
         projectId,
         count: agg.count,
         avgDurationMs,
-      },
-      update: {
-        count: agg.count,
-        avgDurationMs,
-        updatedAt: new Date(),
-      },
-    });
+      });
+    }
   });
 
-  await prisma.$transaction(upsertPromises);
+  await Promise.all(upsertPromises);
 
   // Step 5: Calculate percentages
   await calculateTransitionPercentages(projectId);
@@ -234,32 +247,32 @@ export async function updateTransitionsForSession(
   sessionId: string
 ): Promise<void> {
   // Fetch the session with its events
-  const session = await prisma.session.findUnique({
-    where: { id: sessionId },
-    include: {
+  const sess = await db.query.session.findFirst({
+    where: eq(session.id, sessionId),
+    with: {
       events: {
-        select: {
+        columns: {
           eventIdentityId: true,
           createdAt: true,
+        },
+        with: {
           eventIdentity: {
-            select: {
+            columns: {
               key: true,
             },
           },
         },
-        orderBy: {
-          createdAt: "asc",
-        },
+        orderBy: [asc(event.createdAt)],
       },
     },
   });
 
-  if (!session || session.events.length < 2) return;
+  if (!sess || sess.events.length < 2) return;
 
-  const eventSequence: EventSequence[] = session.events.map((event) => ({
-    eventIdentityId: event.eventIdentityId,
-    eventIdentityKey: event.eventIdentity.key,
-    createdAt: event.createdAt,
+  const eventSequence: EventSequence[] = sess.events.map((ev) => ({
+    eventIdentityId: ev.eventIdentityId,
+    eventIdentityKey: ev.eventIdentity.key,
+    createdAt: ev.createdAt,
   }));
 
   // Collapse and extract pairs
@@ -270,36 +283,48 @@ export async function updateTransitionsForSession(
   const aggregated = aggregateTransitions(pairs);
 
   // Upsert transitions
-  const upsertPromises = Array.from(aggregated.values()).map((agg) => {
+  const upsertPromises = Array.from(aggregated.values()).map(async (agg) => {
     const avgDurationMs = Math.round(agg.totalDurationMs / agg.count);
 
-    return prisma.transition.upsert({
-      where: {
-        fromEventIdentityId_toEventIdentityId_projectId: {
-          fromEventIdentityId: agg.fromId,
-          toEventIdentityId: agg.toId,
-          projectId: session.projectId,
-        },
-      },
-      create: {
+    // Check if transition exists
+    const existing = await db
+      .select()
+      .from(transition)
+      .where(
+        and(
+          eq(transition.fromEventIdentityId, agg.fromId),
+          eq(transition.toEventIdentityId, agg.toId),
+          eq(transition.projectId, sess.projectId)
+        )
+      )
+      .limit(1);
+
+    if (existing.length > 0) {
+      // Update existing - increment count
+      await db
+        .update(transition)
+        .set({
+          count: existing[0].count + agg.count,
+          avgDurationMs,
+          updatedAt: new Date(),
+        })
+        .where(eq(transition.id, existing[0].id));
+    } else {
+      // Create new
+      await db.insert(transition).values({
         fromEventIdentityId: agg.fromId,
         toEventIdentityId: agg.toId,
-        projectId: session.projectId,
+        projectId: sess.projectId,
         count: agg.count,
         avgDurationMs,
-      },
-      update: {
-        count: { increment: agg.count },
-        avgDurationMs, // This could be improved with a running average
-        updatedAt: new Date(),
-      },
-    });
+      });
+    }
   });
 
-  await prisma.$transaction(upsertPromises);
+  await Promise.all(upsertPromises);
 
   // Recalculate percentages for affected events
-  await calculateTransitionPercentages(session.projectId);
+  await calculateTransitionPercentages(sess.projectId);
 }
 
 /**
@@ -320,29 +345,33 @@ export async function getTopTransitionsFromEvent(
     avgDurationMs: number | null;
   }>
 > {
-  const transitions = await prisma.transition.findMany({
-    where: {
-      projectId,
-      fromEventIdentityId: anchorEventIdentityId,
-    },
-    include: {
-      toEventIdentity: {
-        select: {
-          id: true,
-          key: true,
-        },
-      },
-    },
-    orderBy: {
-      count: "desc",
-    },
-    take: topN,
-  });
+  const transitions = await db
+    .select({
+      id: transition.id,
+      count: transition.count,
+      percentage: transition.percentage,
+      avgDurationMs: transition.avgDurationMs,
+      toEventId: eventIdentity.id,
+      toEventKey: eventIdentity.key,
+    })
+    .from(transition)
+    .innerJoin(
+      eventIdentity,
+      eq(transition.toEventIdentityId, eventIdentity.id)
+    )
+    .where(
+      and(
+        eq(transition.projectId, projectId),
+        eq(transition.fromEventIdentityId, anchorEventIdentityId)
+      )
+    )
+    .orderBy(desc(transition.count))
+    .limit(topN);
 
   return transitions.map((t) => ({
     toEvent: {
-      id: t.toEventIdentity.id,
-      key: t.toEventIdentity.key,
+      id: t.toEventId,
+      key: t.toEventKey,
     },
     count: t.count,
     percentage: t.percentage,
@@ -368,29 +397,33 @@ export async function getTopTransitionsToEvent(
     avgDurationMs: number | null;
   }>
 > {
-  const transitions = await prisma.transition.findMany({
-    where: {
-      projectId,
-      toEventIdentityId: anchorEventIdentityId,
-    },
-    include: {
-      fromEventIdentity: {
-        select: {
-          id: true,
-          key: true,
-        },
-      },
-    },
-    orderBy: {
-      count: "desc",
-    },
-    take: topN,
-  });
+  const transitions = await db
+    .select({
+      id: transition.id,
+      count: transition.count,
+      percentage: transition.percentage,
+      avgDurationMs: transition.avgDurationMs,
+      fromEventId: eventIdentity.id,
+      fromEventKey: eventIdentity.key,
+    })
+    .from(transition)
+    .innerJoin(
+      eventIdentity,
+      eq(transition.fromEventIdentityId, eventIdentity.id)
+    )
+    .where(
+      and(
+        eq(transition.projectId, projectId),
+        eq(transition.toEventIdentityId, anchorEventIdentityId)
+      )
+    )
+    .orderBy(desc(transition.count))
+    .limit(topN);
 
   return transitions.map((t) => ({
     fromEvent: {
-      id: t.fromEventIdentity.id,
-      key: t.fromEventIdentity.key,
+      id: t.fromEventId,
+      key: t.fromEventKey,
     },
     count: t.count,
     percentage: t.percentage,

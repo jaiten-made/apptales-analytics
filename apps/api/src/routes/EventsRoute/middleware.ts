@@ -1,16 +1,23 @@
+import { generateCuid } from "@apptales/utils";
+import { desc, eq } from "drizzle-orm";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { prisma } from "../../lib/prisma/client";
+import { db } from "../../db/index";
+import { event, session } from "../../db/schema";
 import { signSessionToken, verifySessionToken } from "../../utils/session-jwt";
 
 const { TokenExpiredError } = jwt;
 
 const createAndSetSessionCookie = async (res: Response, projectId: string) => {
-  const newSession = await prisma.session.create({
-    data: {
+  const newSessions = await db
+    .insert(session)
+    .values({
+      id: generateCuid(),
       projectId,
-    },
-  });
+    })
+    .returning();
+
+  const newSession = newSessions[0];
 
   const token = signSessionToken(
     {
@@ -64,19 +71,20 @@ export const checkSessionExpiry = async (
     }
 
     // Look up the last event for this session
-    const lastEvent = await prisma.event.findFirst({
-      where: {
-        sessionId: sessionId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const lastEvents = await db
+      .select()
+      .from(event)
+      .where(eq(event.sessionId, sessionId))
+      .orderBy(desc(event.createdAt))
+      .limit(1);
+
+    const lastEvent = lastEvents[0];
+
     // If there's a last event, check if 30 minutes have passed
     if (lastEvent) {
       const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
 
-      if (lastEvent.createdAt < thirtyMinutesAgo) {
+      if (new Date(lastEvent.createdAt) < thirtyMinutesAgo) {
         // Create a new session if 30 minutes have passed since the last event
         sessionId = await createAndSetSessionCookie(res, decoded.projectId);
       }

@@ -1,6 +1,8 @@
+import { and, eq } from "drizzle-orm";
 import { NextFunction, Response } from "express";
+import { db } from "../db/index";
+import { project, session } from "../db/schema";
 import HttpError from "../errors/HttpError";
-import { prisma } from "../lib/prisma/client";
 import { AuthRequest } from "./auth";
 
 export const requireSessionOwnership = async (
@@ -11,7 +13,7 @@ export const requireSessionOwnership = async (
   try {
     const { sessionId } = req.params;
     const userId = req.user?.id;
-    
+
     if (!userId) {
       throw new HttpError(401, "User not authenticated");
     }
@@ -21,16 +23,14 @@ export const requireSessionOwnership = async (
     }
 
     // Verify the user owns the project that owns this session
-    const session = await prisma.session.findFirst({
-      where: {
-        id: sessionId,
-        project: {
-          customerId: userId,
-        },
-      },
-    });
+    const sessions = await db
+      .select()
+      .from(session)
+      .innerJoin(project, eq(session.projectId, project.id))
+      .where(and(eq(session.id, sessionId), eq(project.customerId, userId)))
+      .limit(1);
 
-    if (!session) {
+    if (sessions.length === 0) {
       throw new HttpError(404, "Session not found or access denied");
     }
 

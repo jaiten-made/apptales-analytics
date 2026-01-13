@@ -1,6 +1,8 @@
+import { eq } from "drizzle-orm";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { prisma } from "../lib/prisma/client";
+import { db } from "../db/index";
+import { customer } from "../db/schema";
 import HttpError from "../errors/HttpError";
 
 export interface AuthRequest extends Request {
@@ -26,17 +28,21 @@ export const requireAuth = async (
       email: string;
     };
 
-    const customer = await prisma.customer.findUnique({
-      where: { email: decoded.email },
-    });
+    const customers = await db
+      .select()
+      .from(customer)
+      .where(eq(customer.email, decoded.email))
+      .limit(1);
 
-    if (!customer) {
+    const cust = customers[0];
+
+    if (!cust) {
       throw new HttpError(401, "User not found");
     }
 
     (req as AuthRequest).user = {
-      id: customer.id,
-      email: customer.email,
+      id: cust.id,
+      email: cust.email,
     };
 
     next();

@@ -1,8 +1,9 @@
 import { Event } from "@apptales/types";
-import { EventCategory } from "@prisma/client";
+import { and, desc, eq } from "drizzle-orm";
 import express, { NextFunction, Request, Response } from "express";
+import { db } from "../../db/index";
+import { event, eventIdentity, project, session } from "../../db/schema";
 import HttpError from "../../errors/HttpError";
-import { prisma } from "../../lib/prisma/client";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
 import { validateEventPayload } from "../../middleware/validation/validateEvent";
 import { updateTransitionsForSession } from "../../services/transition";
@@ -25,38 +26,24 @@ router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
       throw new HttpError(400, "Project ID is required");
 
     // Verify the user owns the project
-    const project = await prisma.project.findFirst({
-      where: {
-        id: projectId,
-        customerId: userId,
-      },
-    });
+    const projects = await db
+      .select()
+      .from(project)
+      .where(and(eq(project.id, projectId), eq(project.customerId, userId)))
+      .limit(1);
 
-    if (!project)
+    if (projects.length === 0)
       throw new HttpError(404, "Project not found or access denied");
 
     // Get all events for sessions belonging to this project
-    const events = await prisma.event.findMany({
-      where: {
-        session: {
-          projectId: projectId,
-        },
-      },
-      include: {
-        eventIdentity: true,
-        session: {
-          select: {
-            id: true,
-            createdAt: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const events = await db
+      .select()
+      .from(event)
+      .innerJoin(session, eq(event.sessionId, session.id))
+      .where(eq(session.projectId, projectId))
+      .orderBy(desc(event.createdAt));
 
-    res.json(events);
+    res.json(events.map((e) => e.Event));
   } catch (error) {
     next(error);
   }
@@ -72,12 +59,12 @@ router.post(
   async (req: Request<{}, {}, Event>, res: Response, next: NextFunction) => {
     try {
       // Verify the session exists before creating the event
-      const session = await prisma.session.findUnique({
-        where: { id: req.body.sessionId },
-        include: { project: true },
+      const sessionRecord = await db.query.session.findFirst({
+        where: (s, { eq }) => eq(s.id, req.body.sessionId),
+        with: { project: true },
       });
 
-      if (!session) throw new HttpError(404, "Session not found");
+      if (!sessionRecord) throw new HttpError(404, "Session not found");
 
       // Sanitize properties and check for PII
       const { sanitized: sanitizedProperties } = sanitizeProperties(
@@ -94,27 +81,32 @@ router.post(
           : req.body.type;
 
       // Determine category based on event type
-      const category: EventCategory = getEventCategory(req.body.type);
+      const category = getEventCategory(req.body.type);
 
-      let eventIdentity = await prisma.eventIdentity.findFirst({
-        where: { key: eventKey },
+      let eventIdentityRecord = await db.query.eventIdentity.findFirst({
+        where: (ei, { eq }) => eq(ei.key, eventKey),
       });
 
-      if (!eventIdentity) {
-        eventIdentity = await prisma.eventIdentity.create({
-          data: { key: eventKey, category },
-        });
+      if (!eventIdentityRecord) {
+        const result = await db
+          .insert(eventIdentity)
+          .values({ key: eventKey, category })
+          .returning();
+        eventIdentityRecord = result[0];
       }
 
-      // Save to Prisma DB with sanitized properties
-      const event = await prisma.event.create({
-        data: {
+      // Save to Drizzle DB with sanitized properties
+      const eventResult = await db
+        .insert(event)
+        .values({
           type: req.body.type,
-          properties: (sanitizedProperties ?? {}) as any,
+          properties: (sanitizedProperties ?? {}) as Record<string, unknown>,
           sessionId: req.body.sessionId,
-          eventIdentityId: eventIdentity.id,
-        },
-      });
+          eventIdentityId: eventIdentityRecord.id,
+        })
+        .returning();
+
+      const createdEvent = eventResult[0];
 
       // Update transitions incrementally for this session
       try {
@@ -127,7 +119,7 @@ router.post(
         );
       }
 
-      res.status(201).json(event);
+      res.status(201).json(createdEvent);
     } catch (error) {
       next(error);
     }

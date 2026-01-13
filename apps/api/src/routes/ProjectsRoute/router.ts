@@ -1,6 +1,8 @@
+import { desc, eq } from "drizzle-orm";
 import express from "express";
 import { z } from "zod";
-import { prisma } from "../../lib/prisma/client";
+import { db } from "../../db/index";
+import { project } from "../../db/schema";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
 
 const router = express.Router();
@@ -19,14 +21,15 @@ router.post("/", async (req: AuthRequest, res, next) => {
     const { name } = projectSchema.parse(req.body);
     const userId = req.user!.id;
 
-    const project = await prisma.project.create({
-      data: {
+    const result = await db
+      .insert(project)
+      .values({
         name,
         customerId: userId,
-      },
-    });
+      })
+      .returning();
 
-    res.status(201).json(project);
+    res.status(201).json(result[0]);
   } catch (error) {
     next(error);
   }
@@ -39,14 +42,11 @@ router.get("/", async (req: AuthRequest, res, next) => {
   try {
     const userId = req.user!.id;
 
-    const projects = await prisma.project.findMany({
-      where: {
-        customerId: userId,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const projects = await db
+      .select()
+      .from(project)
+      .where(eq(project.customerId, userId))
+      .orderBy(desc(project.createdAt));
 
     res.json(projects);
   } catch (error) {

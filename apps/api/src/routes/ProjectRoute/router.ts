@@ -1,6 +1,8 @@
+import { and, eq, sql } from "drizzle-orm";
 import express from "express";
 import { z } from "zod";
-import { prisma } from "../../lib/prisma/client";
+import { db } from "../../db/index";
+import { event, eventIdentity, project, transition } from "../../db/schema";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
 import { requireProjectOwnership } from "../../middleware/project";
 import {
@@ -28,14 +30,13 @@ router.get("/", async (req: AuthRequest, res, next) => {
     const { projectId } = req.params;
     const userId = req.user!.id;
 
-    const project = await prisma.project.findFirst({
-      where: {
-        id: projectId,
-        customerId: userId,
-      },
-    });
+    const projects = await db
+      .select()
+      .from(project)
+      .where(and(eq(project.id, projectId), eq(project.customerId, userId)))
+      .limit(1);
 
-    res.json(project);
+    res.json(projects[0]);
   } catch (error) {
     next(error);
   }
@@ -49,16 +50,15 @@ router.put("/", async (req: AuthRequest, res, next) => {
     const { projectId } = req.params;
     const { name } = projectSchema.parse(req.body);
 
-    const updatedProject = await prisma.project.update({
-      where: {
-        id: projectId,
-      },
-      data: {
+    const result = await db
+      .update(project)
+      .set({
         name,
-      },
-    });
+      })
+      .where(eq(project.id, projectId))
+      .returning();
 
-    res.json(updatedProject);
+    res.json(result[0]);
   } catch (error) {
     next(error);
   }
@@ -71,11 +71,7 @@ router.delete("/", async (req: AuthRequest, res, next) => {
   try {
     const { projectId } = req.params;
 
-    await prisma.project.delete({
-      where: {
-        id: projectId,
-      },
-    });
+    await db.delete(project).where(eq(project.id, projectId));
 
     res.json({ message: "Project deleted" });
   } catch (error) {
@@ -121,38 +117,52 @@ router.get(
         };
       }
 
-      const eventIdentities = await prisma.eventIdentity.findMany({
-        where: whereClause,
-        select: {
-          id: true,
-          key: true,
-          category: true,
-          _count: {
-            select: {
-              events: true,
-            },
-          },
+      const eventIdentities = await db.query.eventIdentity.findMany({
+        where: (ei, { eq, and: drizzleAnd, like }) => {
+          const conditions = [
+            eq(ei.id, ei.id), // placeholder that's always true - will be replaced
+          ];
+
+          // Add category filter if provided
+          if (category && typeof category === "string") {
+            conditions.pop();
+            conditions.push(eq(ei.category, category as any));
+          }
+
+          // Add search filter if provided
+          if (search && typeof search === "string" && search.length >= 2) {
+            conditions.push(like(ei.key, `%${search}%`));
+          }
+
+          return conditions.length > 1
+            ? drizzleAnd(...conditions)
+            : conditions[0];
         },
-        orderBy: {
-          events: {
-            _count: "desc",
-          },
-        },
-        take: Math.min(parseInt(limit as string) || 50, 100),
+        limit: Math.min(parseInt(limit as string) || 50, 100),
       });
 
-      // Parse event keys into type and name
-      const formattedIdentities = eventIdentities.map((identity) => {
-        const [type, name] = identity.key.split(":");
-        return {
-          id: identity.id,
-          key: identity.key,
-          type,
-          name,
-          category: identity.category,
-          eventCount: identity._count.events,
-        };
-      });
+      // Count events for each eventIdentity and format
+      const formattedIdentities = await Promise.all(
+        eventIdentities.map(async (identity) => {
+          const eventCount = await db
+            .select()
+            .from(event)
+            .where(eq(event.eventIdentityId, identity.id));
+
+          const [type, name] = identity.key.split(":");
+          return {
+            id: identity.id,
+            key: identity.key,
+            type,
+            name,
+            category: identity.category,
+            eventCount: eventCount.length,
+          };
+        })
+      );
+
+      // Sort by event count descending
+      formattedIdentities.sort((a, b) => b.eventCount - a.eventCount);
 
       return res.status(200).json(formattedIdentities);
     } catch (error) {
@@ -200,9 +210,12 @@ router.get(
       const depthNum = Math.min(parseInt(depth as string) || 1, 5);
 
       // Check if transitions exist for this project
-      const transitionCount = await prisma.transition.count({
-        where: { projectId },
-      });
+      const transitionResults = await db
+        .select({ id: transition.id })
+        .from(transition)
+        .where(eq(transition.projectId, projectId))
+        .limit(1);
+      const transitionCount = transitionResults.length;
 
       // Auto-compute if no transitions exist
       if (transitionCount === 0) {
@@ -222,10 +235,12 @@ router.get(
       };
 
       // Get anchor event details
-      const anchorEvent = await prisma.eventIdentity.findUnique({
-        where: { id: anchorEventId },
-        select: { id: true, key: true },
-      });
+      const anchorEvent = await db
+        .select({ id: eventIdentity.id, key: eventIdentity.key })
+        .from(eventIdentity)
+        .where(eq(eventIdentity.id, anchorEventId))
+        .limit(1)
+        .then((results) => results[0] || null);
 
       if (!anchorEvent) {
         return res.status(404).json({ error: "Anchor event not found" });
@@ -313,18 +328,26 @@ router.get(
             // still add "+ More" per parent if they have more than topN transitions
             const totalTransitions =
               direction === "forward"
-                ? await prisma.transition.count({
-                    where: {
-                      projectId,
-                      fromEventIdentityId: parentId,
-                    },
-                  })
-                : await prisma.transition.count({
-                    where: {
-                      projectId,
-                      toEventIdentityId: parentId,
-                    },
-                  });
+                ? await db
+                    .select({ id: transition.id })
+                    .from(transition)
+                    .where(
+                      and(
+                        eq(transition.projectId, projectId),
+                        eq(transition.fromEventIdentityId, parentId)
+                      )
+                    )
+                    .then((results) => results.length)
+                : await db
+                    .select({ id: transition.id })
+                    .from(transition)
+                    .where(
+                      and(
+                        eq(transition.projectId, projectId),
+                        eq(transition.toEventIdentityId, parentId)
+                      )
+                    )
+                    .then((results) => results.length);
 
             if (totalTransitions > topNNum) {
               const moreCount = Number(totalTransitions) - topNNum;
@@ -395,30 +418,31 @@ router.get(
         (id) => !id.includes("-more-")
       );
 
-      const eventCounts = await prisma.event.groupBy({
-        by: ["eventIdentityId"],
-        where: {
-          eventIdentityId: {
-            in: nodeIds,
-          },
-          session: {
-            projectId,
-          },
-        },
-        _count: {
-          id: true,
-        },
-      });
+      const eventCounts = await db.execute<
+        Array<{ eventIdentityId: string; count: number }>
+      >(sql`
+        SELECT 
+          e."eventIdentityId",
+          COUNT(*)::integer as count
+        FROM "Event" e
+        INNER JOIN "Session" s ON e."sessionId" = s.id
+        WHERE e."eventIdentityId" = ANY(${nodeIds}::text[])
+        AND s."projectId" = ${projectId}
+        GROUP BY e."eventIdentityId"
+      `);
 
       const nodeCountMap = new Map<string, number>();
-      eventCounts.forEach((result) => {
-        nodeCountMap.set(result.eventIdentityId, result._count.id);
-      });
+      (eventCounts as any).rows?.forEach((result: any) => {
+        nodeCountMap.set(result.eventIdentityId, result.count);
+      }) ||
+        eventCounts.forEach((result: any) => {
+          nodeCountMap.set(result.eventIdentityId, result.count);
+        });
 
       // Calculate exits for each node (sessions where this event is the last event)
-      const exitCounts = await prisma.$queryRaw<
-        Array<{ eventIdentityId: string; exitCount: bigint }>
-      >`
+      const exitCountsResult = await db.execute<
+        Array<{ eventIdentityId: string; exitCount: number }>
+      >(sql`
         WITH last_session_events AS (
           SELECT DISTINCT ON (e."sessionId")
             e."sessionId",
@@ -430,14 +454,15 @@ router.get(
         )
         SELECT 
           "eventIdentityId",
-          COUNT(*)::bigint as "exitCount"
+          COUNT(*)::integer as "exitCount"
         FROM last_session_events
         WHERE "eventIdentityId" = ANY(${nodeIds}::text[])
         GROUP BY "eventIdentityId"
-      `;
+      `);
+      const exitCounts = (exitCountsResult as any).rows || exitCountsResult;
 
       const nodeExitMap = new Map<string, number>();
-      exitCounts.forEach((result) => {
+      (exitCounts as any[]).forEach((result: any) => {
         nodeExitMap.set(result.eventIdentityId, Number(result.exitCount));
       });
 

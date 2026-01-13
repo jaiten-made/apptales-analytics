@@ -1,8 +1,10 @@
 import { ProvisioningRequestSchema } from "@apptales/types";
+import { eq } from "drizzle-orm";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { db } from "../db/index";
+import { customer, project } from "../db/schema";
 import HttpError from "../errors/HttpError";
-import { prisma } from "../lib/prisma/client";
 import { sendEmail } from "../services/email";
 
 const buildMagicLink = (req: Request, email: string): string => {
@@ -50,29 +52,41 @@ export const provisionClient = async (
     const trackerBaseUrl = process.env.TRACKER_BASE_URL;
     if (!trackerBaseUrl)
       throw new HttpError(500, "Tracker base URL is not configured");
-    const { customer, project } = await prisma.$transaction(async (tx) => {
-      const existingCustomer = await tx.customer.findUnique({
-        where: { email: clientEmail },
-      });
 
-      const customerRecord =
-        existingCustomer ??
-        (await tx.customer.create({
-          data: { email: clientEmail, status: "PROVISIONED" },
-        }));
+    // Check if customer exists
+    const existingCustomers = await db
+      .select()
+      .from(customer)
+      .where(eq(customer.email, clientEmail))
+      .limit(1);
 
-      const projectRecord = await tx.project.create({
-        data: {
-          name: organizationName,
-          customerId: customerRecord.id,
-        },
-      });
+    let customerRecord = existingCustomers[0];
 
-      return { customer: customerRecord, project: projectRecord };
-    });
+    if (!customerRecord) {
+      // Create new customer
+      const newCustomers = await db
+        .insert(customer)
+        .values({ email: clientEmail, status: "PROVISIONED" })
+        .returning();
+      customerRecord = newCustomers[0];
+    }
 
-    const magicLink = buildMagicLink(req, customer.email);
-    const trackerSnippet = buildTrackerSnippet(trackerBaseUrl, project.id);
+    // Create project
+    const projectRecords = await db
+      .insert(project)
+      .values({
+        name: organizationName,
+        customerId: customerRecord.id,
+      })
+      .returning();
+
+    const projectRecord = projectRecords[0];
+
+    const magicLink = buildMagicLink(req, customerRecord.email);
+    const trackerSnippet = buildTrackerSnippet(
+      trackerBaseUrl,
+      projectRecord.id
+    );
 
     const emailBody = buildEmailBody(
       organizationName,
@@ -81,13 +95,13 @@ export const provisionClient = async (
     );
 
     await sendEmail({
-      to: customer.email,
+      to: customerRecord.email,
       subject: "Your Apptales tracker is ready",
       text: emailBody,
     });
 
     res.status(201).json({
-      projectId: project.id,
+      projectId: projectRecord.id,
       trackerSnippet,
     });
   } catch (error) {

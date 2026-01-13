@@ -5,26 +5,25 @@
   "main": "server.ts",
   "scripts": {
     "dev": "tsup src/server.ts --watch --onSuccess \"NODE_ENV=development node dist/server.js\"",
-    "prebuild": "prisma generate",
     "build": "tsup src/server.ts",
-    "migrate": "prisma migrate deploy",
+    "migrate": "drizzle-kit migrate",
     "start": "NODE_ENV=production node --max-old-space-size=768 dist/server.js",
     "test": "node --test 'src/**/*.test.js'"
   },
   "dependencies": {
     "@apptales/types": "workspace:*",
     "@apptales/utils": "workspace:*",
-    "@prisma/client": "^6.18.0",
-    "@prisma/extension-accelerate": "^2.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
     "express": "^4.17.1",
     "express-rate-limit": "^8.2.1",
     "isbot": "^5.1.32",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^7.0.10",
     "open": "^11.0.0",
+    "postgres": "^3.4.8",
     "resend": "^6.6.0",
     "zod": "^3.23.8"
   },
@@ -35,7 +34,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.9.1",
     "@types/nodemailer": "^7.0.3",
-    "prisma": "^6.18.0",
+    "drizzle-kit": "^0.31.8",
     "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@9.0.0"

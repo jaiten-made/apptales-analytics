@@ -1,4 +1,2 @@
-import { EventCategory } from "@prisma/client";
-
-export const getEventCategory = (type: string): EventCategory =>
-  type === "page_view" ? EventCategory.PAGE_VIEW : EventCategory.CLICK;
+export const getEventCategory = (type: string) =>
+  type === "page_view" ? "PAGE_VIEW" : "CLICK";

@@ -1,10 +1,11 @@
-import { CustomerStatus } from "@prisma/client";
+import { eq } from "drizzle-orm";
 import express from "express";
 import jwt from "jsonwebtoken";
 import open from "open";
 import { z } from "zod";
+import { db } from "../../../db/index";
+import { customer } from "../../../db/schema";
 import HttpError from "../../../errors/HttpError";
-import { prisma } from "../../../lib/prisma/client";
 import { sendEmail } from "../../../services/email";
 
 const router = express.Router();
@@ -51,11 +52,28 @@ router.get("/verify", async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
     });
-    await prisma.customer.upsert({
-      create: { email: decoded.email, status: CustomerStatus.ACTIVE },
-      update: { status: CustomerStatus.ACTIVE },
-      where: { email: decoded.email },
-    });
+
+    // Check if customer exists
+    const customers = await db
+      .select()
+      .from(customer)
+      .where(eq(customer.email, decoded.email))
+      .limit(1);
+
+    if (customers.length > 0) {
+      // Update existing
+      await db
+        .update(customer)
+        .set({ status: "ACTIVE" })
+        .where(eq(customer.email, decoded.email));
+    } else {
+      // Create new
+      await db.insert(customer).values({
+        email: decoded.email,
+        status: "ACTIVE",
+      });
+    }
+
     res.redirect(process.env.APP_BASE_URL!);
   } catch (error) {
     next(error);
