@@ -152,42 +152,38 @@ function createEventTracker() {
   }
 
   function getElementText(element: Element): string {
-    const SENSITIVE_INPUT_TYPES = ["password", "email", "tel", "hidden"];
+    const SENSITIVE_INPUT_TYPES = new Set([
+      "password",
+      "email",
+      "tel",
+      "hidden",
+    ]);
     const MAX_LENGTH = 100;
 
-    // Handle input elements
+    // 1. Handle Form Controls
     if (
       element instanceof HTMLInputElement ||
       element instanceof HTMLTextAreaElement
     ) {
       if (
         element instanceof HTMLInputElement &&
-        SENSITIVE_INPUT_TYPES.includes(element.type.toLowerCase())
+        SENSITIVE_INPUT_TYPES.has(element.type.toLowerCase())
       ) {
         return "";
       }
-
       const inputText = element.placeholder || element.name || "";
       return sanitizeText(inputText, MAX_LENGTH);
     }
 
-    // Priority order for other elements
-    const sources = [
-      element.getAttribute("data-track-label"),
-      element.getAttribute("aria-label"),
-      element.getAttribute("title"),
-      (element as HTMLElement).innerText,
-      element.textContent,
-    ];
+    // 2. Priority Order (Optimized for performance)
+    // We check textContent first to avoid layout reflow triggered by innerText
+    const source =
+      element.getAttribute("aria-label") ||
+      element.getAttribute("title") ||
+      element.textContent ||
+      "";
 
-    for (const source of sources) {
-      if (source) {
-        const sanitized = sanitizeText(source, MAX_LENGTH);
-        if (sanitized) return sanitized;
-      }
-    }
-
-    return "";
+    return sanitizeText(source, MAX_LENGTH);
   }
 
   function sanitizeText(text: string, maxLength: number): string {
