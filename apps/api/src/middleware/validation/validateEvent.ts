@@ -1,4 +1,4 @@
-import { safeParseEventPayload } from "@apptales/events-schema";
+import { safeParseEventPayload } from "@apptales/types";
 import { NextFunction, Request, Response } from "express";
 
 export const validateEventPayload = (

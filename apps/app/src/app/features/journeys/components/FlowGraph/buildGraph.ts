@@ -1,4 +1,4 @@
-import { type FlowGraph as FlowGraphType } from "@apptales/events-schema";
+import { type FlowGraph as FlowGraphType } from "@apptales/types";
 import { colors } from "@mui/material";
 import { type Edge, type Node, Position } from "reactflow";
 
@@ -58,16 +58,16 @@ export function buildGraph(data: FlowGraphType) {
         pointerEvents: "none",
       },
     });
-    
+
     // Add Step Header
     nodes.push({
-        id: `header_step_${step}`,
-        type: 'stepHeader',
-        data: { label: `Step ${step}` },
-        position: { x: (step - 1) * gapX, y: 0 },
-        draggable: false,
-        selectable: false,
-        style: { width: 200, background: 'transparent', border: 'none' } // Match card width
+      id: `header_step_${step}`,
+      type: "stepHeader",
+      data: { label: `Step ${step}` },
+      position: { x: (step - 1) * gapX, y: 0 },
+      draggable: false,
+      selectable: false,
+      style: { width: 200, background: "transparent", border: "none" }, // Match card width
     });
 
     events.forEach((event, idx) => {

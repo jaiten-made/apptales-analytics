@@ -12,7 +12,7 @@
     "test": "node --test 'src/**/*.test.js'"
   },
   "dependencies": {
-    "@apptales/events-schema": "workspace:*",
+    "@apptales/types": "workspace:*",
     "@apptales/utils": "workspace:*",
     "@prisma/client": "^6.18.0",
     "@prisma/extension-accelerate": "^2.0.2",

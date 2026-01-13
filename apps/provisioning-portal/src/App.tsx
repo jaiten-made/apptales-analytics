@@ -1,4 +1,4 @@
-import { ProvisioningRequestSchema } from "@apptales/events-schema";
+import { ProvisioningRequestSchema } from "@apptales/types";
 import {
   Alert,
   Box,

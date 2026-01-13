@@ -1,4 +1,4 @@
-import { ProvisioningRequestSchema } from "@apptales/events-schema";
+import { ProvisioningRequestSchema } from "@apptales/types";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import HttpError from "../errors/HttpError";

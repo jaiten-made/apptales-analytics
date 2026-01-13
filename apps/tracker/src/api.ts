@@ -1,4 +1,4 @@
-import { EventPayload } from "@apptales/events-schema";
+import { EventPayload } from "@apptales/types";
 import { isLocalhostHostname } from "./utils";
 
 /**

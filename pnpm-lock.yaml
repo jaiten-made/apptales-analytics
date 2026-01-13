@@ -33,9 +33,9 @@ importers:
 
   apps/api:
     dependencies:
-      '@apptales/events-schema':
+      '@apptales/types':
         specifier: workspace:*
-        version: link:../../packages/events-schema
+        version: link:../../packages/types
       '@apptales/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -106,9 +106,9 @@ importers:
 
   apps/app:
     dependencies:
-      '@apptales/events-schema':
+      '@apptales/types':
         specifier: workspace:*
-        version: link:../../packages/events-schema
+        version: link:../../packages/types
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.1.13)(react@19.1.1)
@@ -261,9 +261,9 @@ importers:
 
   apps/provisioning-portal:
     dependencies:
-      '@apptales/events-schema':
+      '@apptales/types':
         specifier: workspace:*
-        version: link:../../packages/events-schema
+        version: link:../../packages/types
       '@apptales/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -304,9 +304,9 @@ importers:
 
   apps/tracker:
     dependencies:
-      '@apptales/events-schema':
+      '@apptales/types':
         specifier: workspace:*
-        version: link:../../packages/events-schema
+        version: link:../../packages/types
       '@apptales/utils':
         specifier: workspace:*
         version: link:../../packages/utils
@@ -324,7 +324,7 @@ importers:
         specifier: ^4.42.2
         version: 4.42.2(@cloudflare/workers-types@4.20251008.0)
 
-  packages/events-schema:
+  packages/types:
     dependencies:
       zod:
         specifier: ^3.23.8

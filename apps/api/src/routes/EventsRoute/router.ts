@@ -1,4 +1,4 @@
-import { Event } from "@apptales/events-schema";
+import { Event } from "@apptales/types";
 import { EventCategory } from "@prisma/client";
 import express, { NextFunction, Request, Response } from "express";
 import HttpError from "../../errors/HttpError";

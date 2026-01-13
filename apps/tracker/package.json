@@ -20,7 +20,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@apptales/events-schema": "workspace:*",
+    "@apptales/types": "workspace:*",
     "@apptales/utils": "workspace:*"
   },
   "devDependencies": {
