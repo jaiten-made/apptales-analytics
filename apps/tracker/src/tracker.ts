@@ -44,7 +44,7 @@ function createEventTracker() {
       if (!projectId) throw new Error("Project ID not found");
 
       const pageViewEvent: EventPayload = {
-        type: "page_view",
+        type: eventType,
         properties: {
           location: {
             pathname: location.pathname,
@@ -65,27 +65,36 @@ function createEventTracker() {
     try {
       const clickedElement = event.target as Element;
 
+      // Only track clicks on clickable elements
+      const clickableElement = findClickableElement(clickedElement);
+      if (!clickableElement) {
+        return;
+      }
+
       // Extract text content from the element
-      const elementText = getElementText(clickedElement);
-      const eventType =
-        elementText || pluginFallbackIdentifier(clickedElement) || "click";
+      const elementText = getElementText(clickableElement);
+      const eventType = "click";
+      const eventKey = `${eventType}:${elementText || pluginFallbackIdentifier(clickableElement) || "click"}`;
 
       if (!elementText) {
         console.log(
           "Click event has no trackable text, skipping:",
-          clickedElement
+          clickableElement
         );
         return;
       }
 
       // Check if this is a consecutive duplicate
-      if (eventType === lastSentEvent) {
-        console.log("Skipping consecutive duplicate click:", eventType);
+      if (eventKey === lastSentEvent) {
+        console.log("Skipping consecutive duplicate click:", eventKey);
         return;
       }
 
       const clickEvent: EventPayload = {
         type: eventType,
+        properties: {
+          elementText,
+        },
       };
 
       const projectId = getProjectId();
@@ -98,6 +107,48 @@ function createEventTracker() {
     } catch (error) {
       console.error("Error tracking click:", error);
     }
+  }
+
+  function findClickableElement(element: Element | null): Element | null {
+    const CLICKABLE_TAGS = [
+      "A",
+      "BUTTON",
+      "INPUT",
+      "SELECT",
+      "TEXTAREA",
+      "LABEL",
+    ];
+    const MAX_PARENT_DEPTH = 3;
+    let currentElement = element;
+    let depth = 0;
+
+    while (currentElement && depth < MAX_PARENT_DEPTH) {
+      // Check if it's a clickable tag
+      if (CLICKABLE_TAGS.includes(currentElement.tagName)) {
+        return currentElement;
+      }
+
+      // Check if it has role="button" or other clickable roles
+      const role = currentElement.getAttribute("role");
+      if (role && ["button", "link", "menuitem", "tab"].includes(role)) {
+        return currentElement;
+      }
+
+      // Check if it has onclick handler or cursor pointer style
+      const hasClickHandler = currentElement.hasAttribute("onclick");
+      const style = window.getComputedStyle(currentElement as HTMLElement);
+      const hasPointerCursor = style.cursor === "pointer";
+
+      if (hasClickHandler || hasPointerCursor) {
+        return currentElement;
+      }
+
+      // Move up to parent
+      currentElement = currentElement.parentElement;
+      depth++;
+    }
+
+    return null;
   }
 
   function getElementText(element: Element): string {
