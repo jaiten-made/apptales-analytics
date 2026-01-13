@@ -23,6 +23,11 @@ enum CustomerStatus {
   PROVISIONED
 }
 
+enum EventType {
+  PAGE_VIEW
+  CLICK
+}
+
 model Project {
   id          String       @id @default(cuid())
   name        String
@@ -54,9 +59,10 @@ model Customer {
   projects  Project[]
 }
 
+
 model Event {
   id              String        @id @default(cuid())
-  type            String
+  type            EventType
   properties      Json
   createdAt       DateTime      @default(now())
   eventIdentityId String

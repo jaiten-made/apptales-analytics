@@ -1,5 +1,10 @@
 import { generateCuid } from "@apptales/utils";
-import { CustomerStatus, EventCategory, PrismaClient } from "@prisma/client";
+import {
+  CustomerStatus,
+  EventCategory,
+  EventType,
+  PrismaClient,
+} from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -147,7 +152,7 @@ async function main() {
     // Lands on homepage
     {
       sessionId: sessions[0].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: {
         location: { pathname: "/" },
         referrer: "https://google.com/search",
@@ -158,14 +163,14 @@ async function main() {
     // Reads about features
     {
       sessionId: sessions[0].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "get_started", text: "Get Started" },
       eventIdentityId: clickGetStarted.id,
       createdAt: addTime(session1Start, 0, 0, 1.5),
     },
     {
       sessionId: sessions[0].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/features" } },
       eventIdentityId: featuresPage.id,
       createdAt: addTime(session1Start, 0, 0, 2),
@@ -173,14 +178,14 @@ async function main() {
     // Checks pricing
     {
       sessionId: sessions[0].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "view_pricing" },
       eventIdentityId: clickViewPricing.id,
       createdAt: addTime(session1Start, 0, 0, 5),
     },
     {
       sessionId: sessions[0].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/pricing" } },
       eventIdentityId: pricingPage.id,
       createdAt: addTime(session1Start, 0, 0, 5.5),
@@ -188,14 +193,14 @@ async function main() {
     // Browses docs briefly
     {
       sessionId: sessions[0].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "read_docs" },
       eventIdentityId: clickReadDocs.id,
       createdAt: addTime(session1Start, 0, 0, 8),
     },
     {
       sessionId: sessions[0].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/docs" } },
       eventIdentityId: documentationPage.id,
       createdAt: addTime(session1Start, 0, 0, 8.5),
@@ -209,7 +214,7 @@ async function main() {
   events.push(
     {
       sessionId: sessions[1].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: {
         location: { pathname: "/" },
         referrer: "https://google.com/search",
@@ -219,28 +224,28 @@ async function main() {
     },
     {
       sessionId: sessions[1].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "see_plans" },
       eventIdentityId: clickSeePlans.id,
       createdAt: addTime(session2Start, 0, 0, 0.5),
     },
     {
       sessionId: sessions[1].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/pricing" } },
       eventIdentityId: pricingPage.id,
       createdAt: addTime(session2Start, 0, 0, 1),
     },
     {
       sessionId: sessions[1].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/about" } },
       eventIdentityId: aboutPage.id,
       createdAt: addTime(session2Start, 0, 0, 3),
     },
     {
       sessionId: sessions[1].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/features" } },
       eventIdentityId: featuresPage.id,
       createdAt: addTime(session2Start, 0, 0, 5),
@@ -253,56 +258,56 @@ async function main() {
   events.push(
     {
       sessionId: sessions[2].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/" }, referrer: "direct" },
       eventIdentityId: landingPage.id,
       createdAt: addTime(session3Start, 0, 0, 0),
     },
     {
       sessionId: sessions[2].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "try_free_trial" },
       eventIdentityId: clickTryFreeTrial.id,
       createdAt: addTime(session3Start, 0, 0, 0.3),
     },
     {
       sessionId: sessions[2].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/signup" } },
       eventIdentityId: signupPage.id,
       createdAt: addTime(session3Start, 0, 0, 0.5),
     },
     {
       sessionId: sessions[2].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "signup_button" },
       eventIdentityId: clickSignup.id,
       createdAt: addTime(session3Start, 0, 0, 3),
     },
     {
       sessionId: sessions[2].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/onboarding" } },
       eventIdentityId: onboardingPage.id,
       createdAt: addTime(session3Start, 0, 0, 3.5),
     },
     {
       sessionId: sessions[2].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "start_onboarding" },
       eventIdentityId: clickStartOnboarding.id,
       createdAt: addTime(session3Start, 0, 0, 4),
     },
     {
       sessionId: sessions[2].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "complete_onboarding" },
       eventIdentityId: clickCompleteOnboarding.id,
       createdAt: addTime(session3Start, 0, 0, 8),
     },
     {
       sessionId: sessions[2].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session3Start, 0, 0, 8.5),
@@ -315,42 +320,42 @@ async function main() {
   events.push(
     {
       sessionId: sessions[3].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/login" } },
       eventIdentityId: loginPage.id,
       createdAt: addTime(session4Start, 0, 0, 0),
     },
     {
       sessionId: sessions[3].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "login_button" },
       eventIdentityId: clickLogin.id,
       createdAt: addTime(session4Start, 0, 0, 0.5),
     },
     {
       sessionId: sessions[3].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session4Start, 0, 0, 1),
     },
     {
       sessionId: sessions[3].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/settings" } },
       eventIdentityId: settingsPage.id,
       createdAt: addTime(session4Start, 0, 0, 3),
     },
     {
       sessionId: sessions[3].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "save_settings" },
       eventIdentityId: clickSaveSettings.id,
       createdAt: addTime(session4Start, 0, 0, 5),
     },
     {
       sessionId: sessions[3].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session4Start, 0, 0, 5.5),
@@ -363,42 +368,42 @@ async function main() {
   events.push(
     {
       sessionId: sessions[4].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/login" } },
       eventIdentityId: loginPage.id,
       createdAt: addTime(session5Start, 0, 0, 0),
     },
     {
       sessionId: sessions[4].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "login_button" },
       eventIdentityId: clickLogin.id,
       createdAt: addTime(session5Start, 0, 0, 0.3),
     },
     {
       sessionId: sessions[4].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session5Start, 0, 0, 0.5),
     },
     {
       sessionId: sessions[4].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/integrations" } },
       eventIdentityId: integrationsPage.id,
       createdAt: addTime(session5Start, 0, 0, 2),
     },
     {
       sessionId: sessions[4].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "connect_integration", integration: "slack" },
       eventIdentityId: clickConnectIntegration.id,
       createdAt: addTime(session5Start, 0, 0, 4),
     },
     {
       sessionId: sessions[4].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session5Start, 0, 0, 6),
@@ -411,35 +416,35 @@ async function main() {
   events.push(
     {
       sessionId: sessions[5].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/login" } },
       eventIdentityId: loginPage.id,
       createdAt: addTime(session6Start, 0, 0, 0),
     },
     {
       sessionId: sessions[5].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "login_button" },
       eventIdentityId: clickLogin.id,
       createdAt: addTime(session6Start, 0, 0, 0.3),
     },
     {
       sessionId: sessions[5].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session6Start, 0, 0, 0.5),
     },
     {
       sessionId: sessions[5].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "view_analytics" },
       eventIdentityId: clickViewAnalytics.id,
       createdAt: addTime(session6Start, 0, 0, 1),
     },
     {
       sessionId: sessions[5].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/analytics" } },
       eventIdentityId: analyticsPage.id,
       createdAt: addTime(session6Start, 0, 0, 1.5),
@@ -452,49 +457,49 @@ async function main() {
   events.push(
     {
       sessionId: sessions[6].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/login" } },
       eventIdentityId: loginPage.id,
       createdAt: addTime(session7Start, 0, 0, 0),
     },
     {
       sessionId: sessions[6].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "login_button" },
       eventIdentityId: clickLogin.id,
       createdAt: addTime(session7Start, 0, 0, 0.3),
     },
     {
       sessionId: sessions[6].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session7Start, 0, 0, 0.5),
     },
     {
       sessionId: sessions[6].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/pricing" } },
       eventIdentityId: pricingPage.id,
       createdAt: addTime(session7Start, 0, 0, 2),
     },
     {
       sessionId: sessions[6].id,
-      type: "click",
+      type: EventType.CLICK,
       properties: { elementId: "upgrade_plan", plan: "pro" },
       eventIdentityId: clickUpgradePlan.id,
       createdAt: addTime(session7Start, 0, 0, 4),
     },
     {
       sessionId: sessions[6].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/billing" } },
       eventIdentityId: billingPage.id,
       createdAt: addTime(session7Start, 0, 0, 4.5),
     },
     {
       sessionId: sessions[6].id,
-      type: "page_view",
+      type: EventType.PAGE_VIEW,
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session7Start, 0, 0, 7),
