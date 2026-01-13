@@ -1,5 +1,6 @@
 import { EventPayload } from "@apptales/events-schema";
 import { sendEvent } from "./api";
+import { generateSelector } from "./utils";
 
 function getProjectId(): string | null {
   console.log("Getting project ID ");
@@ -71,14 +72,15 @@ function createEventTracker() {
         return;
       }
 
-      // Extract text content from the element
-      const elementText = getElementText(clickableElement);
+      // Generate unique CSS selector for this element
+      const cssSelector = generateSelector(clickableElement as HTMLElement);
+      const textContent = getTextContent(clickableElement);
       const eventType = "click";
-      const eventKey = `${eventType}:${elementText || pluginFallbackIdentifier(clickableElement) || "click"}`;
+      const eventKey = `${eventType}:${cssSelector}`;
 
-      if (!elementText) {
+      if (!cssSelector) {
         console.log(
-          "Click event has no trackable text, skipping:",
+          "Click event has no trackable selector, skipping:",
           clickableElement
         );
         return;
@@ -93,7 +95,8 @@ function createEventTracker() {
       const clickEvent: EventPayload = {
         type: eventType,
         properties: {
-          elementText,
+          textContent,
+          selector: cssSelector,
         },
       };
 
@@ -103,21 +106,14 @@ function createEventTracker() {
       sendEvent(clickEvent, projectId);
 
       // Update last sent event
-      lastSentEvent = eventType;
+      lastSentEvent = eventKey;
     } catch (error) {
       console.error("Error tracking click:", error);
     }
   }
 
   function findClickableElement(element: Element | null): Element | null {
-    const CLICKABLE_TAGS = [
-      "A",
-      "BUTTON",
-      "INPUT",
-      "SELECT",
-      "TEXTAREA",
-      "LABEL",
-    ];
+    const CLICKABLE_TAGS = ["A", "BUTTON", "SELECT", "LABEL"];
     const MAX_PARENT_DEPTH = 3;
     let currentElement = element;
     let depth = 0;
@@ -151,7 +147,7 @@ function createEventTracker() {
     return null;
   }
 
-  function getElementText(element: Element): string {
+  function getTextContent(element: Element): string {
     const SENSITIVE_INPUT_TYPES = new Set([
       "password",
       "email",
@@ -202,14 +198,6 @@ function createEventTracker() {
     ];
 
     return patterns.some((pattern) => pattern.test(text));
-  }
-
-  function pluginFallbackIdentifier(el: Element): string {
-    // Basic fallback for images or special cases
-    if (el.tagName.toLowerCase() === "img") {
-      return el.getAttribute("alt") || "";
-    }
-    return "";
   }
 
   // Intercept History API for SPA navigation tracking (industry standard approach)
