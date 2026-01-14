@@ -1,11 +1,11 @@
 import { desc, eq } from "drizzle-orm";
-import express from "express";
+import express, { type Router } from "express";
 import { z } from "zod";
 import { db } from "../../db/index";
 import { project } from "../../db/schema";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
 
-const router = express.Router();
+const router: Router = express.Router();
 
 router.use(requireAuth);
 
