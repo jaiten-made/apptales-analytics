@@ -9,6 +9,8 @@ import express, {
 import jwt from "jsonwebtoken";
 import path from "path";
 import { ZodError } from "zod";
+import { customer } from "../drizzle/schema";
+import { db } from "./db"; // Make sure you import your Drizzle db instance
 import HttpError from "./errors/HttpError";
 import corsMiddleware from "./middleware/cors";
 import {
@@ -106,7 +108,19 @@ app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ message: "Unknown error" });
 });
 
-app.get("/", (_, res: Response) => {
+app.get("/", async (_, res: Response) => {
+  // Insert a customer
+  const newCustomer = await db
+    .insert(customer)
+    .values({
+      id: "customer_123", // You'll need a unique ID
+      email: "user@example.com",
+      status: "ACTIVE", // optional, defaults to ACTIVE
+    })
+    .returning();
+
+  console.log("Customer created:", newCustomer);
+
   res.send("success");
 });
 

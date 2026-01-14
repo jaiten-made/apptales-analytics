@@ -2,7 +2,6 @@ import { sql } from "drizzle-orm";
 import {
   doublePrecision,
   foreignKey,
-  index,
   integer,
   jsonb,
   pgEnum,
@@ -10,7 +9,6 @@ import {
   text,
   timestamp,
   uniqueIndex,
-  varchar,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
@@ -45,22 +43,6 @@ export const EventPayloadSchema = z.union([
 
 export type EventPayload = z.infer<typeof EventPayloadSchema>;
 
-export const prismaMigrations = pgTable("_prisma_migrations", {
-  id: varchar({ length: 36 }).primaryKey().notNull(),
-  checksum: varchar({ length: 64 }).notNull(),
-  finishedAt: timestamp("finished_at", { withTimezone: true, mode: "string" }),
-  migrationName: varchar("migration_name", { length: 255 }).notNull(),
-  logs: text(),
-  rolledBackAt: timestamp("rolled_back_at", {
-    withTimezone: true,
-    mode: "string",
-  }),
-  startedAt: timestamp("started_at", { withTimezone: true, mode: "string" })
-    .defaultNow()
-    .notNull(),
-  appliedStepsCount: integer("applied_steps_count").default(0).notNull(),
-});
-
 export const customer = pgTable(
   "Customer",
   {
@@ -71,12 +53,7 @@ export const customer = pgTable(
       .notNull(),
     status: customerStatus().default("ACTIVE").notNull(),
   },
-  (table) => [
-    uniqueIndex("Customer_email_key").using(
-      "btree",
-      table.email.asc().nullsLast().op("text_ops")
-    ),
-  ]
+  (table) => [uniqueIndex("Customer_email_unique").on(table.email)]
 );
 
 export const project = pgTable(
@@ -100,27 +77,14 @@ export const project = pgTable(
   ]
 );
 
-export const eventIdentity = pgTable(
-  "EventIdentity",
-  {
-    id: text().primaryKey().notNull(),
-    key: text().notNull(),
-    createdAt: timestamp({ precision: 3, mode: "string" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    category: eventCategory().notNull(),
-  },
-  (table) => [
-    index("EventIdentity_category_idx").using(
-      "btree",
-      table.category.asc().nullsLast().op("enum_ops")
-    ),
-    index("EventIdentity_key_idx").using(
-      "btree",
-      table.key.asc().nullsLast().op("text_ops")
-    ),
-  ]
-);
+export const eventIdentity = pgTable("EventIdentity", {
+  id: text().primaryKey().notNull(),
+  key: text().notNull(),
+  createdAt: timestamp({ precision: 3, mode: "string" })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  category: eventCategory().notNull(),
+});
 
 export const session = pgTable(
   "Session",
@@ -132,10 +96,6 @@ export const session = pgTable(
     projectId: text().notNull(),
   },
   (table) => [
-    index("Session_projectId_idx").using(
-      "btree",
-      table.projectId.asc().nullsLast().op("text_ops")
-    ),
     foreignKey({
       columns: [table.projectId],
       foreignColumns: [project.id],
@@ -161,19 +121,6 @@ export const event = pgTable(
     sessionId: text().notNull(),
   },
   (table) => [
-    index("Event_createdAt_idx").using(
-      "btree",
-      table.createdAt.asc().nullsLast().op("timestamp_ops")
-    ),
-    index("Event_eventIdentityId_idx").using(
-      "btree",
-      table.eventIdentityId.asc().nullsLast().op("text_ops")
-    ),
-    index("Event_sessionId_createdAt_idx").using(
-      "btree",
-      table.sessionId.asc().nullsLast().op("timestamp_ops"),
-      table.createdAt.asc().nullsLast().op("text_ops")
-    ),
     foreignKey({
       columns: [table.eventIdentityId],
       foreignColumns: [eventIdentity.id],
@@ -206,24 +153,6 @@ export const transition = pgTable(
       .notNull(),
   },
   (table) => [
-    uniqueIndex(
-      "Transition_fromEventIdentityId_toEventIdentityId_projectId_key"
-    ).using(
-      "btree",
-      table.fromEventIdentityId.asc().nullsLast().op("text_ops"),
-      table.toEventIdentityId.asc().nullsLast().op("text_ops"),
-      table.projectId.asc().nullsLast().op("text_ops")
-    ),
-    index("Transition_projectId_fromEventIdentityId_idx").using(
-      "btree",
-      table.projectId.asc().nullsLast().op("text_ops"),
-      table.fromEventIdentityId.asc().nullsLast().op("text_ops")
-    ),
-    index("Transition_projectId_toEventIdentityId_idx").using(
-      "btree",
-      table.projectId.asc().nullsLast().op("text_ops"),
-      table.toEventIdentityId.asc().nullsLast().op("text_ops")
-    ),
     foreignKey({
       columns: [table.fromEventIdentityId],
       foreignColumns: [eventIdentity.id],

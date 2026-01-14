@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { generateCuid } from "@apptales/utils";
 import express from "express";
 import jwt from "jsonwebtoken";
 import open from "open";
@@ -53,26 +53,16 @@ router.get("/verify", async (req, res, next) => {
       secure: process.env.NODE_ENV === "production",
     });
 
-    // Check if customer exists
-    const customers = await db
-      .select()
-      .from(customer)
-      .where(eq(customer.email, decoded.email))
-      .limit(1);
-
-    if (customers.length > 0) {
-      // Update existing
+    try {
       await db
-        .update(customer)
-        .set({ status: "ACTIVE" })
-        .where(eq(customer.email, decoded.email));
-    } else {
-      // Create new
-      await db.insert(customer).values({
-        email: decoded.email,
-        status: "ACTIVE",
-      });
-    }
+        .insert(customer)
+        .values({
+          id: generateCuid(),
+          email: decoded.email,
+          status: "ACTIVE",
+        })
+        .onConflictDoNothing({ target: customer.email });
+    } catch (_) {}
 
     res.redirect(process.env.APP_BASE_URL!);
   } catch (error) {

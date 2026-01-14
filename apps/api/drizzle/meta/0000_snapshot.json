@@ -1,72 +1,9 @@
 {
-  "id": "00000000-0000-0000-0000-000000000000",
-  "prevId": "",
+  "id": "65e91613-97f4-4c3e-9aa8-6eda6aa13d01",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public._prisma_migrations": {
-      "name": "_prisma_migrations",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(36)",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "checksum": {
-          "name": "checksum",
-          "type": "varchar(64)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "finished_at": {
-          "name": "finished_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "migration_name": {
-          "name": "migration_name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "logs": {
-          "name": "logs",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "rolled_back_at": {
-          "name": "rolled_back_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "started_at": {
-          "name": "started_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "applied_steps_count": {
-          "name": "applied_steps_count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {},
-      "policies": {},
-      "isRLSEnabled": false
-    },
     "public.Customer": {
       "name": "Customer",
       "schema": "",
@@ -100,15 +37,14 @@
         }
       },
       "indexes": {
-        "Customer_email_key": {
-          "name": "Customer_email_key",
+        "Customer_email_unique": {
+          "name": "Customer_email_unique",
           "columns": [
             {
               "expression": "email",
+              "isExpression": false,
               "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
+              "nulls": "last"
             }
           ],
           "isUnique": true,
@@ -120,61 +56,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {},
       "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.Project": {
-      "name": "Project",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "customerId": {
-          "name": "customerId",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Project_customerId_fkey": {
-          "name": "Project_customerId_fkey",
-          "tableFrom": "Project",
-          "tableTo": "Customer",
-          "schemaTo": "public",
-          "columnsFrom": [
-            "customerId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "checkConstraints": {},
-      "policies": {},
       "isRLSEnabled": false
     },
     "public.Event": {
@@ -219,69 +102,12 @@
           "notNull": true
         }
       },
-      "indexes": {
-        "Event_createdAt_idx": {
-          "name": "Event_createdAt_idx",
-          "columns": [
-            {
-              "expression": "createdAt",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "timestamp_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "Event_eventIdentityId_idx": {
-          "name": "Event_eventIdentityId_idx",
-          "columns": [
-            {
-              "expression": "eventIdentityId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "Event_sessionId_createdAt_idx": {
-          "name": "Event_sessionId_createdAt_idx",
-          "columns": [
-            {
-              "expression": "sessionId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "timestamp_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "createdAt",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "Event_eventIdentityId_fkey": {
           "name": "Event_eventIdentityId_fkey",
           "tableFrom": "Event",
           "tableTo": "EventIdentity",
-          "schemaTo": "public",
           "columnsFrom": [
             "eventIdentityId"
           ],
@@ -295,7 +121,6 @@
           "name": "Event_sessionId_fkey",
           "tableFrom": "Event",
           "tableTo": "Session",
-          "schemaTo": "public",
           "columnsFrom": [
             "sessionId"
           ],
@@ -308,8 +133,99 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {},
       "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.EventIdentity": {
+      "name": "EventIdentity",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "category": {
+          "name": "category",
+          "type": "EventCategory",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Project": {
+      "name": "Project",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "customerId": {
+          "name": "customerId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Project_customerId_fkey": {
+          "name": "Project_customerId_fkey",
+          "tableFrom": "Project",
+          "tableTo": "Customer",
+          "columnsFrom": [
+            "customerId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.Session": {
@@ -336,30 +252,12 @@
           "notNull": true
         }
       },
-      "indexes": {
-        "Session_projectId_idx": {
-          "name": "Session_projectId_idx",
-          "columns": [
-            {
-              "expression": "projectId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "Session_projectId_fkey": {
           "name": "Session_projectId_fkey",
           "tableFrom": "Session",
           "tableTo": "Project",
-          "schemaTo": "public",
           "columnsFrom": [
             "projectId"
           ],
@@ -372,8 +270,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {},
       "policies": {},
+      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.Transition": {
@@ -432,90 +330,12 @@
           "default": "CURRENT_TIMESTAMP"
         }
       },
-      "indexes": {
-        "Transition_fromEventIdentityId_toEventIdentityId_projectId_key": {
-          "name": "Transition_fromEventIdentityId_toEventIdentityId_projectId_key",
-          "columns": [
-            {
-              "expression": "fromEventIdentityId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "toEventIdentityId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "projectId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "Transition_projectId_fromEventIdentityId_idx": {
-          "name": "Transition_projectId_fromEventIdentityId_idx",
-          "columns": [
-            {
-              "expression": "projectId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "fromEventIdentityId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "Transition_projectId_toEventIdentityId_idx": {
-          "name": "Transition_projectId_toEventIdentityId_idx",
-          "columns": [
-            {
-              "expression": "projectId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            },
-            {
-              "expression": "toEventIdentityId",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "Transition_fromEventIdentityId_fkey": {
           "name": "Transition_fromEventIdentityId_fkey",
           "tableFrom": "Transition",
           "tableTo": "EventIdentity",
-          "schemaTo": "public",
           "columnsFrom": [
             "fromEventIdentityId"
           ],
@@ -529,7 +349,6 @@
           "name": "Transition_toEventIdentityId_fkey",
           "tableFrom": "Transition",
           "tableTo": "EventIdentity",
-          "schemaTo": "public",
           "columnsFrom": [
             "toEventIdentityId"
           ],
@@ -543,7 +362,6 @@
           "name": "Transition_projectId_fkey",
           "tableFrom": "Transition",
           "tableTo": "Project",
-          "schemaTo": "public",
           "columnsFrom": [
             "projectId"
           ],
@@ -556,99 +374,27 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {},
       "policies": {},
-      "isRLSEnabled": false
-    },
-    "public.EventIdentity": {
-      "name": "EventIdentity",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "key": {
-          "name": "key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "createdAt": {
-          "name": "createdAt",
-          "type": "timestamp(3)",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "CURRENT_TIMESTAMP"
-        },
-        "category": {
-          "name": "category",
-          "type": "EventCategory",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "EventIdentity_category_idx": {
-          "name": "EventIdentity_category_idx",
-          "columns": [
-            {
-              "expression": "category",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "enum_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "EventIdentity_key_idx": {
-          "name": "EventIdentity_key_idx",
-          "columns": [
-            {
-              "expression": "key",
-              "asc": true,
-              "nulls": "last",
-              "opclass": "text_ops",
-              "isExpression": false
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "checkConstraints": {},
-      "policies": {},
       "isRLSEnabled": false
     }
   },
   "enums": {
     "public.CustomerStatus": {
       "name": "CustomerStatus",
+      "schema": "public",
       "values": [
         "ACTIVE",
         "PROVISIONED"
-      ],
-      "schema": "public"
+      ]
     },
     "public.EventCategory": {
       "name": "EventCategory",
+      "schema": "public",
       "values": [
         "PAGE_VIEW",
         "CLICK"
-      ],
-      "schema": "public"
+      ]
     }
   },
   "schemas": {},
@@ -657,11 +403,8 @@
   "policies": {},
   "views": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
     "tables": {}
   }
 }

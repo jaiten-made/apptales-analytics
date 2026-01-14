@@ -1,3 +1,4 @@
+import { generateCuid } from "@apptales/utils";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "../db/index";
 import { event, eventIdentity, session, transition } from "../db/schema";
@@ -180,7 +181,7 @@ export async function computeTransitionsForProject(
     const eventSequence: EventSequence[] = sess.events.map((ev) => ({
       eventIdentityId: ev.eventIdentityId,
       eventIdentityKey: ev.eventIdentity.key,
-      createdAt: ev.createdAt,
+      createdAt: new Date(ev.createdAt),
     }));
 
     // Step 1: Collapse consecutive duplicates
@@ -218,12 +219,13 @@ export async function computeTransitionsForProject(
         .set({
           count: agg.count,
           avgDurationMs,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(transition.id, existing[0].id));
     } else {
       // Create new
       await db.insert(transition).values({
+        id: generateCuid(),
         fromEventIdentityId: agg.fromId,
         toEventIdentityId: agg.toId,
         projectId,
@@ -272,7 +274,7 @@ export async function updateTransitionsForSession(
   const eventSequence: EventSequence[] = sess.events.map((ev) => ({
     eventIdentityId: ev.eventIdentityId,
     eventIdentityKey: ev.eventIdentity.key,
-    createdAt: ev.createdAt,
+    createdAt: new Date(ev.createdAt),
   }));
 
   // Collapse and extract pairs
@@ -306,12 +308,13 @@ export async function updateTransitionsForSession(
         .set({
           count: existing[0].count + agg.count,
           avgDurationMs,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(transition.id, existing[0].id));
     } else {
       // Create new
       await db.insert(transition).values({
+        id: generateCuid(),
         fromEventIdentityId: agg.fromId,
         toEventIdentityId: agg.toId,
         projectId: sess.projectId,
