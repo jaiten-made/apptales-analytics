@@ -418,9 +418,10 @@ router.get(
         (id) => !id.includes("-more-")
       );
 
-      const eventCounts = await db.execute<
-        Array<{ eventIdentityId: string; count: number }>
-      >(sql`
+      const eventCounts = await db.execute<{
+        eventIdentityId: string;
+        count: number;
+      }>(sql`
         SELECT 
           e."eventIdentityId",
           COUNT(*)::integer as count
@@ -440,9 +441,10 @@ router.get(
         });
 
       // Calculate exits for each node (sessions where this event is the last event)
-      const exitCountsResult = await db.execute<
-        Array<{ eventIdentityId: string; exitCount: number }>
-      >(sql`
+      const exitCountsResult = await db.execute<{
+        eventIdentityId: string;
+        exitCount: number;
+      }>(sql`
         WITH last_session_events AS (
           SELECT DISTINCT ON (e."sessionId")
             e."sessionId",
