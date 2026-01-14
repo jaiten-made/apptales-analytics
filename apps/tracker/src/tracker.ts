@@ -1,4 +1,4 @@
-import { EventPayload } from "@apptales/types";
+import { EventType, SendEventPayload } from "@apptales/types";
 import { sendEvent } from "./api";
 import { generateSelector } from "./utils";
 
@@ -30,7 +30,7 @@ function createEventTracker() {
 
       lastTrackedPath = currentPath;
 
-      const eventType = "page_view";
+      const eventType = EventType.PAGE_VIEW;
       const eventKey = `${eventType}:${location.pathname}`;
 
       // Check if this is a consecutive duplicate
@@ -44,7 +44,7 @@ function createEventTracker() {
       const projectId = getProjectId();
       if (!projectId) throw new Error("Project ID not found");
 
-      const pageViewEvent: EventPayload = {
+      const pageViewEvent: SendEventPayload = {
         type: eventType,
         properties: {
           location: {
@@ -75,7 +75,7 @@ function createEventTracker() {
       // Generate unique CSS selector for this element
       const cssSelector = generateSelector(clickableElement as HTMLElement);
       const textContent = getTextContent(clickableElement);
-      const eventType = "click";
+      const eventType = EventType.CLICK;
       const eventKey = `${eventType}:${cssSelector}`;
 
       if (!cssSelector) {
@@ -92,7 +92,7 @@ function createEventTracker() {
         return;
       }
 
-      const clickEvent: EventPayload = {
+      const clickEvent: SendEventPayload = {
         type: eventType,
         properties: {
           textContent,

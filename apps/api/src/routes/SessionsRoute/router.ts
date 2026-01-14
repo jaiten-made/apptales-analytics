@@ -6,7 +6,7 @@ import HttpError from "../../errors/HttpError";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
 import { signSessionToken } from "../../utils/session-jwt";
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 // @route   POST /sessions
 // @desc    Create a new session for a project and set HTTP-Only cookie with signed JWT

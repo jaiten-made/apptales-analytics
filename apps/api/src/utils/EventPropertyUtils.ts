@@ -1,3 +1,5 @@
+import type { EventWithProperties } from "@apptales/types";
+
 // Detect common PII patterns
 export const piiPatterns: RegExp[] = [
   /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/i, // Email
@@ -9,31 +11,30 @@ export const piiPatterns: RegExp[] = [
 export const containsPII = (text: string): boolean =>
   piiPatterns.some((pattern) => pattern.test(text));
 
-export const sanitizeProperties = (
-  properties: unknown
-): { sanitized: unknown } => {
-  if (!properties || typeof properties !== "object") {
-    return { sanitized: properties };
+const sanitizeObject = (input: unknown): unknown => {
+  if (input === null || typeof input !== "object") return input;
+
+  if (Array.isArray(input)) {
+    return input.map((item) => sanitizeObject(item));
   }
 
-  const sanitized = JSON.parse(JSON.stringify(properties));
+  const result: Record<string, unknown> = {};
+  Object.entries(input as Record<string, unknown>).forEach(([key, value]) => {
+    if (typeof value === "string") {
+      result[key] = containsPII(value) ? "[REDACTED]" : value;
+    } else if (value !== null && typeof value === "object") {
+      result[key] = sanitizeObject(value);
+    } else {
+      result[key] = value;
+    }
+  });
 
-  const recursiveSanitize = (obj: any): void => {
-    if (!obj || typeof obj !== "object") return;
+  return result;
+};
 
-    Object.keys(obj).forEach((key) => {
-      const value = obj[key];
-
-      if (typeof value === "string") {
-        if (containsPII(value)) {
-          obj[key] = "[REDACTED]";
-        }
-      } else if (typeof value === "object" && value !== null) {
-        recursiveSanitize(value);
-      }
-    });
-  };
-
-  recursiveSanitize(sanitized);
-  return { sanitized };
+export const sanitizeProperties = (
+  properties: EventWithProperties
+): EventWithProperties => {
+  const cloned = structuredClone(properties);
+  return sanitizeObject(cloned) as EventWithProperties;
 };

@@ -1,8 +1,14 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, ilike, inArray, sql } from "drizzle-orm";
 import express from "express";
 import { z } from "zod";
 import { db } from "../../db/index";
-import { event, eventIdentity, project, transition } from "../../db/schema";
+import {
+  event,
+  eventIdentity,
+  project,
+  session,
+  transition,
+} from "../../db/schema";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
 import { requireProjectOwnership } from "../../middleware/project";
 import {
@@ -11,7 +17,7 @@ import {
   getTopTransitionsToEvent,
 } from "../../services/transition";
 
-const router = express.Router({
+const router: express.Router = express.Router({
   mergeParams: true,
 });
 
@@ -36,7 +42,7 @@ router.get("/", async (req: AuthRequest, res, next) => {
       .where(and(eq(project.id, projectId), eq(project.customerId, userId)))
       .limit(1);
 
-    res.json(projects[0]);
+    res.json(projects[0] || null);
   } catch (error) {
     next(error);
   }
@@ -50,15 +56,13 @@ router.put("/", async (req: AuthRequest, res, next) => {
     const { projectId } = req.params;
     const { name } = projectSchema.parse(req.body);
 
-    const result = await db
+    const updatedProjects = await db
       .update(project)
-      .set({
-        name,
-      })
+      .set({ name })
       .where(eq(project.id, projectId))
       .returning();
 
-    res.json(result[0]);
+    res.json(updatedProjects[0]);
   } catch (error) {
     next(error);
   }
@@ -93,62 +97,72 @@ router.get(
     const { category, limit = "50", search } = req.query;
 
     try {
-      // Build where clause with required category filter
-      const whereClause: any = {
-        events: {
-          some: {
-            session: {
-              projectId,
-            },
-          },
-        },
-      };
+      const limitNum = Math.min(parseInt(limit as string) || 50, 100);
 
-      // Add category filter if provided
+      // Step 1: Get valid eventIdentityIds that have events in sessions for this project
+      const validEventIdsQuery = db
+        .selectDistinct({ eventIdentityId: event.eventIdentityId })
+        .from(event)
+        .innerJoin(session, eq(event.sessionId, session.id))
+        .where(eq(session.projectId, projectId));
+
+      const validEventIds = await validEventIdsQuery;
+      const eventIdArray = validEventIds.map((e) => e.eventIdentityId);
+
+      if (eventIdArray.length === 0) {
+        return res.status(200).json([]);
+      }
+
+      // Step 2: Build conditions for eventIdentity query
+      const conditions = [inArray(eventIdentity.id, eventIdArray)];
+
       if (category && typeof category === "string") {
-        whereClause.category = category;
+        conditions.push(
+          eq(eventIdentity.category, category as "PAGE_VIEW" | "CLICK")
+        );
       }
 
-      // Add search filter if provided
       if (search && typeof search === "string" && search.length >= 2) {
-        whereClause.key = {
-          contains: search,
-          mode: "insensitive",
-        };
+        conditions.push(ilike(eventIdentity.key, `%${search}%`));
       }
 
-      const eventIdentities = await db.query.eventIdentity.findMany({
-        where: (ei, { eq, and: drizzleAnd, like }) => {
-          const conditions = [
-            eq(ei.id, ei.id), // placeholder that's always true - will be replaced
-          ];
+      // Step 3: Get eventIdentities
+      const eventIdentities = await db
+        .select({
+          id: eventIdentity.id,
+          key: eventIdentity.key,
+          category: eventIdentity.category,
+        })
+        .from(eventIdentity)
+        .where(and(...conditions))
+        .limit(limitNum);
 
-          // Add category filter if provided
-          if (category && typeof category === "string") {
-            conditions.pop();
-            conditions.push(eq(ei.category, category as any));
-          }
+      // Step 4: Get event counts for these identities
+      const eventCounts = await db
+        .select({
+          eventIdentityId: event.eventIdentityId,
+          count: sql<number>`count(*)::int`.as("count"),
+        })
+        .from(event)
+        .innerJoin(session, eq(event.sessionId, session.id))
+        .where(
+          and(
+            inArray(
+              event.eventIdentityId,
+              eventIdentities.map((e) => e.id)
+            ),
+            eq(session.projectId, projectId)
+          )
+        )
+        .groupBy(event.eventIdentityId);
 
-          // Add search filter if provided
-          if (search && typeof search === "string" && search.length >= 2) {
-            conditions.push(like(ei.key, `%${search}%`));
-          }
+      const countMap = new Map(
+        eventCounts.map((ec) => [ec.eventIdentityId, ec.count])
+      );
 
-          return conditions.length > 1
-            ? drizzleAnd(...conditions)
-            : conditions[0];
-        },
-        limit: Math.min(parseInt(limit as string) || 50, 100),
-      });
-
-      // Count events for each eventIdentity and format
-      const formattedIdentities = await Promise.all(
-        eventIdentities.map(async (identity) => {
-          const eventCount = await db
-            .select()
-            .from(event)
-            .where(eq(event.eventIdentityId, identity.id));
-
+      // Step 5: Combine and sort by count
+      const formattedIdentities = eventIdentities
+        .map((identity) => {
           const [type, name] = identity.key.split(":");
           return {
             id: identity.id,
@@ -156,13 +170,11 @@ router.get(
             type,
             name,
             category: identity.category,
-            eventCount: eventCount.length,
+            eventCount: countMap.get(identity.id) || 0,
           };
         })
-      );
-
-      // Sort by event count descending
-      formattedIdentities.sort((a, b) => b.eventCount - a.eventCount);
+        .sort((a, b) => b.eventCount - a.eventCount)
+        .slice(0, limitNum);
 
       return res.status(200).json(formattedIdentities);
     } catch (error) {
@@ -210,12 +222,11 @@ router.get(
       const depthNum = Math.min(parseInt(depth as string) || 1, 5);
 
       // Check if transitions exist for this project
-      const transitionResults = await db
-        .select({ id: transition.id })
+      const transitionCountResult = await db
+        .select({ count: sql<number>`count(*)::int` })
         .from(transition)
-        .where(eq(transition.projectId, projectId))
-        .limit(1);
-      const transitionCount = transitionResults.length;
+        .where(eq(transition.projectId, projectId));
+      const transitionCount = transitionCountResult[0]?.count || 0;
 
       // Auto-compute if no transitions exist
       if (transitionCount === 0) {
@@ -235,12 +246,12 @@ router.get(
       };
 
       // Get anchor event details
-      const anchorEvent = await db
+      const anchorEvents = await db
         .select({ id: eventIdentity.id, key: eventIdentity.key })
         .from(eventIdentity)
         .where(eq(eventIdentity.id, anchorEventId))
-        .limit(1)
-        .then((results) => results[0] || null);
+        .limit(1);
+      const anchorEvent = anchorEvents[0];
 
       if (!anchorEvent) {
         return res.status(404).json({ error: "Anchor event not found" });
@@ -326,28 +337,18 @@ router.get(
             }
 
             // still add "+ More" per parent if they have more than topN transitions
-            const totalTransitions =
-              direction === "forward"
-                ? await db
-                    .select({ id: transition.id })
-                    .from(transition)
-                    .where(
-                      and(
-                        eq(transition.projectId, projectId),
-                        eq(transition.fromEventIdentityId, parentId)
-                      )
-                    )
-                    .then((results) => results.length)
-                : await db
-                    .select({ id: transition.id })
-                    .from(transition)
-                    .where(
-                      and(
-                        eq(transition.projectId, projectId),
-                        eq(transition.toEventIdentityId, parentId)
-                      )
-                    )
-                    .then((results) => results.length);
+            const totalTransitionsResult = await db
+              .select({ count: sql<number>`count(*)::int` })
+              .from(transition)
+              .where(
+                and(
+                  eq(transition.projectId, projectId),
+                  direction === "forward"
+                    ? eq(transition.fromEventIdentityId, parentId)
+                    : eq(transition.toEventIdentityId, parentId)
+                )
+              );
+            const totalTransitions = totalTransitionsResult[0]?.count || 0;
 
             if (totalTransitions > topNNum) {
               const moreCount = Number(totalTransitions) - topNNum;
@@ -418,32 +419,30 @@ router.get(
         (id) => !id.includes("-more-")
       );
 
-      const eventCounts = await db.execute<{
-        eventIdentityId: string;
-        count: number;
-      }>(sql`
-        SELECT 
-          e."eventIdentityId",
-          COUNT(*)::integer as count
-        FROM "Event" e
-        INNER JOIN "Session" s ON e."sessionId" = s.id
-        WHERE e."eventIdentityId" = ANY(${nodeIds}::text[])
-        AND s."projectId" = ${projectId}
-        GROUP BY e."eventIdentityId"
-      `);
+      const eventCounts = await db
+        .select({
+          eventIdentityId: event.eventIdentityId,
+          count: sql<number>`count(*)::int`.as("count"),
+        })
+        .from(event)
+        .innerJoin(session, eq(event.sessionId, session.id))
+        .where(
+          and(
+            inArray(event.eventIdentityId, nodeIds),
+            eq(session.projectId, projectId)
+          )
+        )
+        .groupBy(event.eventIdentityId);
 
       const nodeCountMap = new Map<string, number>();
-      (eventCounts as any).rows?.forEach((result: any) => {
+      eventCounts.forEach((result) => {
         nodeCountMap.set(result.eventIdentityId, result.count);
-      }) ||
-        eventCounts.forEach((result: any) => {
-          nodeCountMap.set(result.eventIdentityId, result.count);
-        });
+      });
 
       // Calculate exits for each node (sessions where this event is the last event)
-      const exitCountsResult = await db.execute<{
+      const exitCounts = await db.execute<{
         eventIdentityId: string;
-        exitCount: number;
+        exitCount: string;
       }>(sql`
         WITH last_session_events AS (
           SELECT DISTINCT ON (e."sessionId")
@@ -456,15 +455,14 @@ router.get(
         )
         SELECT 
           "eventIdentityId",
-          COUNT(*)::integer as "exitCount"
+          COUNT(*)::text as "exitCount"
         FROM last_session_events
-        WHERE "eventIdentityId" = ANY(${nodeIds}::text[])
+        WHERE "eventIdentityId" = ANY(${sql.raw(`ARRAY[${nodeIds.map((id) => `'${id}'`).join(",")}]`)})
         GROUP BY "eventIdentityId"
       `);
-      const exitCounts = (exitCountsResult as any).rows || exitCountsResult;
 
       const nodeExitMap = new Map<string, number>();
-      (exitCounts as any[]).forEach((result: any) => {
+      exitCounts.forEach((result: any) => {
         nodeExitMap.set(result.eventIdentityId, Number(result.exitCount));
       });
 

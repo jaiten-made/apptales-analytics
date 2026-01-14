@@ -1,6 +1,6 @@
 import express from "express";
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 // @route   GET /auth/signout
 // @desc    Sign out user

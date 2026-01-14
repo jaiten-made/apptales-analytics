@@ -1,3 +1,4 @@
+import { SendEventPayload } from "@apptales/types";
 import { generateCuid } from "@apptales/utils";
 import { sql } from "drizzle-orm";
 import {
@@ -12,7 +13,6 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
-import { z } from "zod";
 
 export const customerStatus = pgEnum("CustomerStatus", [
   "ACTIVE",
@@ -25,31 +25,6 @@ const generatedId = () =>
     .primaryKey()
     .unique()
     .$defaultFn(() => generateCuid());
-
-// Event payload type definition matching @apptales/types
-export const EventPayloadSchema = z.union([
-  z.object({
-    type: z.literal("page_view"),
-    properties: z.object({
-      location: z.object({
-        pathname: z.string(),
-      }),
-    }),
-  }),
-  z.object({
-    type: z.string().superRefine((val, ctx) => {
-      if (val === "page_view") {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Use specific page_view schema for page_view events",
-        });
-      }
-    }),
-    properties: z.record(z.unknown()).optional(),
-  }),
-]);
-
-export type EventPayload = z.infer<typeof EventPayloadSchema>;
 
 export const customer = pgTable(
   "Customer",
@@ -119,9 +94,7 @@ export const event = pgTable(
   {
     id: generatedId(),
     type: text().notNull(),
-    properties: jsonb("properties")
-      .notNull()
-      .$type<z.infer<typeof EventPayloadSchema>>(),
+    properties: jsonb("properties").notNull().$type<SendEventPayload>(),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),

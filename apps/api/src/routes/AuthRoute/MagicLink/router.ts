@@ -8,7 +8,7 @@ import { customer } from "../../../db/schema";
 import HttpError from "../../../errors/HttpError";
 import { sendEmail } from "../../../services/email";
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 router.post("/", async (req, res, next) => {
   try {

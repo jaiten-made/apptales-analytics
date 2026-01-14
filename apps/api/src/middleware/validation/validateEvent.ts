@@ -1,4 +1,4 @@
-import { safeParseEventPayload } from "@apptales/types";
+import { safeParseSendEventPayload } from "@apptales/types";
 import { NextFunction, Request, Response } from "express";
 
 export const validateEventPayload = (
@@ -6,7 +6,7 @@ export const validateEventPayload = (
   res: Response,
   next: NextFunction
 ) => {
-  const parsed = safeParseEventPayload(req.body);
+  const parsed = safeParseSendEventPayload(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error);
   next();
 };

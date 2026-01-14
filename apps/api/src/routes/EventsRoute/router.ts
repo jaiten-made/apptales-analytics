@@ -1,4 +1,4 @@
-import { Event } from "@apptales/types";
+import { Event, EventType } from "@apptales/types";
 import { and, desc, eq } from "drizzle-orm";
 import express, { NextFunction, Request, Response } from "express";
 import { db } from "../../db/index";
@@ -11,7 +11,7 @@ import { sanitizeProperties } from "../../utils/EventPropertyUtils";
 import { getEventCategory } from "../../utils/EventUtils";
 import { checkSessionExpiry } from "./middleware";
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 // @route  GET /events
 // @desc   Get events for a specific project owned by the authenticated user
@@ -67,17 +67,12 @@ router.post(
       if (!sessionRecord) throw new HttpError(404, "Session not found");
 
       // Sanitize properties and check for PII
-      const { sanitized: sanitizedProperties } = sanitizeProperties(
-        req.body.properties
-      );
+      const sanitizedProperties = sanitizeProperties(req.body);
 
       // Create or get EventIdentity based on event type and properties
       const eventKey =
-        req.body.type === "page_view"
-          ? `${req.body.type}:${
-              (sanitizedProperties as { location: { pathname: string } })
-                .location.pathname
-            }`
+        req.body.type === EventType.PAGE_VIEW
+          ? `${req.body.type}:${sanitizedProperties}`
           : req.body.type;
 
       // Determine category based on event type
@@ -100,7 +95,7 @@ router.post(
         .insert(event)
         .values({
           type: req.body.type,
-          properties: (sanitizedProperties ?? {}) as Record<string, unknown>,
+          properties: sanitizedProperties ?? {},
           sessionId: req.body.sessionId,
           eventIdentityId: eventIdentityRecord.id,
         })

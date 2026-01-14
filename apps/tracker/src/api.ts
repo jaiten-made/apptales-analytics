@@ -1,4 +1,4 @@
-import { EventPayload } from "@apptales/types";
+import { SendEventPayload } from "@apptales/types";
 import { isLocalhostHostname } from "./utils";
 
 /**
@@ -13,7 +13,10 @@ declare const __API_BASE_URL__: string;
  */
 const API_URL = __API_BASE_URL__;
 
-export const sendEvent = async (payload: EventPayload, projectId: string) => {
+export const sendEvent = async (
+  payload: SendEventPayload,
+  projectId: string
+) => {
   if (isLocalhostHostname() && import.meta.env.PROD) {
     console.log("Skipping sending event on localhost");
     return;

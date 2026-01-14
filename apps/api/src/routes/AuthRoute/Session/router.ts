@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 
-const router = express.Router();
+const router: express.Router = express.Router();
 
 // @route   GET /auth/session/verify
 // @desc    Verify user session

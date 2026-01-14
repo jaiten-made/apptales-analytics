@@ -30,7 +30,6 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 3002,
-      open: "/test/index.html",
     },
   };
 });

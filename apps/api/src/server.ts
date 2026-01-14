@@ -9,8 +9,8 @@ import express, {
 import jwt from "jsonwebtoken";
 import path from "path";
 import { ZodError } from "zod";
-import { customer } from "../drizzle/schema";
 import { db } from "./db"; // Make sure you import your Drizzle db instance
+import { customer } from "./db/schema";
 import HttpError from "./errors/HttpError";
 import corsMiddleware from "./middleware/cors";
 import {

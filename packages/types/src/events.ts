@@ -1,24 +1,27 @@
 import { z } from "zod";
 
-export const EventPayloadSchema = z.union([
+// Zod schema for PAGE_VIEW event properties
+export const pageViewPropertiesSchema = z.object({
+  location: z.object({
+    pathname: z.string(),
+  }),
+});
+
+// Zod schema for CLICK event properties
+export const clickPropertiesSchema = z.object({
+  selector: z.string(),
+  textContent: z.string(),
+});
+
+// Discriminated union schema for events
+export const eventWithPropertiesSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("page_view"),
-    properties: z.object({
-      location: z.object({
-        pathname: z.string(),
-      }),
-    }),
+    properties: pageViewPropertiesSchema,
   }),
   z.object({
-    type: z.string().superRefine((val, ctx) => {
-      if (val === "page_view") {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Use specific page_view schema for page_view events",
-        });
-      }
-    }),
-    properties: z.record(z.unknown()).optional(),
+    type: z.literal("click"),
+    properties: clickPropertiesSchema,
   }),
 ]);
 
@@ -26,14 +29,16 @@ export const EventSchema = z.intersection(
   z.object({
     sessionId: z.string(),
   }),
-  EventPayloadSchema // This is the payload defined above
+  eventWithPropertiesSchema
 );
 
+export const SendEventPayloadSchema = eventWithPropertiesSchema;
+
+// Infer TypeScript types from Zod schemas
 export type Event = z.infer<typeof EventSchema>;
-export type EventPayload = z.infer<typeof EventPayloadSchema>;
+export type EventWithProperties = z.infer<typeof eventWithPropertiesSchema>;
 
-export const parseEvent = (input: unknown) => EventSchema.parse(input);
-export const safeParseEvent = (input: unknown) => EventSchema.safeParse(input);
+export type SendEventPayload = z.infer<typeof SendEventPayloadSchema>;
 
-export const safeParseEventPayload = (input: unknown) =>
-  EventPayloadSchema.safeParse(input);
+export const safeParseSendEventPayload = (input: unknown) =>
+  SendEventPayloadSchema.safeParse(input);
