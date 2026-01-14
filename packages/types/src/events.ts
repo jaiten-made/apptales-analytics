@@ -13,6 +13,11 @@ export const clickPropertiesSchema = z.object({
   textContent: z.string(),
 });
 
+export const eventPropertiesSchema = z.union([
+  pageViewPropertiesSchema,
+  clickPropertiesSchema,
+]);
+
 // Discriminated union schema for events
 export const eventWithPropertiesSchema = z.discriminatedUnion("type", [
   z.object({
@@ -37,6 +42,7 @@ export const SendEventPayloadSchema = eventWithPropertiesSchema;
 // Infer TypeScript types from Zod schemas
 export type Event = z.infer<typeof EventSchema>;
 export type EventWithProperties = z.infer<typeof eventWithPropertiesSchema>;
+export type EventProperties = z.infer<typeof eventPropertiesSchema>;
 
 export type SendEventPayload = z.infer<typeof SendEventPayloadSchema>;
 

@@ -1,4 +1,4 @@
-import type { EventWithProperties } from "@apptales/types";
+import type { EventProperties } from "@apptales/types";
 
 // Detect common PII patterns
 export const piiPatterns: RegExp[] = [
@@ -33,8 +33,8 @@ const sanitizeObject = (input: unknown): unknown => {
 };
 
 export const sanitizeProperties = (
-  properties: EventWithProperties
-): EventWithProperties => {
+  properties: EventProperties
+): EventProperties => {
   const cloned = structuredClone(properties);
-  return sanitizeObject(cloned) as EventWithProperties;
+  return sanitizeObject(cloned) as EventProperties;
 };

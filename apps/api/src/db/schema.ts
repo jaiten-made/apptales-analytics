@@ -1,4 +1,4 @@
-import { SendEventPayload } from "@apptales/types";
+import { EventProperties } from "@apptales/types";
 import { generateCuid } from "@apptales/utils";
 import { sql } from "drizzle-orm";
 import {
@@ -94,7 +94,7 @@ export const event = pgTable(
   {
     id: generatedId(),
     type: text().notNull(),
-    properties: jsonb("properties").notNull().$type<SendEventPayload>(),
+    properties: jsonb("properties").notNull().$type<EventProperties>(),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),

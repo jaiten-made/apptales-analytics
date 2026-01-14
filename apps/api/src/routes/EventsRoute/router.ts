@@ -67,13 +67,24 @@ router.post(
       if (!sessionRecord) throw new HttpError(404, "Session not found");
 
       // Sanitize properties and check for PII
-      const sanitizedProperties = sanitizeProperties(req.body);
+      const sanitizedProperties = sanitizeProperties(req.body.properties);
 
-      // Create or get EventIdentity based on event type and properties
-      const eventKey =
-        req.body.type === EventType.PAGE_VIEW
-          ? `${req.body.type}:${sanitizedProperties}`
-          : req.body.type;
+      let eventKey: string = req.body.type;
+      if (req.body.type === EventType.PAGE_VIEW) {
+        if ("location" in sanitizedProperties) {
+          eventKey = eventKey + `:${sanitizedProperties.location.pathname}`;
+        } else {
+          eventKey = eventKey + `:unknown_pathname`;
+        }
+      }
+
+      if (req.body.type === EventType.CLICK) {
+        if ("textContent" in sanitizedProperties) {
+          eventKey = eventKey + `:${sanitizedProperties.textContent}`;
+        } else {
+          eventKey = eventKey + `:unknown_text_content`;
+        }
+      }
 
       // Determine category based on event type
       const category = getEventCategory(req.body.type);

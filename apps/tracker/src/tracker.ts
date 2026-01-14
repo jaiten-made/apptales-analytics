@@ -73,12 +73,12 @@ function createEventTracker() {
       }
 
       // Generate unique CSS selector for this element
-      const cssSelector = generateSelector(clickableElement as HTMLElement);
+      const selector = generateSelector(clickableElement as HTMLElement);
       const textContent = getTextContent(clickableElement);
       const eventType = EventType.CLICK;
-      const eventKey = `${eventType}:${cssSelector}`;
+      const eventKey = `${eventType}:${selector}`;
 
-      if (!cssSelector) {
+      if (!selector) {
         console.log(
           "Click event has no trackable selector, skipping:",
           clickableElement
@@ -96,7 +96,7 @@ function createEventTracker() {
         type: eventType,
         properties: {
           textContent,
-          selector: cssSelector,
+          selector,
         },
       };
 
