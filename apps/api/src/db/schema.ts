@@ -1,3 +1,4 @@
+import { generateCuid } from "@apptales/utils";
 import { sql } from "drizzle-orm";
 import {
   doublePrecision,
@@ -9,6 +10,7 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  varchar,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
@@ -17,6 +19,12 @@ export const customerStatus = pgEnum("CustomerStatus", [
   "PROVISIONED",
 ]);
 export const eventCategory = pgEnum("EventCategory", ["PAGE_VIEW", "CLICK"]);
+
+const generatedId = () =>
+  varchar({ length: 128 })
+    .primaryKey()
+    .unique()
+    .$defaultFn(() => generateCuid());
 
 // Event payload type definition matching @apptales/types
 export const EventPayloadSchema = z.union([
@@ -46,7 +54,7 @@ export type EventPayload = z.infer<typeof EventPayloadSchema>;
 export const customer = pgTable(
   "Customer",
   {
-    id: text().primaryKey().notNull(),
+    id: generatedId(),
     email: text().notNull(),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -59,7 +67,7 @@ export const customer = pgTable(
 export const project = pgTable(
   "Project",
   {
-    id: text().primaryKey().notNull(),
+    id: generatedId(),
     name: text().notNull(),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
@@ -78,7 +86,7 @@ export const project = pgTable(
 );
 
 export const eventIdentity = pgTable("EventIdentity", {
-  id: text().primaryKey().notNull(),
+  id: generatedId(),
   key: text().notNull(),
   createdAt: timestamp({ precision: 3, mode: "string" })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -89,7 +97,7 @@ export const eventIdentity = pgTable("EventIdentity", {
 export const session = pgTable(
   "Session",
   {
-    id: text().primaryKey().notNull(),
+    id: generatedId(),
     createdAt: timestamp({ precision: 3, mode: "string" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -109,7 +117,7 @@ export const session = pgTable(
 export const event = pgTable(
   "Event",
   {
-    id: text().primaryKey().notNull(),
+    id: generatedId(),
     type: text().notNull(),
     properties: jsonb("properties")
       .notNull()
@@ -141,7 +149,7 @@ export const event = pgTable(
 export const transition = pgTable(
   "Transition",
   {
-    id: text().primaryKey().notNull(),
+    id: generatedId(),
     fromEventIdentityId: text().notNull(),
     toEventIdentityId: text().notNull(),
     projectId: text().notNull(),

@@ -1,5 +1,6 @@
+import { eq, gte } from "drizzle-orm";
 import { db } from "../db/index";
-import { project } from "../db/schema";
+import { event, project, session } from "../db/schema";
 import { computeTransitionsForProject } from "./transition";
 
 /**
@@ -69,25 +70,15 @@ export async function computeRecentProjectTransitions(
     cutoffDate.setHours(cutoffDate.getHours() - hoursThreshold);
 
     // Find projects with recent events
-    const projectsWithRecentActivity = await prisma.project.findMany({
-      where: {
-        sessions: {
-          some: {
-            events: {
-              some: {
-                createdAt: {
-                  gte: cutoffDate,
-                },
-              },
-            },
-          },
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
+    const projectsWithRecentActivity = await db
+      .select({
+        id: project.id,
+        name: project.name,
+      })
+      .from(project)
+      .innerJoin(session, eq(session.projectId, project.id))
+      .innerJoin(event, eq(event.sessionId, session.id))
+      .where(gte(event.createdAt, cutoffDate.toISOString()));
 
     console.log(
       `[TransitionJob] Found ${projectsWithRecentActivity.length} active projects`

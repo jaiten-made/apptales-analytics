@@ -1,4 +1,5 @@
 import { ProvisioningRequestSchema } from "@apptales/types";
+import { generateCuid } from "@apptales/utils";
 import { eq } from "drizzle-orm";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
@@ -22,7 +23,7 @@ const buildTrackerSnippet = (
   `<script src="${trackerBaseUrl}/tracker.js" data-id="${projectId}"></script>`;
 
 const escapeSnippet = (snippet: string): string =>
-  snippet.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+  snippet.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 const buildEmailBody = (
   organizationName: string,
@@ -66,7 +67,11 @@ export const provisionClient = async (
       // Create new customer
       const newCustomers = await db
         .insert(customer)
-        .values({ email: clientEmail, status: "PROVISIONED" })
+        .values({
+          id: generateCuid(),
+          email: clientEmail,
+          status: "PROVISIONED",
+        })
         .returning();
       customerRecord = newCustomers[0];
     }
@@ -75,6 +80,7 @@ export const provisionClient = async (
     const projectRecords = await db
       .insert(project)
       .values({
+        id: generateCuid(),
         name: organizationName,
         customerId: customerRecord.id,
       })
