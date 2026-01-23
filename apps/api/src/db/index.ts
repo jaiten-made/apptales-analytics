@@ -13,10 +13,11 @@ dotenv.config({
   ),
 });
 
-const createDrizzle = () => {
-  const client = postgres(process.env.DATABASE_URL!);
-  return drizzle(client, { schema: { ...schema, ...relations } });
-};
+// Create a single Postgres client for the app and reuse it
+const client = postgres(process.env.DATABASE_URL!);
+
+const createDrizzle = () =>
+  drizzle(client, { schema: { ...schema, ...relations } });
 
 type DrizzleDB = ReturnType<typeof createDrizzle>;
 
@@ -27,3 +28,6 @@ export const db = globalForDrizzle.db ?? createDrizzle();
 if (process.env.NODE_ENV !== "production") {
   globalForDrizzle.db = db;
 }
+
+// Export the underlying Postgres client so callers can close it when needed
+export const pgClient = client;
