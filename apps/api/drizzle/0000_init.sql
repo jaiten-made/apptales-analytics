@@ -1,6 +1,6 @@
-CREATE TYPE "public"."CustomerStatus" AS ENUM('ACTIVE', 'PROVISIONED');--> statement-breakpoint
-CREATE TYPE "public"."EventCategory" AS ENUM('PAGE_VIEW', 'CLICK');--> statement-breakpoint
-CREATE TABLE "Customer" (
+CREATE TYPE IF NOT EXISTS "public"."CustomerStatus" AS ENUM('ACTIVE', 'PROVISIONED');--> statement-breakpoint
+CREATE TYPE IF NOT EXISTS "public"."EventCategory" AS ENUM('PAGE_VIEW', 'CLICK');--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "Customer" (
 	"id" varchar(128) PRIMARY KEY NOT NULL,
 	"email" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -8,7 +8,7 @@ CREATE TABLE "Customer" (
 	CONSTRAINT "Customer_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-CREATE TABLE "Event" (
+CREATE TABLE IF NOT EXISTS "Event" (
 	"id" varchar(128) PRIMARY KEY NOT NULL,
 	"type" text NOT NULL,
 	"properties" jsonb NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE "Event" (
 	CONSTRAINT "Event_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-CREATE TABLE "EventIdentity" (
+CREATE TABLE IF NOT EXISTS "EventIdentity" (
 	"id" varchar(128) PRIMARY KEY NOT NULL,
 	"key" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE "EventIdentity" (
 	CONSTRAINT "EventIdentity_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-CREATE TABLE "Project" (
+CREATE TABLE IF NOT EXISTS "Project" (
 	"id" varchar(128) PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -34,14 +34,14 @@ CREATE TABLE "Project" (
 	CONSTRAINT "Project_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-CREATE TABLE "Session" (
+CREATE TABLE IF NOT EXISTS "Session" (
 	"id" varchar(128) PRIMARY KEY NOT NULL,
 	"createdAt" timestamp(3) DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"projectId" text NOT NULL,
 	CONSTRAINT "Session_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-CREATE TABLE "Transition" (
+CREATE TABLE IF NOT EXISTS "Transition" (
 	"id" varchar(128) PRIMARY KEY NOT NULL,
 	"fromEventIdentityId" text NOT NULL,
 	"toEventIdentityId" text NOT NULL,
@@ -53,11 +53,46 @@ CREATE TABLE "Transition" (
 	CONSTRAINT "Transition_id_unique" UNIQUE("id")
 );
 --> statement-breakpoint
-ALTER TABLE "Event" ADD CONSTRAINT "Event_eventIdentityId_fkey" FOREIGN KEY ("eventIdentityId") REFERENCES "public"."EventIdentity"("id") ON DELETE restrict ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "Event" ADD CONSTRAINT "Event_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "public"."Session"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "Project" ADD CONSTRAINT "Project_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "public"."Customer"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "Session" ADD CONSTRAINT "Session_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "public"."Project"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "Transition" ADD CONSTRAINT "Transition_fromEventIdentityId_fkey" FOREIGN KEY ("fromEventIdentityId") REFERENCES "public"."EventIdentity"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "Transition" ADD CONSTRAINT "Transition_toEventIdentityId_fkey" FOREIGN KEY ("toEventIdentityId") REFERENCES "public"."EventIdentity"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-ALTER TABLE "Transition" ADD CONSTRAINT "Transition_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "public"."Project"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
-CREATE UNIQUE INDEX "Customer_email_unique" ON "Customer" USING btree ("email");
+DO $$ BEGIN
+ ALTER TABLE "Event" ADD CONSTRAINT "Event_eventIdentityId_fkey" FOREIGN KEY ("eventIdentityId") REFERENCES "public"."EventIdentity"("id") ON DELETE restrict ON UPDATE cascade;
+EXCEPTION
+ WHEN duplicate_object THEN RAISE NOTICE 'Constraint Event_eventIdentityId_fkey already exists, skipping';
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "Event" ADD CONSTRAINT "Event_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "public"."Session"("id") ON DELETE cascade ON UPDATE cascade;
+EXCEPTION
+ WHEN duplicate_object THEN RAISE NOTICE 'Constraint Event_sessionId_fkey already exists, skipping';
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "Project" ADD CONSTRAINT "Project_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "public"."Customer"("id") ON DELETE cascade ON UPDATE cascade;
+EXCEPTION
+ WHEN duplicate_object THEN RAISE NOTICE 'Constraint Project_customerId_fkey already exists, skipping';
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "Session" ADD CONSTRAINT "Session_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "public"."Project"("id") ON DELETE cascade ON UPDATE cascade;
+EXCEPTION
+ WHEN duplicate_object THEN RAISE NOTICE 'Constraint Session_projectId_fkey already exists, skipping';
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "Transition" ADD CONSTRAINT "Transition_fromEventIdentityId_fkey" FOREIGN KEY ("fromEventIdentityId") REFERENCES "public"."EventIdentity"("id") ON DELETE cascade ON UPDATE cascade;
+EXCEPTION
+ WHEN duplicate_object THEN RAISE NOTICE 'Constraint Transition_fromEventIdentityId_fkey already exists, skipping';
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "Transition" ADD CONSTRAINT "Transition_toEventIdentityId_fkey" FOREIGN KEY ("toEventIdentityId") REFERENCES "public"."EventIdentity"("id") ON DELETE cascade ON UPDATE cascade;
+EXCEPTION
+ WHEN duplicate_object THEN RAISE NOTICE 'Constraint Transition_toEventIdentityId_fkey already exists, skipping';
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "Transition" ADD CONSTRAINT "Transition_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "public"."Project"("id") ON DELETE cascade ON UPDATE cascade;
+EXCEPTION
+ WHEN duplicate_object THEN RAISE NOTICE 'Constraint Transition_projectId_fkey already exists, skipping';
+END $$;
+--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "Customer_email_unique" ON "Customer" USING btree ("email");
