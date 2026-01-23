@@ -1,5 +1,6 @@
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
+import { sql } from "drizzle-orm";
 import express, {
   NextFunction,
   Request,
@@ -9,8 +10,7 @@ import express, {
 import jwt from "jsonwebtoken";
 import path from "path";
 import { ZodError } from "zod";
-import { db } from "./db"; // Make sure you import your Drizzle db instance
-import { customer } from "./db/schema";
+import { db } from "./db"; // Import your Drizzle database instance
 import HttpError from "./errors/HttpError";
 import corsMiddleware from "./middleware/cors";
 import {
@@ -108,20 +108,16 @@ app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ message: "Unknown error" });
 });
 
-app.get("/", async (_, res: Response) => {
-  // Insert a customer
-  const newCustomer = await db
-    .insert(customer)
-    .values({
-      id: "customer_123", // You'll need a unique ID
-      email: "user@example.com",
-      status: "ACTIVE", // optional, defaults to ACTIVE
-    })
-    .returning();
-
-  console.log("Customer created:", newCustomer);
-
-  res.send("success");
+app.get("/health", async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    await db.execute(sql`SELECT 1`);
+    res.status(200).json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Railway sets the port value automatically, don't put in env file
