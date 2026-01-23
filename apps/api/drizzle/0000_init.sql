@@ -1,5 +1,15 @@
-CREATE TYPE IF NOT EXISTS "public"."CustomerStatus" AS ENUM('ACTIVE', 'PROVISIONED');--> statement-breakpoint
-CREATE TYPE IF NOT EXISTS "public"."EventCategory" AS ENUM('PAGE_VIEW', 'CLICK');--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."CustomerStatus" AS ENUM('ACTIVE', 'PROVISIONED');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ CREATE TYPE "public"."EventCategory" AS ENUM('PAGE_VIEW', 'CLICK');
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Customer" (
 	"id" varchar(128) PRIMARY KEY NOT NULL,
 	"email" text NOT NULL,
@@ -56,43 +66,43 @@ CREATE TABLE IF NOT EXISTS "Transition" (
 DO $$ BEGIN
  ALTER TABLE "Event" ADD CONSTRAINT "Event_eventIdentityId_fkey" FOREIGN KEY ("eventIdentityId") REFERENCES "public"."EventIdentity"("id") ON DELETE restrict ON UPDATE cascade;
 EXCEPTION
- WHEN duplicate_object THEN RAISE NOTICE 'Constraint Event_eventIdentityId_fkey already exists, skipping';
+ WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "Event" ADD CONSTRAINT "Event_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "public"."Session"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
- WHEN duplicate_object THEN RAISE NOTICE 'Constraint Event_sessionId_fkey already exists, skipping';
+ WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "Project" ADD CONSTRAINT "Project_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "public"."Customer"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
- WHEN duplicate_object THEN RAISE NOTICE 'Constraint Project_customerId_fkey already exists, skipping';
+ WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "Session" ADD CONSTRAINT "Session_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "public"."Project"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
- WHEN duplicate_object THEN RAISE NOTICE 'Constraint Session_projectId_fkey already exists, skipping';
+ WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "Transition" ADD CONSTRAINT "Transition_fromEventIdentityId_fkey" FOREIGN KEY ("fromEventIdentityId") REFERENCES "public"."EventIdentity"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
- WHEN duplicate_object THEN RAISE NOTICE 'Constraint Transition_fromEventIdentityId_fkey already exists, skipping';
+ WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "Transition" ADD CONSTRAINT "Transition_toEventIdentityId_fkey" FOREIGN KEY ("toEventIdentityId") REFERENCES "public"."EventIdentity"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
- WHEN duplicate_object THEN RAISE NOTICE 'Constraint Transition_toEventIdentityId_fkey already exists, skipping';
+ WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "Transition" ADD CONSTRAINT "Transition_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "public"."Project"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
- WHEN duplicate_object THEN RAISE NOTICE 'Constraint Transition_projectId_fkey already exists, skipping';
+ WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "Customer_email_unique" ON "Customer" USING btree ("email");
