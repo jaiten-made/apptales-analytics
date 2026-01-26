@@ -1,34 +1,53 @@
-import { useState } from 'react';
-import reactLogo from '@/assets/react.svg';
-import wxtLogo from '/wxt.svg';
-import './App.css';
+import { JSX, useEffect, useState } from "react";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0);
+function App(): JSX.Element {
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // 1. Initial Fetch
+    const init = async () => {
+      try {
+        const response = await browser.runtime.sendMessage({
+          type: "get-session",
+        });
+        setToken(response.token);
+      } catch (err) {
+        console.error("Failed to get session:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    init();
+
+    // 2. Listen for "Live" updates
+    const handleMessage = (message: { type: string; token: string | null }) => {
+      if (message.type === "session:changed") {
+        setToken(message.token);
+      }
+    };
+
+    browser.runtime.onMessage.addListener(handleMessage);
+
+    return () => browser.runtime.onMessage.removeListener(handleMessage);
+  }, []);
+
+  // Prevent UI flicker
+  if (isLoading) return <div>Loading...</div>;
 
   return (
-    <>
-      <div>
-        <a href="https://wxt.dev" target="_blank">
-          <img src={wxtLogo} className="logo" alt="WXT logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="container">
+      <h1>Apptales</h1>
+      <div className="status-badge">
+        {token ? (
+          <p className="success">✅ Logged In</p>
+        ) : (
+          <p className="error">❌ Logged Out</p>
+        )}
       </div>
-      <h1>WXT + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the WXT and React logos to learn more
-      </p>
-    </>
+    </div>
   );
 }
 

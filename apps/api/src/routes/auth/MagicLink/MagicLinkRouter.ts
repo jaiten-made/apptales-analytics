@@ -48,9 +48,12 @@ router.get("/verify", async (req, res, next) => {
     const decoded = jwt.verify(token.toString(), secret) as {
       email: string;
     };
+    const isProd = process.env.NODE_ENV === "production";
     res.cookie("session", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      path: "/",
     });
 
     try {

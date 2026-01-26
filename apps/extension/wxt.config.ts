@@ -8,4 +8,8 @@ export default defineConfig({
       port: 3003,
     },
   },
+  manifest: {
+    permissions: ["cookies", "storage"],
+    host_permissions: ["http://localhost:3000/*", "http://localhost:3001/*"],
+  },
 });
