@@ -1,4 +1,4 @@
 export * from "./enums";
-export * from "./events";
-export * from "./flowGraphSchema";
-export * from "./provisioning";
+export * from "./events.schema";
+export * from "./flow-graph.schema";
+export * from "./provisioning.schema";
