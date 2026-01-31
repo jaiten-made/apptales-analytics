@@ -1,1 +1,1 @@
-export * from "./cuid";
+export * from "./cuid.util";
