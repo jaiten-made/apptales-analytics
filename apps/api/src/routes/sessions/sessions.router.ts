@@ -4,7 +4,7 @@ import { db } from "../../db/index";
 import { event, project, session as sessionTable } from "../../db/schema";
 import HttpError from "../../errors/HttpError";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
-import { signSessionToken } from "../../utils/SessionJwtUtils";
+import { signSessionToken } from "../../utils/session-jwt.util";
 
 const router: express.Router = express.Router();
 

@@ -13,8 +13,8 @@ const getSecondsUntilMidnight = (): number => {
       0,
       0,
       0,
-      0
-    )
+      0,
+    ),
   );
   return Math.floor((nextUtcMidnight.getTime() - now.getTime()) / 1000);
 };
@@ -26,7 +26,7 @@ export interface SessionPayload {
 
 export const signSessionToken = (
   payload: SessionPayload,
-  secret: string
+  secret: string,
 ): string => {
   const expiresIn = getSecondsUntilMidnight();
   return jwt.sign(payload, secret, { expiresIn });
@@ -34,7 +34,7 @@ export const signSessionToken = (
 
 export const verifySessionToken = (
   token: string,
-  secret: string
+  secret: string,
 ): SessionPayload => {
   return jwt.verify(token, secret) as SessionPayload;
 };

@@ -7,7 +7,7 @@ import { event, session } from "../../db/schema";
 import {
   signSessionToken,
   verifySessionToken,
-} from "../../utils/SessionJwtUtils";
+} from "../../utils/session-jwt.util";
 
 const { TokenExpiredError } = jwt;
 
