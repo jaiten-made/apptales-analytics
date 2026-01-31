@@ -40,6 +40,7 @@ apptales-analytics-showcase/
 ├── apps/                             # Application projects
 │   ├── api/                          # Express.js backend API
 │   ├── app/                          # React analytics dashboard
+│   ├── extension/                    # Browser extension for injecting tracker
 │   ├── landing/                      # Astro marketing site
 │   ├── provisioning-portal/          # Provisioning customer accounts
 │   └── tracker/                      # One-line embed script hosted on Cloudflare CDN
@@ -87,6 +88,9 @@ pnpm -F @apptales/api dev
 
 # Frontend Dashboard (React)
 pnpm -F @apptales/app dev
+
+# Browser Extension (WXT)
+pnpm -F @apptales/extension dev
 
 # Landing Page (Astro)
 pnpm -F @apptales/landing dev

@@ -11,6 +11,7 @@ This monorepo uses AGENTS.md files for AI coding agent guidance:
 - **Project-Specific Documentation** (each references root conventions):
   - [apps/api/agents.md](../apps/api/agents.md) - Express.js backend specifics
   - [apps/app/agents.md](../apps/app/agents.md) - React frontend specifics
+  - [apps/extension/agents.md](../apps/extension/agents.md) - Browser extension specifics
   - [apps/landing/agents.md](../apps/landing/agents.md) - Astro static site specifics
   - [apps/provisioning-portal/agents.md](../apps/provisioning-portal/agents.md) - React provisioning UI specifics
   - [apps/tracker/agents.md](../apps/tracker/agents.md) - Cloudflare Workers specifics

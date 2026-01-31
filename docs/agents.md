@@ -259,6 +259,7 @@ Each app has its own AGENTS.md with tech-stack details:
 
 - [apps/api/agents.md](../../apps/api/agents.md) - Backend API specifics
 - [apps/app/agents.md](../../apps/app/agents.md) - React frontend
+- [apps/extension/agents.md](../../apps/extension/agents.md) - Browser extension for injecting tracker
 - [apps/landing/agents.md](../../apps/landing/agents.md) - Astro static site
 - [apps/provisioning-portal/agents.md](../../apps/provisioning-portal/agents.md) - Provisioning UI
 - [apps/tracker/agents.md](../../apps/tracker/agents.md) - Cloudflare Workers tracker
