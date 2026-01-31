@@ -2,6 +2,8 @@
 
 A comprehensive product event analytics platform that automatically captures and analyzes user interactions with **complete anonymity**. AppTales helps you understand what users do before and after each event by automatically collecting click events, page views, and user journeys. Add it to any site with just **one line of code**.
 
+![AppTales Dashboard](./apps/landing/public/images/desktop-filter-all.png)
+
 ## What is AppTales?
 
 AppTales is a powerful event analytics tracer that provides deep insights into user behavior through:
