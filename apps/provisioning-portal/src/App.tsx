@@ -1,3 +1,4 @@
+import { theme } from "@apptales/mui-config";
 import { ProvisioningRequestSchema } from "@apptales/types";
 import {
   Alert,

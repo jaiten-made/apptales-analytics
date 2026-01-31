@@ -1,6 +1,6 @@
+import { theme } from "@apptales/mui-config";
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { Outlet, useLocation } from "react-router-dom";
-import theme from "../lib/mui/theme";
 import NavBar from "./components/NavBar";
 
 function App() {

@@ -1,3 +1,4 @@
+import { theme } from "@apptales/mui-config";
 import {
   AppBar,
   Box,
@@ -12,7 +13,6 @@ import {
   Typography,
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
-import theme from "../../lib/mui/theme";
 
 const DRAWER_WIDTH = 300;
 

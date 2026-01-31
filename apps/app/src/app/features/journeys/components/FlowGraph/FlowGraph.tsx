@@ -1,3 +1,4 @@
+import { theme } from "@apptales/mui-config";
 import { Box, colors, Typography } from "@mui/material";
 import { IconFilter } from "@tabler/icons-react";
 import React, { useEffect, useMemo, useState } from "react";
@@ -10,7 +11,6 @@ import ReactFlow, {
   useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import theme from "../../../../../lib/mui/theme";
 import { useGetTransitionsQuery } from "../../../../../lib/redux/api/projects/project/project";
 import { EventDiscoveryPanel } from "../../../shared/components/EventDiscoveryPanel";
 import { buildTransitionGraph } from "./buildTransitionGraph";
@@ -25,7 +25,7 @@ const FocusOnMount: React.FC<{ nodes: any[] }> = ({ nodes }) => {
     if (nodes.length > 0) {
       // Find level 0 nodes (anchor/starting nodes)
       const level0Nodes = nodes.filter(
-        (node) => node.data?.isStart && node.type === "stepNode"
+        (node) => node.data?.isStart && node.type === "stepNode",
       );
 
       if (level0Nodes.length > 0) {
@@ -67,7 +67,7 @@ const FlowGraphContent: React.FC<{
 
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
     () => (graph ? buildTransitionGraph(graph) : { nodes: [], edges: [] }),
-    [graph]
+    [graph],
   );
 
   // Memoize nodes and pass selection via data (no inline styles)
@@ -126,7 +126,7 @@ const FlowGraphContent: React.FC<{
   // register custom node
   const nodeTypes = useMemo(
     () => ({ stepNode: StepNode, stepHeader: StepHeaderNode }),
-    []
+    [],
   );
 
   // Render content based on state

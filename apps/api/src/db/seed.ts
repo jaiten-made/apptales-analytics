@@ -3,11 +3,11 @@ import { generateCuid } from "@apptales/utils";
 import { eq } from "drizzle-orm";
 import { db, pgClient } from "./index";
 import {
-    customer,
-    eventIdentity as eventIdentityTable,
-    event as eventTable,
-    project as projectTable,
-    session as sessionTable,
+  customer,
+  eventIdentity as eventIdentityTable,
+  event as eventTable,
+  project as projectTable,
+  session as sessionTable,
 } from "./schema";
 
 async function main() {
@@ -69,7 +69,7 @@ async function main() {
     new Date(
       base.getTime() +
         (days * 24 + hours) * 60 * 60 * 1000 +
-        minutes * 60 * 1000
+        minutes * 60 * 1000,
     );
 
   const baseTime = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
@@ -77,7 +77,7 @@ async function main() {
   // Create event identities (idempotent by key)
   async function ensureEventIdentity(
     key: string,
-    category: "PAGE_VIEW" | "CLICK"
+    category: "PAGE_VIEW" | "CLICK",
   ) {
     const found = await db
       .select()
@@ -93,86 +93,86 @@ async function main() {
   const landingPage = await ensureEventIdentity("page_view:/", "PAGE_VIEW");
   const featuresPage = await ensureEventIdentity(
     "page_view:/features",
-    "PAGE_VIEW"
+    "PAGE_VIEW",
   );
   const pricingPage = await ensureEventIdentity(
     "page_view:/pricing",
-    "PAGE_VIEW"
+    "PAGE_VIEW",
   );
   const documentationPage = await ensureEventIdentity(
     "page_view:/docs",
-    "PAGE_VIEW"
+    "PAGE_VIEW",
   );
   const aboutPage = await ensureEventIdentity("page_view:/about", "PAGE_VIEW");
   const signupPage = await ensureEventIdentity(
     "page_view:/signup",
-    "PAGE_VIEW"
+    "PAGE_VIEW",
   );
   const loginPage = await ensureEventIdentity("page_view:/login", "PAGE_VIEW");
   const dashboardPage = await ensureEventIdentity(
     "page_view:/dashboard",
-    "PAGE_VIEW"
+    "PAGE_VIEW",
   );
   const onboardingPage = await ensureEventIdentity(
     "page_view:/onboarding",
-    "PAGE_VIEW"
+    "PAGE_VIEW",
   );
   const settingsPage = await ensureEventIdentity(
     "page_view:/settings",
-    "PAGE_VIEW"
+    "PAGE_VIEW",
   );
   const integrationsPage = await ensureEventIdentity(
     "page_view:/integrations",
-    "PAGE_VIEW"
+    "PAGE_VIEW",
   );
   const analyticsPage = await ensureEventIdentity(
     "page_view:/analytics",
-    "PAGE_VIEW"
+    "PAGE_VIEW",
   );
   const billingPage = await ensureEventIdentity(
     "page_view:/billing",
-    "PAGE_VIEW"
+    "PAGE_VIEW",
   );
 
   const clickGetStarted = await ensureEventIdentity(
     "click:get_started",
-    "CLICK"
+    "CLICK",
   );
   const clickViewPricing = await ensureEventIdentity(
     "click:view_pricing",
-    "CLICK"
+    "CLICK",
   );
   const clickSeePlans = await ensureEventIdentity("click:see_plans", "CLICK");
   const clickSignup = await ensureEventIdentity("click:signup_button", "CLICK");
   const clickLogin = await ensureEventIdentity("click:login_button", "CLICK");
   const clickTryFreeTrial = await ensureEventIdentity(
     "click:try_free_trial",
-    "CLICK"
+    "CLICK",
   );
   const clickReadDocs = await ensureEventIdentity("click:read_docs", "CLICK");
   const clickStartOnboarding = await ensureEventIdentity(
     "click:start_onboarding",
-    "CLICK"
+    "CLICK",
   );
   const clickCompleteOnboarding = await ensureEventIdentity(
     "click:complete_onboarding",
-    "CLICK"
+    "CLICK",
   );
   const clickConnectIntegration = await ensureEventIdentity(
     "click:connect_integration",
-    "CLICK"
+    "CLICK",
   );
   const clickUpgradePlan = await ensureEventIdentity(
     "click:upgrade_plan",
-    "CLICK"
+    "CLICK",
   );
   const clickViewAnalytics = await ensureEventIdentity(
     "click:view_analytics",
-    "CLICK"
+    "CLICK",
   );
   const clickSaveSettings = await ensureEventIdentity(
     "click:save_settings",
-    "CLICK"
+    "CLICK",
   );
 
   // Build events array following the original timeline
@@ -239,7 +239,7 @@ async function main() {
       properties: { location: { pathname: "/docs" } },
       eventIdentityId: documentationPage.id,
       createdAt: addTime(session1Start, 0, 0, 8.5).toISOString(),
-    }
+    },
   );
 
   // SESSION 2
@@ -287,7 +287,7 @@ async function main() {
       properties: { location: { pathname: "/features" } },
       eventIdentityId: featuresPage.id,
       createdAt: addTime(session2Start, 0, 0, 5).toISOString(),
-    }
+    },
   );
 
   // SESSION 3 - Conversion
@@ -356,7 +356,7 @@ async function main() {
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session3Start, 0, 0, 8.5).toISOString(),
-    }
+    },
   );
 
   // SESSION 4
@@ -409,7 +409,7 @@ async function main() {
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session4Start, 0, 0, 5.5).toISOString(),
-    }
+    },
   );
 
   // SESSION 5
@@ -462,7 +462,7 @@ async function main() {
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session5Start, 0, 0, 6).toISOString(),
-    }
+    },
   );
 
   // SESSION 6
@@ -507,7 +507,7 @@ async function main() {
       properties: { location: { pathname: "/analytics" } },
       eventIdentityId: analyticsPage.id,
       createdAt: addTime(session6Start, 0, 0, 1.5).toISOString(),
-    }
+    },
   );
 
   // SESSION 7
@@ -568,7 +568,7 @@ async function main() {
       properties: { location: { pathname: "/dashboard" } },
       eventIdentityId: dashboardPage.id,
       createdAt: addTime(session7Start, 0, 0, 7).toISOString(),
-    }
+    },
   );
 
   // Insert events (idempotency naive - skip if event with same id exists)

@@ -11,6 +11,7 @@
   "dependencies": {
     "@apptales/types": "workspace:*",
     "@apptales/utils": "workspace:*",
+    "@apptales/mui-config": "workspace:*",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.6",

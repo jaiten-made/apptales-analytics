@@ -1,3 +1,4 @@
+import { theme } from "@apptales/mui-config";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -23,7 +24,6 @@ import {
   IconRefresh,
   IconUser,
 } from "@tabler/icons-react";
-import theme from "../../lib/mui/theme";
 import { useGetEventsQuery } from "../../lib/redux/api/events/events";
 
 const DRAWER_WIDTH = 320;

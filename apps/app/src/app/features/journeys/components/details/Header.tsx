@@ -1,7 +1,7 @@
+import { theme } from "@apptales/mui-config";
 import { AppBar, Breadcrumbs, Link, Toolbar, Typography } from "@mui/material";
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
-import theme from "../../../../../lib/mui/theme";
 import { actions } from "../../../../../lib/redux/features/journeys/slice";
 import { selectSelectedJourney } from "../../../../../lib/redux/features/journeys/slice/selectors";
 import { useAppDispatch, useAppSelector } from "../../../../../lib/redux/hook";
