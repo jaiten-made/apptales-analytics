@@ -1,7 +1,7 @@
 import { eq, gte } from "drizzle-orm";
 import { db } from "../db/index";
 import { event, project, session } from "../db/schema";
-import { computeTransitionsForProject } from "./transition";
+import { computeTransitionsForProject } from "./transition.service";
 
 /**
  * Background job that computes transitions for all projects
@@ -9,7 +9,7 @@ import { computeTransitionsForProject } from "./transition";
  */
 export async function computeAllProjectTransitions(): Promise<void> {
   console.log(
-    "[TransitionJob] Starting transition computation for all projects"
+    "[TransitionJob] Starting transition computation for all projects",
   );
 
   try {
@@ -27,28 +27,28 @@ export async function computeAllProjectTransitions(): Promise<void> {
     for (const proj of projects) {
       try {
         console.log(
-          `[TransitionJob] Computing transitions for project: ${proj.name} (${proj.id})`
+          `[TransitionJob] Computing transitions for project: ${proj.name} (${proj.id})`,
         );
         await computeTransitionsForProject(proj.id);
         console.log(
-          `[TransitionJob] Completed transitions for project: ${proj.name}`
+          `[TransitionJob] Completed transitions for project: ${proj.name}`,
         );
       } catch (error) {
         console.error(
           `[TransitionJob] Failed to compute transitions for project ${proj.id}:`,
-          error
+          error,
         );
         // Continue with next project even if one fails
       }
     }
 
     console.log(
-      "[TransitionJob] Completed transition computation for all projects"
+      "[TransitionJob] Completed transition computation for all projects",
     );
   } catch (error) {
     console.error(
       "[TransitionJob] Fatal error during transition computation:",
-      error
+      error,
     );
     throw error;
   }
@@ -59,10 +59,10 @@ export async function computeAllProjectTransitions(): Promise<void> {
  * More efficient than processing all projects
  */
 export async function computeRecentProjectTransitions(
-  hoursThreshold: number = 24
+  hoursThreshold: number = 24,
 ): Promise<void> {
   console.log(
-    `[TransitionJob] Computing transitions for projects active in last ${hoursThreshold} hours`
+    `[TransitionJob] Computing transitions for projects active in last ${hoursThreshold} hours`,
   );
 
   try {
@@ -81,25 +81,25 @@ export async function computeRecentProjectTransitions(
       .where(gte(event.createdAt, cutoffDate.toISOString()));
 
     console.log(
-      `[TransitionJob] Found ${projectsWithRecentActivity.length} active projects`
+      `[TransitionJob] Found ${projectsWithRecentActivity.length} active projects`,
     );
 
     for (const project of projectsWithRecentActivity) {
       try {
         console.log(
-          `[TransitionJob] Computing transitions for active project: ${project.name}`
+          `[TransitionJob] Computing transitions for active project: ${project.name}`,
         );
         await computeTransitionsForProject(project.id);
       } catch (error) {
         console.error(
           `[TransitionJob] Failed for project ${project.id}:`,
-          error
+          error,
         );
       }
     }
 
     console.log(
-      "[TransitionJob] Completed transition computation for active projects"
+      "[TransitionJob] Completed transition computation for active projects",
     );
   } catch (error) {
     console.error("[TransitionJob] Fatal error:", error);

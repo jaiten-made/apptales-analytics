@@ -4,7 +4,7 @@ import { db } from "../../db/index";
 import { event, project, session as sessionTable } from "../../db/schema";
 import HttpError from "../../errors/HttpError";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
-import { signSessionToken } from "../../utils/session-jwt";
+import { signSessionToken } from "../../utils/SessionJwtUtils";
 
 const router: express.Router = express.Router();
 
@@ -45,7 +45,7 @@ router.post("/", async (req, res, next) => {
         sessionId: newSession.id,
         projectId: newSession.projectId,
       },
-      process.env.JWT_SECRET!
+      process.env.JWT_SECRET!,
     );
 
     // Set HTTP-Only cookie
@@ -106,7 +106,7 @@ router.get("/", requireAuth, async (req: AuthRequest, res, next) => {
             events: eventCounts.length,
           },
         };
-      })
+      }),
     );
 
     res.json(sessionsWithCounts);
@@ -150,7 +150,7 @@ router.get("/:sessionId", requireAuth, async (req: AuthRequest, res, next) => {
       .select()
       .from(project)
       .where(
-        and(eq(project.id, sessions.projectId), eq(project.customerId, userId))
+        and(eq(project.id, sessions.projectId), eq(project.customerId, userId)),
       )
       .limit(1);
 

@@ -8,7 +8,7 @@ import { AuthRequest } from "./auth";
 export const requireProjectOwnership = async (
   req: AuthRequest,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { projectId } = req.params;

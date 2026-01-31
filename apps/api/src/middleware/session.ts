@@ -8,7 +8,7 @@ import { AuthRequest } from "./auth";
 export const requireSessionOwnership = async (
   req: AuthRequest,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { sessionId } = req.params;

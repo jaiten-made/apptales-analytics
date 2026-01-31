@@ -26,7 +26,7 @@ interface TransitionPair {
  * Example: [A, A, B, C, C, C, B] -> [A, B, C, B]
  */
 function collapseConsecutiveDuplicates(
-  events: EventSequence[]
+  events: EventSequence[],
 ): EventSequence[] {
   if (events.length === 0) return [];
 
@@ -49,7 +49,7 @@ function collapseConsecutiveDuplicates(
  * Extracts transition pairs from a collapsed event sequence
  */
 function extractTransitionPairs(
-  collapsedEvents: EventSequence[]
+  collapsedEvents: EventSequence[],
 ): TransitionPair[] {
   const pairs: TransitionPair[] = [];
 
@@ -74,7 +74,7 @@ function extractTransitionPairs(
  * Aggregates transition pairs into counts and average durations
  */
 function aggregateTransitions(
-  pairs: TransitionPair[]
+  pairs: TransitionPair[],
 ): Map<
   string,
   { fromId: string; toId: string; count: number; totalDurationMs: number }
@@ -108,7 +108,7 @@ function aggregateTransitions(
  * Calculates transition percentages for all outgoing transitions from each event
  */
 async function calculateTransitionPercentages(
-  projectId: string
+  projectId: string,
 ): Promise<void> {
   // Get all transitions for the project
   const transitions = await db
@@ -126,7 +126,7 @@ async function calculateTransitionPercentages(
     const currentTotal = sourceEventTotals.get(trans.fromEventIdentityId) || 0;
     sourceEventTotals.set(
       trans.fromEventIdentityId,
-      currentTotal + trans.count
+      currentTotal + trans.count,
     );
   }
 
@@ -149,7 +149,7 @@ async function calculateTransitionPercentages(
  * This is the main entry point for the transition computation
  */
 export async function computeTransitionsForProject(
-  projectId: string
+  projectId: string,
 ): Promise<void> {
   // Fetch all sessions with their events, ordered by timestamp
   const sessions = await db.query.session.findMany({
@@ -207,8 +207,8 @@ export async function computeTransitionsForProject(
         and(
           eq(transition.fromEventIdentityId, agg.fromId),
           eq(transition.toEventIdentityId, agg.toId),
-          eq(transition.projectId, projectId)
-        )
+          eq(transition.projectId, projectId),
+        ),
       )
       .limit(1);
 
@@ -246,7 +246,7 @@ export async function computeTransitionsForProject(
  * Used when new events arrive in real-time
  */
 export async function updateTransitionsForSession(
-  sessionId: string
+  sessionId: string,
 ): Promise<void> {
   // Fetch the session with its events
   const sess = await db.query.session.findFirst({
@@ -296,8 +296,8 @@ export async function updateTransitionsForSession(
         and(
           eq(transition.fromEventIdentityId, agg.fromId),
           eq(transition.toEventIdentityId, agg.toId),
-          eq(transition.projectId, sess.projectId)
-        )
+          eq(transition.projectId, sess.projectId),
+        ),
       )
       .limit(1);
 
@@ -336,7 +336,7 @@ export async function updateTransitionsForSession(
 export async function getTopTransitionsFromEvent(
   projectId: string,
   anchorEventIdentityId: string,
-  topN: number = 5
+  topN: number = 5,
 ): Promise<
   Array<{
     toEvent: {
@@ -360,13 +360,13 @@ export async function getTopTransitionsFromEvent(
     .from(transition)
     .innerJoin(
       eventIdentity,
-      eq(transition.toEventIdentityId, eventIdentity.id)
+      eq(transition.toEventIdentityId, eventIdentity.id),
     )
     .where(
       and(
         eq(transition.projectId, projectId),
-        eq(transition.fromEventIdentityId, anchorEventIdentityId)
-      )
+        eq(transition.fromEventIdentityId, anchorEventIdentityId),
+      ),
     )
     .orderBy(desc(transition.count))
     .limit(topN);
@@ -388,7 +388,7 @@ export async function getTopTransitionsFromEvent(
 export async function getTopTransitionsToEvent(
   projectId: string,
   anchorEventIdentityId: string,
-  topN: number = 5
+  topN: number = 5,
 ): Promise<
   Array<{
     fromEvent: {
@@ -412,13 +412,13 @@ export async function getTopTransitionsToEvent(
     .from(transition)
     .innerJoin(
       eventIdentity,
-      eq(transition.fromEventIdentityId, eventIdentity.id)
+      eq(transition.fromEventIdentityId, eventIdentity.id),
     )
     .where(
       and(
         eq(transition.projectId, projectId),
-        eq(transition.toEventIdentityId, anchorEventIdentityId)
-      )
+        eq(transition.toEventIdentityId, anchorEventIdentityId),
+      ),
     )
     .orderBy(desc(transition.count))
     .limit(topN);

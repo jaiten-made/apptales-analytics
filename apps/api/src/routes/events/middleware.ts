@@ -4,7 +4,10 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../../db/index";
 import { event, session } from "../../db/schema";
-import { signSessionToken, verifySessionToken } from "../../utils/session-jwt";
+import {
+  signSessionToken,
+  verifySessionToken,
+} from "../../utils/SessionJwtUtils";
 
 const { TokenExpiredError } = jwt;
 
@@ -24,7 +27,7 @@ const createAndSetSessionCookie = async (res: Response, projectId: string) => {
       sessionId: newSession.id,
       projectId: newSession.projectId,
     },
-    process.env.JWT_SECRET!
+    process.env.JWT_SECRET!,
   );
 
   res.cookie("sessionToken", token, {
@@ -40,7 +43,7 @@ const createAndSetSessionCookie = async (res: Response, projectId: string) => {
 export const checkSessionExpiry = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // Uncomment for testing purposes
@@ -50,7 +53,7 @@ export const checkSessionExpiry = async (
       const projectId = req.query.projectId as string | undefined;
       if (!projectId)
         throw new Error(
-          "Project ID is required to create a session (from middleware)"
+          "Project ID is required to create a session (from middleware)",
         );
 
       req.body.sessionId = await createAndSetSessionCookie(res, projectId);

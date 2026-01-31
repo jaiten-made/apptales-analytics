@@ -15,7 +15,7 @@ import {
   computeTransitionsForProject,
   getTopTransitionsFromEvent,
   getTopTransitionsToEvent,
-} from "../../services/transition";
+} from "../../services/transition.service";
 
 const router: express.Router = express.Router({
   mergeParams: true,
@@ -91,7 +91,7 @@ router.get(
   async (
     req: AuthRequest,
     res: express.Response,
-    next: express.NextFunction
+    next: express.NextFunction,
   ) => {
     const { projectId } = req.params;
     const { category, limit = "50", search } = req.query;
@@ -118,7 +118,7 @@ router.get(
 
       if (category && typeof category === "string") {
         conditions.push(
-          eq(eventIdentity.category, category as "PAGE_VIEW" | "CLICK")
+          eq(eventIdentity.category, category as "PAGE_VIEW" | "CLICK"),
         );
       }
 
@@ -149,15 +149,15 @@ router.get(
           and(
             inArray(
               event.eventIdentityId,
-              eventIdentities.map((e) => e.id)
+              eventIdentities.map((e) => e.id),
             ),
-            eq(session.projectId, projectId)
-          )
+            eq(session.projectId, projectId),
+          ),
         )
         .groupBy(event.eventIdentityId);
 
       const countMap = new Map(
-        eventCounts.map((ec) => [ec.eventIdentityId, ec.count])
+        eventCounts.map((ec) => [ec.eventIdentityId, ec.count]),
       );
 
       // Step 5: Combine and sort by count
@@ -180,7 +180,7 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // @route  GET /projects/:projectId/transitions
@@ -195,7 +195,7 @@ router.get(
   async (
     req: AuthRequest,
     res: express.Response,
-    next: express.NextFunction
+    next: express.NextFunction,
   ) => {
     const { projectId } = req.params;
     const {
@@ -231,7 +231,7 @@ router.get(
       // Auto-compute if no transitions exist
       if (transitionCount === 0) {
         console.log(
-          `[Transitions] No data found for project ${projectId}, computing...`
+          `[Transitions] No data found for project ${projectId}, computing...`,
         );
         await computeTransitionsForProject(projectId);
       }
@@ -345,8 +345,8 @@ router.get(
                   eq(transition.projectId, projectId),
                   direction === "forward"
                     ? eq(transition.fromEventIdentityId, parentId)
-                    : eq(transition.toEventIdentityId, parentId)
-                )
+                    : eq(transition.toEventIdentityId, parentId),
+                ),
               );
             const totalTransitions = totalTransitionsResult[0]?.count || 0;
 
@@ -370,7 +370,7 @@ router.get(
                 isAggregate: true,
               });
             }
-          })
+          }),
         );
 
         // Choose topN targets for this level by aggregated totalCount
@@ -416,7 +416,7 @@ router.get(
       // Convert node map to array and add counts
       // Fetch actual event counts for each node from the database
       const nodeIds = Array.from(nodeMap.keys()).filter(
-        (id) => !id.includes("-more-")
+        (id) => !id.includes("-more-"),
       );
 
       const eventCounts = await db
@@ -429,8 +429,8 @@ router.get(
         .where(
           and(
             inArray(event.eventIdentityId, nodeIds),
-            eq(session.projectId, projectId)
-          )
+            eq(session.projectId, projectId),
+          ),
         )
         .groupBy(event.eventIdentityId);
 
@@ -476,7 +476,7 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // @route  POST /projects/:projectId/transitions/compute
@@ -487,7 +487,7 @@ router.post(
   async (
     req: AuthRequest,
     res: express.Response,
-    next: express.NextFunction
+    next: express.NextFunction,
   ) => {
     const { projectId } = req.params;
 
@@ -501,7 +501,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 export default router;

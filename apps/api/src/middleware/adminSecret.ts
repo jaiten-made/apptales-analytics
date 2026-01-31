@@ -7,7 +7,7 @@ const bufferFromSecret = (secret: string): Buffer => Buffer.from(secret);
 export const requireAdminSecret = (
   req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void => {
   const configuredSecret = process.env.PROVISIONING_ADMIN_PASSWORD;
   if (!configuredSecret) {

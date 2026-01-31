@@ -21,14 +21,14 @@ import {
   dashboardRateLimitMiddleware,
   trackingRateLimitMiddleware,
 } from "./middleware/security";
-import authMagicLinkRouter from "./routes/AuthRoute/MagicLink/router";
-import authRouter from "./routes/AuthRoute/router";
-import authSessionRouter from "./routes/AuthRoute/Session/router";
-import eventsRouter from "./routes/EventsRoute/router";
-import projectRouter from "./routes/ProjectRoute/router";
-import projectsRouter from "./routes/ProjectsRoute/router";
-import provisioningRouter from "./routes/ProvisioningRoute/router";
-import sessionsRouter from "./routes/SessionsRoute/router";
+import authRouter from "./routes/auth/auth.router";
+import authMagicLinkRouter from "./routes/auth/magic-link/magic-link.router";
+import authSessionRouter from "./routes/auth/session/session.router";
+import eventsRouter from "./routes/events/events.router";
+import projectRouter from "./routes/project/project.router";
+import projectsRouter from "./routes/projects/projects.router";
+import provisioningRouter from "./routes/provisioning/provisioning.router";
+import sessionsRouter from "./routes/sessions/sessions.router";
 
 const { TokenExpiredError } = jwt;
 
@@ -36,7 +36,7 @@ const { TokenExpiredError } = jwt;
 dotenv.config({
   path: path.resolve(
     process.cwd(),
-    `.env.${process.env.NODE_ENV || "development"}`
+    `.env.${process.env.NODE_ENV || "development"}`,
   ),
 });
 
@@ -50,7 +50,7 @@ app.use(cookieParser());
 const mountWithRateLimit = (
   route: string,
   middleware: RequestHandler,
-  router: express.Router
+  router: express.Router,
 ): void => {
   if (process.env.NODE_ENV === "production") {
     app.use(route, middleware, router);
@@ -72,24 +72,24 @@ mountWithRateLimit("/projects", dashboardRateLimitMiddleware, projectsRouter);
 mountWithRateLimit(
   "/projects/:projectId",
   dashboardRateLimitMiddleware,
-  projectRouter
+  projectRouter,
 );
 mountWithRateLimit(
   "/admin/provision",
   dashboardRateLimitMiddleware,
-  provisioningRouter
+  provisioningRouter,
 );
 
 // Auth routes with tiered rate limiting
 mountWithRateLimit(
   "/auth/magic-link",
   authMagicLinkRateLimitMiddleware,
-  authMagicLinkRouter
+  authMagicLinkRouter,
 );
 mountWithRateLimit(
   "/auth/session",
   authSessionRateLimitMiddleware,
-  authSessionRouter
+  authSessionRouter,
 );
 mountWithRateLimit("/auth", authRateLimitMiddleware, authRouter);
 

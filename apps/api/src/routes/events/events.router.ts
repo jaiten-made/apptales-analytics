@@ -6,9 +6,9 @@ import { event, eventIdentity, project, session } from "../../db/schema";
 import HttpError from "../../errors/HttpError";
 import { AuthRequest, requireAuth } from "../../middleware/auth";
 import { validateEventPayload } from "../../middleware/validation/validateEvent";
-import { updateTransitionsForSession } from "../../services/transition";
-import { sanitizeProperties } from "../../utils/EventPropertyUtils";
-import { getEventCategory } from "../../utils/EventUtils";
+import { updateTransitionsForSession } from "../../services/transition.service";
+import { sanitizeProperties } from "../../utils/event-property.util";
+import { getEventCategory } from "../../utils/event.util";
 import { checkSessionExpiry } from "./middleware";
 
 const router: express.Router = express.Router();
@@ -121,7 +121,7 @@ router.post(
         // Log but don't fail the event creation if transition update fails
         console.error(
           `[Events] Failed to update transitions for session ${req.body.sessionId}:`,
-          error
+          error,
         );
       }
 
@@ -129,7 +129,7 @@ router.post(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 export default router;

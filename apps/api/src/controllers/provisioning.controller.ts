@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { db } from "../db/index";
 import { customer, project } from "../db/schema";
 import HttpError from "../errors/HttpError";
-import { sendEmail } from "../services/email";
+import { sendEmail } from "../services/email.service";
 
 const buildMagicLink = (req: Request, email: string): string => {
   const secret = process.env.JWT_SECRET;
@@ -18,7 +18,7 @@ const buildMagicLink = (req: Request, email: string): string => {
 
 const buildTrackerSnippet = (
   trackerBaseUrl: string,
-  projectId: string
+  projectId: string,
 ): string =>
   `<script src="${trackerBaseUrl}/tracker.js" data-id="${projectId}"></script>`;
 
@@ -28,7 +28,7 @@ const escapeSnippet = (snippet: string): string =>
 const buildEmailBody = (
   organizationName: string,
   trackerSnippet: string,
-  magicLink: string
+  magicLink: string,
 ): string => {
   const escapedSnippet = escapeSnippet(trackerSnippet);
   return `
@@ -44,7 +44,7 @@ const buildEmailBody = (
 export const provisionClient = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const parsedBody = ProvisioningRequestSchema.parse(req.body);
@@ -91,13 +91,13 @@ export const provisionClient = async (
     const magicLink = buildMagicLink(req, customerRecord.email);
     const trackerSnippet = buildTrackerSnippet(
       trackerBaseUrl,
-      projectRecord.id
+      projectRecord.id,
     );
 
     const emailBody = buildEmailBody(
       organizationName,
       trackerSnippet,
-      magicLink
+      magicLink,
     );
 
     await sendEmail({

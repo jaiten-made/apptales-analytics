@@ -6,7 +6,7 @@ import { z } from "zod";
 import { db } from "../../../db/index";
 import { customer } from "../../../db/schema";
 import HttpError from "../../../errors/HttpError";
-import { sendEmail } from "../../../services/email";
+import { sendEmail } from "../../../services/email.service";
 
 const router: express.Router = express.Router();
 
