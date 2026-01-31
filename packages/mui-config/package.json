@@ -1,0 +1,18 @@
+{
+  "name": "@apptales/mui-config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup"
+  },
+  "peerDependencies": {
+    "@mui/material": "^5.16.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "typescript": "^5.6.3"
+  }
+}
